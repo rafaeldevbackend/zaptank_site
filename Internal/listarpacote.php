@@ -1,0 +1,177 @@
+<?php
+
+if (session_status() !== PHP_SESSION_ACTIVE)
+{
+    session_start(['cookie_lifetime' => 2592000, 'cookie_secure' => true, 'cookie_httponly' => true]);
+}
+
+$UserName = $_SESSION['UserName'] ?? 0;
+
+if (empty($UserName) || $UserName == 0)
+{
+    session_destroy();
+    header("Location: /");
+    exit();
+}
+
+if (!empty($_GET['server']))
+{
+    $i = $_GET['server'];
+    $DecryptServer = $Ddtank->DecryptText($KeyPublicCrypt, $KeyPrivateCrypt, $i);
+    $query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List WHERE ID = '$DecryptServer'");
+    $result = $query->fetchAll();
+    foreach ($result as $infoBase)
+    {
+        $ID = $infoBase['ID'];
+        $BaseUser = $infoBase['BaseUser'];
+		$BaseTank = $infoBase['BaseTank'];
+    }
+}
+else
+{
+    header("Location: selectserver");
+    $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Não foi possível encontrar o servidor.</div>";
+    exit();
+}
+
+if (empty($ID) || empty($BaseUser))
+{
+    header("Location: selectserver");
+    exit();
+}
+
+$query = $Connect->query("SELECT COUNT(*) AS UserName FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
+$result = $query->fetchAll();
+foreach ($result as $infoBase)
+{
+    $CountUser = $infoBase['UserName'];
+}
+
+if ($CountUser == 0)
+{
+    header("Location: /selectserver?nvic=new&sid=$i");
+    exit();
+}
+
+$query = $Connect->query("SELECT IsFirstCharge FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$UserName'");
+$result = $query->fetchAll();
+foreach ($result as $infoBase)
+{
+    $IsFirstCharge = $infoBase['IsFirstCharge'];
+}
+
+$query = $Connect->query("SELECT NickName FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
+$result = $query->fetchAll();
+foreach ($result as $infoBase)
+{
+    $NickName = $infoBase['NickName'];
+}
+
+if (isset($_POST['buyVip']))
+{
+    $name = addslashes($_POST['name']);
+    $number = addslashes($_POST['number']);
+    $email = addslashes($_POST['email']);
+	$selval = addslashes($_POST['selval']);
+    $Pacotes->newInvoice($Connect, $BaseServer, $name = $name, $number = $number, $email = $email, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, $selval);
+}
+
+?>
+<style type="text/css">.div-only-mobile{display:none}@media screen and (max-width:1001px){.div-no-mobile{display:none}.div-only-mobile{display:block}}.inv {display: none;}</style>
+<div class="card-body row">
+<span class="login100-form-title p-b-30">
+Você está comprando para a conta: <b style="color:orange!important;"><?php echo $NickName ?></b>
+</span>
+<div class="col-sm mb-3 mb-sm-0">
+   <div class="card h-100">
+      <div class="card-body">
+         <h4 class="step-title">Já é quase seu!</h4>
+         <span onClick="checkrules()" class="badge badge-pill badge-danger">Regras da Plataforma</span>
+         <br>
+         </br>
+		 <div id="1" class="inv">
+         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 1); ?>
+		 </div>
+		 <div id="2" class="inv">
+         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 2); ?>
+		 </div>
+		 <div id="3" class="inv">
+         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 3); ?>
+		 </div>
+		 <div id="4" class="inv">
+         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 4); ?>
+		 </div>
+		 <div id="5" class="inv">
+         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 5); ?>
+		 </div>
+		 <div id="6" class="inv">
+         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 6); ?>
+		 </div>
+		 <div id="7" class="inv">
+         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 7); ?>
+		 </div>
+		 <div id="8" class="inv">
+         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 8); ?>
+		 </div>
+		 <div id="9" class="inv">
+         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 9); ?>
+		 </div>
+		 <div id="10" class="vis">
+         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 10); ?>
+		 </div>
+      </div>
+      <div class="card-body-stretched"><a class="btn btn-block btn-primary" href="/serverlist?suv=<?php echo $i ?>">Voltar</a></div>
+   </div>
+</div>
+<div class="card col-sm mb-3 mb-sm-0">
+   <form method="post">
+      <div class="card-body">
+         <div class="form-group">
+            <input name="name" id="form3Address" type="text" class="form-control" placeholder="Qual o seu nome real ?" maxlength="25" required autofocus>
+         </div>
+         <div class="form-group">
+            <input name="number" id="form3PostalCode" type="text" data-mask="(+55) 00 90000-0000" class="form-control" placeholder="Qual seu número de telefone ?" value="<?php if (!empty($_SESSION['Telefone'])){echo preg_replace('/[^0-9]/', '', $_SESSION['Telefone']);} ?>" minlength="16" min="16" autocomplete="off" maxlength="16" required>
+         </div>
+         <div class="form-group">
+            <input name="email" id="form3PostalCode" type="email" class="form-control" placeholder="Qual seu e-mail para contato" value="<?php if(isset($_SESSION['UserName'])){echo $_SESSION['UserName'];} ?>" required>
+         </div>
+         <select id="target" name="selval" class="form-control">
+		 <?php		 
+		 $query = $Connect->query("SELECT * FROM $BaseServer.dbo.Vip_List WHERE ServerID = '1'");
+         $result = $query->fetchAll();
+         foreach ($result as $infoBase)
+         {
+			$ID = $infoBase['ID'];
+			$Price = $infoBase['ValuePrice'];
+			if ($ID == '10')
+			   echo '<option value="' . $ID . '" selected>Pacote Cupons ' . $ID . ' - ' . $Price . ' BRL</option>';
+		    else
+				echo '<option value="' . $ID . '">Pacote Cupons ' . $ID . ' - ' . $Price . ' BRL</option>';
+         }		 
+		 ?>
+         </select>
+         <div class="error">
+            <?php
+               if(isset($_SESSION['alert_listarpacote'])){
+               	echo $_SESSION['alert_listarpacote'];
+               	unset($_SESSION['alert_listarpacote']);
+               }
+			   if ($IsFirstCharge == 1)
+			   {
+				   echo '<div class="alert alert-success" role="alert">Parabéns essa é sua primeira recarga, um bônus de boas vindas será aplicado em sua compra se ela for concluída com sucesso.</div>';
+			   }
+               ?>
+         </div>
+         <button class="btn btn-primary btn-sm shiny" style="width:98%;float:left;margin-left:5px;font-size:15px;" type="submit" name="buyVip">Continuar</button>
+		 <div class="p-t-40"></div>
+      </div>
+</div>
+</div>
+<div class="alert text-center hidemobile" role="alert">
+<img class="align-space" src="assets/selo-google-site-seguro.png" alt="GOOGLE SITE SEGURO" width="130" height="46"> <img class="align-space" src="assets/pix.svg" alt="PAGAR COM PIX" width="130" height="46">  <img class="align-space" src="assets/picpay.png" alt="PAGAR COM PICPAY" width="130" height="46">
+</div>
+</form>
+<script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
+<script language="javascript"> function checkrules(){location.assign("/rules");}</script>
+<script type="text/javascript">document .getElementById('target') .addEventListener('change', function (){'use strict'; var vis=document.querySelector('.vis'), target=document.getElementById(this.value); if (vis !==null){vis.className='inv';}if (target !==null ){target.className='vis';}});</script>
+<script async src="./assets/jquery.mask.min.js"></script>

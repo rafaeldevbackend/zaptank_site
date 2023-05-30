@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="https://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xsi="https://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://www.sitemaps.org/schemas/sitemap/0.9 https://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+<url>
+  <loc>https://redezaptank.com.br/</loc>
+  <lastmod>2022-07-20T03:46:18+00:00</lastmod>
+  <priority>1.00</priority>
+</url>
+<url>
+  <loc>https://redezaptank.com.br/selectwhats</loc>
+  <lastmod>2022-07-20T03:46:18+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+<url>
+  <loc>https://redezaptank.com.br/cadastro</loc>
+  <lastmod>2022-07-20T03:46:18+00:00</lastmod>
+  <priority>0.80</priority>
+</url>
+<url>
+  <loc>https://redezaptank.com.br/download</loc>
+  <lastmod>2022-07-20T02:00:42+00:00</lastmod>
+  <priority>0.90</priority>
+</url>
+<url>
+  <loc>https://redezaptank.com.br/forgetpass</loc>
+  <lastmod>2022-07-20T03:46:18+00:00</lastmod>
+  <priority>0.64</priority>
+</url>
+</urlset>
