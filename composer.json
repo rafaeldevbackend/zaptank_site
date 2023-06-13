@@ -1,0 +1,14 @@
+{
+    "name": "zaptank/site",
+    "autoload": {
+        "psr-4": {
+            "Zaptank\\Site\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Rafael Rodrigues Alves Teixeira",
+            "email": "rafaelrat2019@gmail.com"
+        }
+    ]
+}
