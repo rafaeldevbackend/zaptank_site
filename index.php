@@ -1,7 +1,16 @@
 <?php
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 include 'globalconn.php';
 include 'getconnect.php';
 include 'loadautoloader.php';
+
+use Zaptank\Site\Auth;
+
+include './vendor/autoload.php';
 
 $Connect = Connect::getConnection();
 
@@ -11,8 +20,8 @@ $Dados->CheckConnect($Connect);
 
 if (isset($_POST['立即登入']) && isset($_POST['email']) && isset($_POST['password']))
 {
-    $Login = new Entrar();
-    $Login->LoginSystem($Connect, $BaseServer, $app = 'DanDanTang', $u = strtolower(addslashes($_POST['email'])) , $p = strtoupper(md5($_POST['password'])));
+	$auth = new Auth;
+	$auth->login(strtolower(addslashes($_POST['email'])), strtoupper(md5($_POST['password'])));
 }
 
 if (!empty($_GET['page'])) switch ($_GET['page'])
