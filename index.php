@@ -1,28 +1,10 @@
 <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
 include 'globalconn.php';
-include 'getconnect.php';
 include 'loadautoloader.php';
 
-use Zaptank\Site\Auth;
-
-include './vendor/autoload.php';
-
-$Connect = Connect::getConnection();
-
 $Dados = new Conectado();
-$Dados->StartSession($Connect);
-$Dados->CheckConnect($Connect);
-
-if (isset($_POST['立即登入']) && isset($_POST['email']) && isset($_POST['password']))
-{
-	$auth = new Auth;
-	$auth->login(strtolower(addslashes($_POST['email'])), strtoupper(md5($_POST['password'])));
-}
+$Dados->StartSession();
 
 if (!empty($_GET['page'])) switch ($_GET['page'])
 {
@@ -35,7 +17,6 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LoggerZapTank')){header("Location: /dis
 if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_USER_AGENT'] != 'Mozilla/5.0 (Windows NT 6.1; Win86; x86; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chromium/106.0.0.0 Safari/537.36 LauncherZapTank/108'){header("Location: /discontinued");}}
 
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-BR">
    <head>
@@ -51,35 +32,22 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                 <form class="login100-form validate-form p-t-20" method="POST" id="frmLogin" autocomplete="off">
                   <span class="login100-form-title p-b-25">CONECTE-SE</span>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="Digite um e-mail válido">
-                     <input class="input100" type="email" name="email" id="login_email" placeholder="E-mail" autocapitalize="none" autofocus>
+                     <input class="input100" type="email" name="email" id="login_email" placeholder="E-mail" value="rafaelrat2019@gmail.com" autocapitalize="none" autofocus>
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-envelope"></span>
                      </span>
                   </div>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo da senha é obrigatório">
-                     <input class="input100" name="password" type="password" id="login_password" placeholder="Senha">
+                     <input class="input100" name="password" type="password" id="login_password" placeholder="Senha" value="123456">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-lock"></span>
 
                   </div>
 				  <a class="input-label-secondary" href="forgetpass">Esqueceu seus dados de acesso?</a>
-				  <div class="error">
-                  <?php
-					if(isset($_SESSION['msg'])){
-						echo $_SESSION['msg'];
-						unset($_SESSION['msg']);
-					}
-				    ?>
-					<?php
-					if(isset($_SESSION['alert'])){
-						echo $_SESSION['alert'];
-						unset($_SESSION['alert']);
-					}
-				    ?>
-                  </div>
-				  <button name="立即登入" class="login100-form-btn shiny">CONECTE-SE</button>
+				  <div class="error" id="error"></div>
+				  <button name="立即登入" class="login100-form-btn shiny" id="login-button">CONECTE-SE</button>
                   <div class="text-center w-full p-t-20">
                      <a class="input-label-secondary" href="cadastro">Crie sua conta no DDTank</a>
                   </div>
@@ -89,8 +57,87 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
             </div>
          </div>
       </div>
-	  <footer class="fixed-bottom"><div class="p-0 text-center text-white footer">ZapTank Games Technology Co. Ltd - © 2019 - <?php echo date('Y') ?> Todos os direitos reservados.</div></footer>
-	  <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
+	   <footer class="fixed-bottom"><div class="p-0 text-center text-white footer">ZapTank Games Technology Co. Ltd - © 2019 - <?php echo date('Y') ?> Todos os direitos reservados.</div></footer>
+	   <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
+      <script type="text/javascript">
+	  
+		api_url = 'http://localhost:8080/zaptank_api';
+	  
+		var error_div = document.getElementById('error');
+	  
+         document.getElementById('login-button').addEventListener('click', function(event) {
+           
+            event.preventDefault();
+            
+            var email = document.getElementById('login_email').value;
+            var password = document.getElementById('login_password').value;
+
+            if(email.trim() != '' && password.trim() != '') {
+
+               var url = `${api_url}/auth/login`;
+
+               var params = `email=${email}&password=${password}`;
+
+               var xhr = new XMLHttpRequest();
+
+               xhr.open("POST", url, true);
+               xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+               xhr.setRequestHeader("Content-type", "application/json");
+
+               xhr.onreadystatechange = function() {
+                  if (xhr.readyState === 4) {
+                     if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if(response.success == true) {
+							var csrf = 123456;
+							document.cookie = 'csrf_token=' + csrf; 							
+							saveSession(response.data, csrf);
+                        } else {
+							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+                        }                        
+                     } else {
+                        console.log("Erro na solicitação. Código do status: " + xhr.status);
+                     }
+                  }
+               };
+
+               xhr.send(params);
+            }
+         });
+		 
+         function saveSession(data, csrf_token) {
+
+            var url = './save_session.php';
+            var params = `user_id=${data.userId}&email=${data.email}&password=${data.password}&phone=${encodeURIComponent(data.phone)}&csrf_token=${csrf_token}&token=${data.token}`;
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.setRequestHeader("Content-type", "application/json");
+
+            xhr.onreadystatechange = function() {
+               if(xhr.readyState === 4) {
+                  if(xhr.status === 200) {
+                     var response = JSON.parse(xhr.responseText);
+					 if(response.success == true) {						 
+						 error_div.innerHTML = '<div class="alert alert-success ocult-time">Login bem-sucedido, você será redirecionado em breve...</div>';
+						 setTimeout(function(){
+							window.location.href = "/selectserver";
+						 }, 1500);						
+					 } else {
+						 error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Houve um erro interno</div>`;
+						 console.log('csrf_token é inválido.');
+					 }                     
+                  } else {
+                     console.log("Erro na solicitação. Código do status: " + xhr.status);
+                  }
+               }
+            };
+
+            xhr.send(params);	
+         }		 
+      </script>
    </body>
 </html>
