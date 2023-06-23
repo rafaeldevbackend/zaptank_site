@@ -8,10 +8,10 @@ if(isset($_COOKIE['csrf_token']) && $_POST['csrf_token'] == $_COOKIE['csrf_token
 		$name = 'jwt_hash', 
 		$value = $_POST['jwt_hash'], 
 		$expires = time() + (60*60*24*30), 
-		$path = '/', 
+		$path = '/'/*, 
 		$domain = 'http://localhost', 
 		$secure = true, 
-		$httponly = true
+		$httponly = true*/
 	);
 	$_SESSION['UserId'] = $_POST['user_id'];
 	$_SESSION['UserName'] = $_POST['email'];
