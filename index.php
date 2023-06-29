@@ -57,12 +57,11 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
             </div>
          </div>
       </div>
-	   <footer class="fixed-bottom"><div class="p-0 text-center text-white footer">ZapTank Games Technology Co. Ltd - © 2019 - <?php echo date('Y') ?> Todos os direitos reservados.</div></footer>
-	   <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
+	  <footer class="fixed-bottom"><div class="p-0 text-center text-white footer">ZapTank Games Technology Co. Ltd - © 2019 - <?php echo date('Y') ?> Todos os direitos reservados.</div></footer>
+	  <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
+	  <script type="text/javascript" src="./assets/config.js"></script>
       <script type="text/javascript">
-	  
-		api_url = 'http://localhost:8080/zaptank_api';
 	  
 		var error_div = document.getElementById('error');
 	  

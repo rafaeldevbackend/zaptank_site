@@ -1,8 +1,8 @@
 <?php
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+// ini_set('display_errors', 1);
+// ini_set('display_startup_errors', 1);
+// error_reporting(E_ALL);
 
 include 'globalconn.php';
 include 'getconnect.php';
@@ -82,7 +82,9 @@ if (isset($_POST['现在注册']))
         }
         else
         {	
-		    $infoBase = $account->register($email, $password, $phone, $_SESSION[ReferenceLocation]);
+			// $_SESSION[ReferenceLocation]
+	
+		    $infoBase = $account->register($email, $password, $phone, 'Other');
 				
 			if(!empty($infoBase)) {
 				
@@ -139,6 +141,8 @@ $min_number = 1;
 $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
 $random_number2 = mt_rand($min_number, $max_number);
+$totalCaptcha = $random_number1 + $random_number2;
+setcookie('captchaResult', $totalCaptcha);
 
 if (strstr($_SERVER['HTTP_USER_AGENT'], 'LoggerZapTank')){header("Location: /discontinued");}
 if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_USER_AGENT'] != 'Mozilla/5.0 (Windows NT 6.1; Win86; x86; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chromium/106.0.0.0 Safari/537.36 LauncherZapTank/108'){header("Location: /discontinued");}}
@@ -177,21 +181,21 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                      </span>
                   </div>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo da senha é obrigatório">
-                     <input class="input100" type="password" name="password" placeholder="Senha">
+                     <input class="input100" type="password" id="password" name="password" placeholder="Senha">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-lock"></span>
                      </span>
                   </div>
 				  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo de telefone é obrigatório">
-                     <input class="input100" type="text" name="phone" data-mask="(+55) 00 90000-0000" placeholder="Qual seu número de celular ?" minlength="16" min="16" autocomplete="off" maxlength="16">
+                     <input class="input100" type="text" id="phone" name="phone" data-mask="(+55) 00 90000-0000" placeholder="Qual seu número de celular ?" minlength="16" min="16" autocomplete="off" maxlength="16">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-phone-handset"></span>
                      </span>
                   </div>
 				  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do código é obrigatório">
-                     <input class="input100" type="text" name="captchaResult" size="2" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
+                     <input class="input100" type="text" id="captchaResult" name="captchaResult" size="2" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
 					 <input name="coderandom1" type="hidden" value="<?php echo $random_number1; ?>" />
                      <input name="coderandom2" type="hidden" value="<?php echo $random_number2; ?>" />
                      <span class="focus-input100"></span>
@@ -199,15 +203,8 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                      <span class="lnr lnr-sync"></span>
                      </span>
                   </div>
-                  <div class="error">
-                     <?php
-                        if(isset($_SESSION['alert_cadastro'])){
-                        	echo $_SESSION['alert_cadastro'];
-                        	unset($_SESSION['alert_cadastro']);
-                        }
-                        ?>
-                  </div>
-                  <button class="login100-form-btn shiny" name="现在注册">
+                  <div class="error" id="error"></div>
+                  <button class="login100-form-btn shiny" name="现在注册" id="btn-register">
                   CRIAR CONTA
                   </button>
                   <div class="text-center w-full p-t-20">
@@ -227,5 +224,93 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
 	  <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
       <script async src="./assets/jquery.mask.min.js"></script>
+	  <script type="text/javascript" src="./assets/utils/cookie.js"></script>,
+	  <script type="text/javascript" src="./assets/config.js"></script>
+	  <script type="text/javascript">
+		
+		error_div = document.getElementById('error');
+	  
+		document.getElementById('btn-register').addEventListener('click', function(event){
+			
+			event.preventDefault();
+			
+			var email = document.getElementById('first').value.trim();
+			var password = document.getElementById('password').value.trim();
+			var phone = document.getElementById('phone').value.trim();
+			var captcha = document.getElementById('captchaResult').value.trim();
+			var r_email = document.getElementById('n_copy').value.trim();
+			
+			if(email == '' || password == '' || phone == '' || captcha == '' || r_email == '') {
+				alert('todos os campos devem ser preenchidos.');
+			} else if(email != r_email) {
+				alert('o email de confirmação é diferente');
+			} else if(phone.length < 19) {
+				alert('O telefone deve ter no mínimo 19 digitos.')
+			} else if(captcha != getCookie('captchaResult')) {
+				alert('resposta captcha incorreta.');
+			} else {
+				var url = `${api_url}/account/new`;
+				var params = `email=${email}&password=${password}&phone=${phone}&ReferenceLocation=Other`;
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				
+				xhr.onreadystatechange = function() {
+                  if (xhr.readyState === 4) {
+                     if (xhr.status === 200) {
+                        var response = JSON.parse(xhr.responseText);
+                        if(response.success == true) {
+							var csrf = 123456;
+							document.cookie = 'csrf_token=' + csrf;
+							saveSession(response.data, csrf);
+						} else {
+							error_div.innerHTML = `<div class="alert alert-danger ocult-time">${response.message}</div>`;
+						}					              
+                     } else {
+                        console.log("Erro na solicitação. Código do status: " + xhr.status);
+                     }
+                  }
+				};				
+				
+				xhr.send(params);
+			}
+		});
+		
+		function saveSession(data, csrf_token) {
+
+            var url = './save_session.php';
+            var params = `user_id=${data.userId}&email=${data.email}&password=${data.password}&phone=${encodeURIComponent(data.phone)}&csrf_token=${csrf_token}&jwt_hash=${data.jwt_hash}`;
+
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('POST', url, true);
+            xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+            xhr.setRequestHeader("Content-type", "application/json");
+
+            xhr.onreadystatechange = function() {
+               if(xhr.readyState === 4) {
+                  if(xhr.status === 200) {
+                     var response = JSON.parse(xhr.responseText);
+					 if(response.success == true) {						 
+						 error_div.innerHTML = '<div class="alert alert-success ocult-time">Sua conta foi criada com sucesso, porém seu e-mail não foi enviado, estamos com uma demanda de e-mails acima do normal.</div>';
+						 setTimeout(function(){
+							window.location.href = "/selectserver";
+						 }, 1500);						
+					 } else {
+						 error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Houve um erro interno</div>`;
+						 console.log('csrf_token é inválido.');
+					 }                     
+                  } else {
+                     console.log("Erro na solicitação. Código do status: " + xhr.status);
+                  }
+               }
+            };
+
+            xhr.send(params);	
+         }		 		
+	  </script>
    </body>
 </html>
