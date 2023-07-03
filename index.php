@@ -108,7 +108,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
          function saveSession(data, csrf_token) {
 
             var url = './save_session.php';
-            var params = `user_id=${data.userId}&email=${data.email}&password=${data.password}&phone=${encodeURIComponent(data.phone)}&csrf_token=${csrf_token}&jwt_hash=${data.jwt_hash}`;
+            var params = `user_id=${data.userId}&email=${data.email}&password=${data.password}&phone=${encodeURIComponent(data.phone)}&csrf_token=${csrf_token}&jwt_authentication_hash=${data.jwt_authentication_hash}`;
 
             var xhr = new XMLHttpRequest();
 
