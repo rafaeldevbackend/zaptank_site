@@ -89,9 +89,17 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                      if (xhr.status === 200) {
                         var response = JSON.parse(xhr.responseText);
                         if(response.success == true) {
+							
 							var csrf = 123456;
+							
 							document.cookie = 'csrf_token=' + csrf; 							
 							saveSession(response.data, csrf);
+							
+							error_div.innerHTML = '<div class="alert alert-success ocult-time">Login bem-sucedido, você será redirecionado em breve...</div>';
+							
+							setTimeout(function(){
+								window.location.href = "/selectserver";
+							}, 1500);							
                         } else {
 							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
                         }                        
@@ -120,12 +128,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                if(xhr.readyState === 4) {
                   if(xhr.status === 200) {
                      var response = JSON.parse(xhr.responseText);
-					 if(response.success == true) {						 
-						 error_div.innerHTML = '<div class="alert alert-success ocult-time">Login bem-sucedido, você será redirecionado em breve...</div>';
-						 setTimeout(function(){
-							window.location.href = "/selectserver";
-						 }, 1500);						
-					 } else {
+					 if(response.success == false) {
 						 error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Houve um erro interno</div>`;
 						 console.log('csrf_token é inválido.');
 					 }                     
