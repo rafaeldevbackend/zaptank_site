@@ -108,13 +108,13 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
 			var r_email = document.getElementById('n_copy').value.trim();
 			
 			if(email == '' || password == '' || phone == '' || captcha == '' || r_email == '') {
-				alert('todos os campos devem ser preenchidos.');
+            error_div.innerHTML = '<div class="alert alert-danger ocult-time">todos os campos devem ser preenchidos.</div>';
 			} else if(email != r_email) {
-				alert('o email de confirmação é diferente');
+            error_div.innerHTML = '<div class="alert alert-danger ocult-time">o email de confirmação é diferente.</div>';
 			} else if(phone.length < 19) {
-				alert('O telefone deve ter no mínimo 19 digitos.')
+            error_div.innerHTML = '<div class="alert alert-danger ocult-time">O telefone deve ter no mínimo 19 digitos.</div>';
 			} else if(captcha != getCookie('captchaResult')) {
-				alert('resposta captcha incorreta.');
+            error_div.innerHTML = '<div class="alert alert-danger ocult-time">resposta captcha incorreta.</div>';
 			} else {
 				var url = `${api_url}/account/new`;
 				var params = `email=${email}&password=${password}&phone=${phone}&ReferenceLocation=Other`;
@@ -126,33 +126,31 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
 				xhr.setRequestHeader('Content-type', 'application/json');
 				
 				xhr.onreadystatechange = function() {
-                  if (xhr.readyState === 4) {
-                     if (xhr.status === 200) {
-                        var response = JSON.parse(xhr.responseText);
-						
-                        if(response.success == true) {
-							
-							var csrf = 123456;
-							
-							document.cookie = 'csrf_token=' + csrf;
-							saveSession(response.data, csrf);
-							
-							if(response.email_sent == true) {
-								error_div.innerHTML = '<div class="alert alert-success ocult-time">Parabéns, você criou sua conta com sucesso! para entrar no jogo você precisará verificar seu e-mail.</div>';
-							} else {
-								error_div.innerHTML = '<div class="alert alert-success ocult-time">Sua conta foi criada com sucesso, porém seu e-mail não foi enviado, estamos com uma demanda de e-mails acima do normal.</div>';
-							}
-							
-							setTimeout(function(){
-								window.location.href = "/selectserver";
-							}, 1500);							
-						} else {
-							error_div.innerHTML = `<div class="alert alert-danger ocult-time">${response.message}</div>`;
-						}					              
+               if (xhr.readyState === 4) {
+                  if (xhr.status === 200) {
+                     var response = JSON.parse(xhr.responseText);
+                     if(response.success == true) {
+                        
+                        var csrf = 123456;
+                        document.cookie = 'csrf_token=' + csrf;
+                        saveSession(response.data, csrf);
+                        
+                        if(response.email_sent == true) {
+                           error_div.innerHTML = '<div class="alert alert-success ocult-time">Parabéns, você criou sua conta com sucesso! para entrar no jogo você precisará verificar seu e-mail.</div>';
+                        } else {
+                           error_div.innerHTML = '<div class="alert alert-success ocult-time">Sua conta foi criada com sucesso, porém seu e-mail não foi enviado, estamos com uma demanda de e-mails acima do normal.</div>';
+                        }
+                        
+                        setTimeout(function(){
+                           window.location.href = "/selectserver";
+                        }, 1500);							
                      } else {
-                        console.log("Erro na solicitação. Código do status: " + xhr.status);
-                     }
+                        error_div.innerHTML = `<div class="alert alert-danger ocult-time">${response.message}</div>`;
+                     }					              
+                  } else {
+                     console.log("Erro na solicitação. Código do status: " + xhr.status);
                   }
+               }
 				};				
 				
 				xhr.send(params);
@@ -174,10 +172,10 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                if(xhr.readyState === 4) {
                   if(xhr.status === 200) {
                      var response = JSON.parse(xhr.responseText);
-					 if(response.success == false) {
-						 error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Houve um erro interno</div>`;
-						 console.log('csrf_token é inválido.');
-					 }                     
+                     if(response.success == false) {
+                        error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Houve um erro interno</div>`;
+                        console.log('csrf_token é inválido.');
+                     }                     
                   } else {
                      console.log("Erro na solicitação. Código do status: " + xhr.status);
                   }
