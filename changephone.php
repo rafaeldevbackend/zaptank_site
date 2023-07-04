@@ -114,6 +114,7 @@ $random_number2 = mt_rand($min_number, $max_number);
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
       <script async src="./assets/jquery.mask.min.js"></script>
+	  <script type="text/javascript" src="./assets/config.js"></script>
 	  <script type="text/javascript">
 		document.getElementById('btnConfirmChange').addEventListener('click', function(event){
 			event.preventDefault();
@@ -123,8 +124,29 @@ $random_number2 = mt_rand($min_number, $max_number);
 				alert('Você não preencheu todos os campos...');
 			} else if(phone.lenght < 19) {
 				alert('Por favor, preencha o número de telefone corretamente.');
-			else {
-				alert('Alterar telefone.');
+			} else {
+				var url = `${api_url}/account/phone/change`;
+				var params = `phone=${phone}`;
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				xhr.setRequestHeader('Authorization', 'Bearer 1234567890');
+				
+				xhr.onreadystatechange = function() {
+					if(xhr.readyState == 4) {
+						if(xhr.status == 200) {
+							var response = JSON.parse(xhr.responseText);
+							console.log(response);
+						} else {
+							console.log("Erro na solicitação. Código do status: " + xhr.status);
+						}
+					}
+				};
+				
+				xhr.send(params);
 			}
 		});
 	  </script>
