@@ -99,15 +99,8 @@ $random_number2 = mt_rand($min_number, $max_number);
                      <span class="lnr lnr-phone-handset"></span>
                      </span>
                   </div>
-				  <div class="error">
-                      <?php
-					if(isset($_SESSION['alert_telefone'])){
-						echo $_SESSION['alert_telefone'];
-						unset($_SESSION['alert_telefone']);
-					}
-				  ?>
-                  </div>
-				  <button name="execute" class="login100-form-btn shinyfont" type="submit">CONFIRMAR</button>
+				  <div class="error" id="error"></div>
+				  <button id="btnConfirmChange" class="login100-form-btn shinyfont" type="submit">CONFIRMAR</button>
                   <div class="error">
                      <p id="login_error"></p>
                   </div>
@@ -121,5 +114,19 @@ $random_number2 = mt_rand($min_number, $max_number);
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
       <script async src="./assets/jquery.mask.min.js"></script>
+	  <script type="text/javascript">
+		document.getElementById('btnConfirmChange').addEventListener('click', function(event){
+			event.preventDefault();
+			
+			var phone = document.getElementById('register_phone').value.trim();
+			if(phone == '') {
+				alert('Você não preencheu todos os campos...');
+			} else if(phone.lenght < 19) {
+				alert('Por favor, preencha o número de telefone corretamente.');
+			else {
+				alert('Alterar telefone.');
+			}
+		});
+	  </script>
    </body>
 </html>
