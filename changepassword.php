@@ -142,35 +142,28 @@ if (isset($_POST['changePassword']))
                 <form class="login100-form validate-form p-t-20" action="" method="POST" autocomplete="off">
                   <span class="login100-form-title p-b-25">ALTERAR-SENHA</span>
 				  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo da senha é obrigatório">
-                     <input class="input100" name="oldpass" type="password" placeholder="Senha antiga..." autofocus>
+                     <input class="input100" name="oldpass" type="password" id="oldpass" placeholder="Senha antiga..." autofocus>
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-lock"></span>
                      </span>
                   </div>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo da senha é obrigatório">
-                     <input class="input100" name="newpass" type="password" placeholder="Digite uma nova senha...">
+                     <input class="input100" name="newpass" type="password" id="newpass" placeholder="Digite uma nova senha...">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-lock"></span>
                      </span>
                   </div>
 				   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo da senha é obrigatório">
-                     <input class="input100" name="renewpass" type="password" placeholder="Digite sua senha novamente...">
+                     <input class="input100" name="renewpass" type="password" id="renewpass" placeholder="Digite sua senha novamente...">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-lock"></span>
                      </span>
                   </div>
-				  <div class="error">
-                      <?php
-					if(isset($_SESSION['alert_trocarsenha'])){
-						echo $_SESSION['alert_trocarsenha'];
-						unset($_SESSION['alert_trocarsenha']);
-					}
-				?>
-                  </div>
-				  <button name="changePassword" class="login100-form-btn shinyfont" type="submit">CONFIRMAR</button>
+				  <div class="error" id="error"></div>
+				  <button name="changePassword" class="login100-form-btn shinyfont" type="submit" id="changePassword">CONFIRMAR</button>
                   <div class="error">
                      <p id="login_error"></p>
                   </div>
@@ -183,5 +176,26 @@ if (isset($_POST['changePassword']))
       <footer class="fixed-bottom"><div class="p-0 text-center text-white footer">ZapTank Games Technology Co. Ltd - © 2019 - <?php echo date('Y') ?> Todos os direitos reservados.</div></footer>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
+	  <script type="text/javascript">
+		var error_div = document.getElementById('error');
+	  
+		document.getElementById('changePassword').addEventListener('click', function(event){		
+			event.preventDefault();
+		
+			var oldpass = document.getElementById('oldpass').value.trim();
+			var newpass = document.getElementById('newpass').value.trim();
+			var renewpass = document.getElementById('renewpass').value.trim();
+			
+			if(oldpass == '') {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não digitou a senha antiga...</div>`;
+			} else if(newpass == '') {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não digitou uma nova senha...</div>`;
+			} else if(renewpass == '') {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não repetiu a nova senha...</div>`;
+			} else if(newpass != renewpass) {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Senha confirmada diferente da digitada...</div>`;
+			}
+		});
+	  </script>
    </body>
 </html>
