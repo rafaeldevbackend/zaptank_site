@@ -1,8 +1,6 @@
 <?php
 include 'globalconn.php';
-include 'getconnect.php';
 
-$Connect = Connect::getConnection();
 $_SESSION['Status'] = "Conectado";
 
 if (session_status() !== PHP_SESSION_ACTIVE)
@@ -23,58 +21,6 @@ if (empty($UserName) || $UserName == 0)
     header("Location: /");
     exit();
 }
-
-if (isset($_POST['execute']))
-{
-    $phone = addslashes($_POST['phone']);
-
-    if (empty($phone))
-    {
-        $_SESSION['alert_telefone'] = "<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos...</div>";
-    }
-    else if (strlen($phone) < 19)
-    {
-        $_SESSION['alert_cadastro'] = "<div class='alert alert-danger ocult-time'>Por favor, preencha o número de telefone corretamente.</div>";
-    }
-    else
-    {
-        $query = $Connect->query("SELECT COUNT(*) AS HaverPhone FROM Db_Center.dbo.Mem_UserInfo WHERE Telefone = '$phone'");
-        $result = $query->fetchAll();
-        foreach ($result as $infoBase)
-        {
-            $HaverPhone = $infoBase['HaverPhone'];
-        }
-        if ($HaverPhone > 0)
-        {
-            $_SESSION['alert_telefone'] = "<div class='alert alert-danger ocult-time'>Já existe alguém com esse número de celular...</div>";
-        }
-        else
-        {
-            $ID = $_SESSION['UserId'];
-            if ($ID != null)
-            {
-				$stmt = $Connect->prepare("UPDATE Db_Center.dbo.Mem_UserInfo SET Telefone = :phone WHERE UserID= :ID");
-			    $stmt->bindParam(':phone', $phone);
-				$stmt->bindParam(':ID', $ID);
-				$stmt->execute();			
-                $_SESSION['Telefone'] = $phone;
-                $_SESSION['alert_telefone'] = "<div class='alert alert-success ocult-time'>Telefone alterado com sucesso!</div>";
-				echo "<meta http-equiv='refresh' content='3;url=/selectserver' />";
-            }
-            else
-            {
-                $_SESSION['alert_telefone'] = "<div class='alert alert-danger ocult-time'>Ocorreu um erro interno, faça login novamente.</div>";
-                echo "<meta http-equiv='refresh' content='3;url=/selectserver' />";
-                session_destroy();
-            }
-        }
-    }
-}
-
-$min_number = 1;
-$max_number = 9;
-$random_number1 = mt_rand($min_number, $max_number);
-$random_number2 = mt_rand($min_number, $max_number);
 ?>
 
 <!DOCTYPE html>
@@ -114,32 +60,49 @@ $random_number2 = mt_rand($min_number, $max_number);
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
       <script async src="./assets/jquery.mask.min.js"></script>
+	  <script type="text/javascript" src="./assets/utils/cookie.js"></script>
 	  <script type="text/javascript" src="./assets/config.js"></script>
 	  <script type="text/javascript">
+		var error_div = document.getElementById('error');
+	  
 		document.getElementById('btnConfirmChange').addEventListener('click', function(event){
 			event.preventDefault();
 			
 			var phone = document.getElementById('register_phone').value.trim();
 			if(phone == '') {
-				alert('Você não preencheu todos os campos...');
-			} else if(phone.lenght < 19) {
-				alert('Por favor, preencha o número de telefone corretamente.');
+				error_div.innerHTML = '<div class="alert alert-danger">Você não preencheu todos os campos...</div>';
+			} else if(phone.length < 19) {
+				error_div.innerHTML = '<div class="alert alert-danger">Por favor, preencha o número de telefone corretamente.</div>';
 			} else {
 				var url = `${api_url}/account/phone/change`;
 				var params = `phone=${phone}`;
+				var jwt_hash = getCookie('jwt_authentication_hash');
 				
 				var xhr = new XMLHttpRequest();
 				
 				xhr.open('POST', url, true);
 				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 				xhr.setRequestHeader('Content-type', 'application/json');
-				xhr.setRequestHeader('Authorization', 'Bearer 1234567890');
+				xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
 				
 				xhr.onreadystatechange = function() {
 					if(xhr.readyState == 4) {
 						if(xhr.status == 200) {
 							var response = JSON.parse(xhr.responseText);
+							if(response.success == true) {
+								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;
+								setTimeout(function(){
+									window.location.href = '/selectserver';
+								}, 800);
+							} else {
+								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+							}
 							console.log(response);
+						} else if(xhr.status == 401) {
+							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							setTimeout(function(){
+								window.location.href = '/selectserver?logout=true';
+							}, 1000);
 						} else {
 							console.log("Erro na solicitação. Código do status: " + xhr.status);
 						}
