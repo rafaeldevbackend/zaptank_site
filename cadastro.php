@@ -91,7 +91,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
 	  <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
       <script async src="./assets/jquery.mask.min.js"></script>
-	  <script type="text/javascript" src="./assets/utils/cookie.js"></script>,
+	  <script type="text/javascript" src="./assets/utils/cookie.js"></script>
 	  <script type="text/javascript" src="./assets/config.js"></script>
 	  <script type="text/javascript">
 		
