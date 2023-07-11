@@ -176,6 +176,8 @@ if (isset($_POST['changePassword']))
       <footer class="fixed-bottom"><div class="p-0 text-center text-white footer">ZapTank Games Technology Co. Ltd - © 2019 - <?php echo date('Y') ?> Todos os direitos reservados.</div></footer>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
+	  <script type="text/javascript" src="./assets/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./assets/config.js"></script>	  
 	  <script type="text/javascript">
 		var error_div = document.getElementById('error');
 	  
@@ -194,6 +196,42 @@ if (isset($_POST['changePassword']))
 				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não repetiu a nova senha...</div>`;
 			} else if(newpass != renewpass) {
 				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Senha confirmada diferente da digitada...</div>`;
+			} else {
+				var url = `${api_url}/account/password/change`;
+				var params = `oldpass=${oldpass}&newpass=${newpass}`;
+				var jwt_hash = getCookie('jwt_authentication_hash');
+
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+				
+				xhr.onreadystatechange = function() {
+					if(xhr.readyState == 4) {
+						if(xhr.status == 200) {
+							var response = JSON.parse(xhr.responseText);
+							if(response.success == true) {
+								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;
+								setTimeout(function(){
+									window.location.href = '/selectserver?logout=true';
+								}, 1000);								
+							} else {
+								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+							}
+						} else if(xhr.status == 401) {
+							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							setTimeout(function(){
+								window.location.href = '/selectserver?logout=true';
+							}, 1000);
+						} else {
+							console.log("Erro na solicitação. Código do status: " + xhr.status);
+						}
+					}
+				};
+				
+				xhr.send(params);				
 			}
 		});
 	  </script>
