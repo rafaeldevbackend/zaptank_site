@@ -121,10 +121,12 @@
    		}
        }
    }
-   $min_number = 1;
-   $max_number = 9;
-   $random_number1 = mt_rand($min_number, $max_number);
-   $random_number2 = mt_rand($min_number, $max_number);
+	$min_number = 1;
+	$max_number = 9;
+	$random_number1 = mt_rand($min_number, $max_number);
+	$random_number2 = mt_rand($min_number, $max_number);
+	$totalCaptcha = $random_number1 + $random_number2;
+	setcookie('captchaResult', $totalCaptcha);
    ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -140,14 +142,14 @@
                <form class="login100-form validate-form p-t-20" action="" method="POST" id="frmLogin" autocomplete="off">
                   <span class="login100-form-title p-b-25">ALTERAR-EMAIL</span>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do email é obrigatório">
-                     <input class="input100" type="email" value="<?php if(isset($_SESSION['UserName'])){echo $_SESSION['UserName'];} ?>" name="email" placeholder="Digite seu e-mail atual">
+                     <input class="input100" type="email" value="<?php if(isset($_SESSION['UserName'])){echo $_SESSION['UserName'];} ?>" name="email" id="email" placeholder="Digite seu e-mail atual">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-envelope"></span>
                      </span>
                   </div>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do email é obrigatório">
-                     <input class="input100" type="email" name="c_email" placeholder="Digite seu novo e-mail" autofocus>
+                     <input class="input100" type="email" name="c_email" id="c_email" placeholder="Digite seu novo e-mail" autofocus>
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-envelope"></span>
@@ -155,22 +157,13 @@
                   </div>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do código é obrigatório">
                      <input class="input100" type="text" name="captchaResult" size="2" id="register_password" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
-                     <input name="coderandom1" type="hidden" value="<?php echo $random_number1; ?>" />
-                     <input name="coderandom2" type="hidden" value="<?php echo $random_number2; ?>" />
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-sync"></span>
                      </span>
                   </div>
-                  <div class="error">
-                     <?php
-                        if(isset($_SESSION['alert_changemail_notverified'])){
-                        	echo $_SESSION['alert_changemail_notverified'];
-                        	unset($_SESSION['alert_changemail_notverified']);
-                        }
-                        ?>
-                  </div>
-                  <button name="changemail" class="login100-form-btn shinyfont" type="submit">CONFIRMAR</button>
+                  <div class="error" id="error"></div>
+                  <button name="changemail" class="login100-form-btn shinyfont" type="submit" id="btnChangeEmail">CONFIRMAR</button>
                   <div class="error">
                      <p id="login_error"></p>
                   </div>
@@ -198,5 +191,26 @@
       </footer>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
+	  <script type="text/javascript" src="./assets/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./assets/config.js"></script>
+	  <script type="text/javascript">
+		var error_div = document.getElementById('error');
+	  
+		document.getElementById('btnChangeEmail').addEventListener('click', function(event){
+			event.preventDefault();
+			
+			var current_email = document.getElementById('email').value.trim();
+			var new_email = document.getElementById('c_email').value.trim();
+			var captchaChallenge = document.getElementById('register_password').value.trim();
+			
+			if(current_email == '' || new_email == '' || captchaChallenge == '') {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
+			} else if(captchaChallenge !== getCookie('captchaResult')) {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>`;
+			} else {
+				
+			}
+		});
+	  </script>
    </body>
 </html>
