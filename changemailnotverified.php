@@ -208,7 +208,39 @@
 			} else if(captchaChallenge !== getCookie('captchaResult')) {
 				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>`;
 			} else {
+				var url = `${api_url}/account/email/changenotverified`;
+				var params = `current_email=${current_email}&new_email=${new_email}`;
+				var jwt_hash = getCookie('jwt_authentication_hash');
 				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+				
+				xhr.onreadystatechange = function() {
+					if(xhr.readyState == 4) {
+						if(xhr.status == 200) {
+							var response = JSON.parse(xhr.responseText);
+							if(response.success == true) {
+								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;
+								setTimeout(function(){
+									window.location.href = '/selectserver?logout=true';
+								}, 1000);								
+							} else {
+								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+							}
+						} else if(xhr.status == 401) {
+							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							setTimeout(function(){
+								window.location.href = '/selectserver?logout=true';
+							}, 1000);
+						} else {
+							console.log("Erro na solicitação. Código do status: " + xhr.status);
+						}						
+					}
+				};
 			}
 		});
 	  </script>
