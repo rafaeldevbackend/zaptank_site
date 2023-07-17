@@ -14,15 +14,7 @@
    include 'Objects/gerenciamento.php';
    
    $Dados->Destroy();
-   
-   use PHPMailer\PHPMailer\PHPMailer;
-   use PHPMailer\PHPMailer\SMTP;
-   use PHPMailer\PHPMailer\Exception;
-   
-   require './supplier/phpmailer/phpmailer/src/PHPMailer.php';
-   require './supplier/phpmailer/phpmailer/src/Exception.php';
-   require './supplier/phpmailer/phpmailer/src/SMTP.php';
-   
+      
    if (!empty($_GET['page'])) switch ($_GET['page'])
    {
        case 'badmail':
@@ -144,7 +136,7 @@
 				xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
 				
 				xhr.onreadystatechange = function() {
-					if(xhr.readyState == 4) {
+					if(xhr.readyState == 4) {						
 						if(xhr.status == 200) {
 							var response = JSON.parse(xhr.responseText);
 							if(response.success == true) {
@@ -165,6 +157,8 @@
 						}						
 					}
 				};
+				
+				xhr.send(params);
 			}
 		});
 	  </script>
