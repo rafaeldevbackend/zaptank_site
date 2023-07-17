@@ -45,86 +45,12 @@
        exit();
    }
    
-   if (isset($_POST['changemail']))
-   {
-       $email = addslashes($_POST["email"]);
-       $c_email = addslashes($_POST["c_email"]);
-       $captchaResult = addslashes($_POST["captchaResult"]);
-       $coderandom1 = addslashes($_POST["coderandom1"]);
-       $coderandom2 = addslashes($_POST["coderandom2"]);
-       $checkTotal = addslashes($coderandom1 + $coderandom2);
-       if (empty($email) || empty($c_email) || empty($captchaResult))
-       {
-           $_SESSION['alert_changemail_notverified'] = "<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>";
-       }
-       else
-       {
-           $query = $Connect->query("SELECT COUNT(*) AS HaveMail FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$email'");
-           $result = $query->fetchAll();
-           foreach ($result as $infoBase)
-           {
-               $HaveMail = $infoBase['HaveMail'];
-           }
-           if ($HaveMail > 0)
-           {
-               if ($captchaResult == $checkTotal)
-               {
-                   if ($VerifiedEmail == 0)
-                   {
-                       $query = $Connect->query("SELECT COUNT(*) AS HaveMail FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$c_email'");
-                       $result = $query->fetchAll();
-                       foreach ($result as $infoBase)
-                       {
-                           $HaveMail = $infoBase['HaveMail'];
-                       }
-                       if ($HaveMail == 1)
-                       {
-                           $_SESSION['alert_changemail_notverified'] = "<div class='alert alert-danger ocult-time'>Já existe alguém com esse endereço de e-mail...</div>";
-                       }
-                       else
-                       {
-   						$query = $Connect->query("UPDATE Db_Center.dbo.Mem_UserInfo SET Email = '$c_email' WHERE Email = '$email'");
-   						$query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List");
-                           $result = $query->fetchAll();
-                           foreach ($result as $infoBase)
-                           {
-   						   $BaseUser = $infoBase['BaseUser'];
-   						   $query = $Connect->query("UPDATE $BaseUser.dbo.Sys_Users_Detail SET UserName = '$c_email' WHERE UserName = '$email'");
-                           }
-   				        $query = $Connect->query("UPDATE Db_Center.dbo.Bag_Goods SET UserName = '$c_email' WHERE UserName='$email'");
-   						$query = $Connect->query("UPDATE Db_Center.dbo.Vip_Data SET UserName = '$c_email' WHERE UserName='$email'");
-                        $query = $Connect->query("UPDATE Db_Center.dbo.User_Award_GiftCode SET UserName = '$c_email' WHERE UserName='$email'");
-   						$query = $Connect->query("UPDATE Db_Center.dbo.Mem_UserInfo SET BadMail='0' WHERE Email='$c_email'");
-                        $query = $Connect->query("UPDATE Db_Center.dbo.Mem_UserInfo SET VerifiedEmail='0' WHERE Email='$c_email'");
-   						echo "<meta http-equiv='refresh' content='3;url=/' />";
-   						if (isset($_SESSION['Status']) == "Conectado")
-                           {
-                               session_destroy();
-                           }
-                           $_SESSION['alert_changemail_notverified'] = "<div class='alert alert-success ocult-time'>E-mail alterado com sucesso, realize o login novamente.</div>";
-                       }
-                   }
-                   else
-                   {
-                       $_SESSION['alert_changemail_notverified'] = "<div class='alert alert-danger ocult-time'>Para alterar o e-mail de uma conta verificada faça login na sua conta e procure por central de configurações.</div>";
-                   }
-               }
-               else
-               {
-                   $_SESSION['alert_changemail_notverified'] = "<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>";
-               }
-   
-           }
-   		else
-   		{
-   			$_SESSION['alert_changemail_notverified'] = "<div class='alert alert-danger ocult-time'>Não encontramos nenhum endereço de e-mail na nossa base de dados.</div>";
-   		}
-       }
-   }
-   $min_number = 1;
-   $max_number = 9;
-   $random_number1 = mt_rand($min_number, $max_number);
-   $random_number2 = mt_rand($min_number, $max_number);
+	$min_number = 1;
+	$max_number = 9;
+	$random_number1 = mt_rand($min_number, $max_number);
+	$random_number2 = mt_rand($min_number, $max_number);
+	$totalCaptcha = $random_number1 + $random_number2;
+	setcookie('captchaResult', $totalCaptcha);
    ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -140,14 +66,14 @@
                <form class="login100-form validate-form p-t-20" action="" method="POST" id="frmLogin" autocomplete="off">
                   <span class="login100-form-title p-b-25">ALTERAR-EMAIL</span>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do email é obrigatório">
-                     <input class="input100" type="email" value="<?php if(isset($_SESSION['UserName'])){echo $_SESSION['UserName'];} ?>" name="email" placeholder="Digite seu e-mail atual">
+                     <input class="input100" type="email" value="<?php if(isset($_SESSION['UserName'])){echo $_SESSION['UserName'];} ?>" name="email" id="email" placeholder="Digite seu e-mail atual">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-envelope"></span>
                      </span>
                   </div>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do email é obrigatório">
-                     <input class="input100" type="email" name="c_email" placeholder="Digite seu novo e-mail" autofocus>
+                     <input class="input100" type="email" name="c_email" id="c_email" placeholder="Digite seu novo e-mail" autofocus>
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-envelope"></span>
@@ -155,22 +81,13 @@
                   </div>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do código é obrigatório">
                      <input class="input100" type="text" name="captchaResult" size="2" id="register_password" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
-                     <input name="coderandom1" type="hidden" value="<?php echo $random_number1; ?>" />
-                     <input name="coderandom2" type="hidden" value="<?php echo $random_number2; ?>" />
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-sync"></span>
                      </span>
                   </div>
-                  <div class="error">
-                     <?php
-                        if(isset($_SESSION['alert_changemail_notverified'])){
-                        	echo $_SESSION['alert_changemail_notverified'];
-                        	unset($_SESSION['alert_changemail_notverified']);
-                        }
-                        ?>
-                  </div>
-                  <button name="changemail" class="login100-form-btn shinyfont" type="submit">CONFIRMAR</button>
+                  <div class="error" id="error"></div>
+                  <button name="changemail" class="login100-form-btn shinyfont" type="submit" id="btnChangeEmail">CONFIRMAR</button>
                   <div class="error">
                      <p id="login_error"></p>
                   </div>
@@ -198,5 +115,58 @@
       </footer>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
+	  <script type="text/javascript" src="./assets/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./assets/config.js"></script>
+	  <script type="text/javascript">
+		var error_div = document.getElementById('error');
+	  
+		document.getElementById('btnChangeEmail').addEventListener('click', function(event){
+			event.preventDefault();
+			
+			var current_email = document.getElementById('email').value.trim();
+			var new_email = document.getElementById('c_email').value.trim();
+			var captchaChallenge = document.getElementById('register_password').value.trim();
+			
+			if(current_email == '' || new_email == '' || captchaChallenge == '') {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
+			} else if(captchaChallenge !== getCookie('captchaResult')) {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>`;
+			} else {
+				var url = `${api_url}/account/email/changenotverified`;
+				var params = `current_email=${current_email}&new_email=${new_email}`;
+				var jwt_hash = getCookie('jwt_authentication_hash');
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+				
+				xhr.onreadystatechange = function() {
+					if(xhr.readyState == 4) {
+						if(xhr.status == 200) {
+							var response = JSON.parse(xhr.responseText);
+							if(response.success == true) {
+								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;
+								setTimeout(function(){
+									window.location.href = '/selectserver?logout=true';
+								}, 1000);								
+							} else {
+								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+							}
+						} else if(xhr.status == 401) {
+							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							setTimeout(function(){
+								window.location.href = '/selectserver?logout=true';
+							}, 1000);
+						} else {
+							console.log("Erro na solicitação. Código do status: " + xhr.status);
+						}						
+					}
+				};
+			}
+		});
+	  </script>
    </body>
 </html>

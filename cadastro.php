@@ -63,8 +63,6 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                   </div>
 				  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do código é obrigatório">
                      <input class="input100" type="text" id="captchaResult" name="captchaResult" size="2" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
-					 <input name="coderandom1" type="hidden" value="<?php echo $random_number1; ?>" />
-                     <input name="coderandom2" type="hidden" value="<?php echo $random_number2; ?>" />
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-sync"></span>
