@@ -152,6 +152,8 @@ $min_number = 1;
 $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
 $random_number2 = mt_rand($min_number, $max_number);
+$totalCaptcha = $random_number1 + $random_number2;
+setcookie('captchaResult', $totalCaptcha);
 ?>
 
 <!DOCTYPE html>
@@ -175,23 +177,14 @@ $random_number2 = mt_rand($min_number, $max_number);
                      </span>
                   </div>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do código é obrigatório">
-                     <input class="input100" type="text" name="captchaResult" size="2" id="register_password" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?" autofocus>
-                     <input name="coderandom1" type="hidden" value="<?php echo $random_number1; ?>" />
-                     <input name="coderandom2" type="hidden" value="<?php echo $random_number2; ?>" />
+                     <input class="input100" type="text" name="captchaResult" size="2" id="captchaResult" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?" autofocus>                     
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-sync"></span>
                      </span>
                   </div>
-                  <div class="error">
-                     <?php
-                        if(isset($_SESSION['alert_trocaremail'])){
-                        	echo $_SESSION['alert_trocaremail'];
-                        	unset($_SESSION['alert_trocaremail']);
-                        }
-                        ?>
-                  </div>
-                  <button name="changemail" class="login100-form-btn shinyfont" type="submit">CONFIRMAR</button>
+                  <div class="error" id="error"></div>
+                  <button name="changemail" class="login100-form-btn shinyfont" id="btnChangeEmail" type="submit">CONFIRMAR</button>
                   <div class="error">
                      <p id="login_error"></p>
                   </div>
@@ -208,5 +201,56 @@ $random_number2 = mt_rand($min_number, $max_number);
       <footer class="fixed-bottom"><div class="p-0 text-center text-white footer">ZapTank Games Technology Co. Ltd - © 2019 - <?php echo date('Y') ?> Todos os direitos reservados.</div></footer>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
+	  <script type="text/javascript" src="./assets/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./assets/config.js"></script>	  
+	  <script type="text/javascript">
+		var error_div = document.getElementById('error');
+		
+		document.getElementById('btnChangeEmail').addEventListener('click', function(event){
+			event.preventDefault();
+			
+			var email = document.getElementById('register_email').value.trim();
+			var captchaChallenge = document.getElementById('captchaResult').value.trim();
+			
+			if(email == '' || captchaChallenge == '') {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
+			} else if(captchaChallenge !== getCookie('captchaResult')) {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>`;
+			} else {
+				var url = `${api_url}/account/email/changerequest`;
+				var params = `email=${email}`;
+				var jwt_hash = getCookie('jwt_authentication_hash');
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+				
+				xhr.onreadystatechange = function() {
+					if(xhr.readyState == 4) {
+						if(xhr.status == 200) {
+							var response = JSON.parse(xhr.responseText);
+							if(response.success == true) {
+								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;								
+							} else {
+								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+							}
+						} else if(xhr.status == 401) {
+							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							setTimeout(function(){
+								window.location.href = '/selectserver?logout=true';
+							}, 1000);
+						} else {
+							console.log("Erro na solicitação. Código do status: " + xhr.status);
+						}						
+					}
+				};
+				
+				xhr.send(params);
+			}
+		});
+	  </script>
    </body>
 </html>
