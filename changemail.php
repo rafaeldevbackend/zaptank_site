@@ -24,14 +24,6 @@ if (empty($UserName) || $UserName == 0)
     exit();
 }
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-
-require './supplier/phpmailer/phpmailer/src/PHPMailer.php';
-require './supplier/phpmailer/phpmailer/src/Exception.php';
-require './supplier/phpmailer/phpmailer/src/SMTP.php';
-
 $Email = $_SESSION['UserName'];
 $query = $Connect->query("SELECT VerifiedEmail FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$Email'");
 $result = $query->fetchAll();
@@ -47,107 +39,6 @@ if ($IsActive == 0)
     exit();
 }
 
-if (isset($_POST['changemail']))
-{
-    if ($IsActive == 1)
-    {
-        $Email = $_SESSION['UserName'];
-        $query = $Connect->query("SELECT UserId FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$Email'");
-        $result = $query->fetchAll();
-        foreach ($result as $infoBase)
-        {
-            $UserId = $infoBase['UserId'];
-        }
-        $captchaResult = addslashes($_POST["captchaResult"]);
-        $coderandom1 = addslashes($_POST["coderandom1"]);
-        $coderandom2 = addslashes($_POST["coderandom2"]);
-        $checkTotal = addslashes($coderandom1 + $coderandom2);
-        if ($captchaResult == $checkTotal)
-        {
-            $query = $Connect->query("SELECT Date FROM Db_Center.dbo.change_email WHERE UserId = '$UserId'");
-            $result = $query->fetchAll();
-            foreach ($result as $infoBase)
-            {
-                $exist = $infoBase['Date'];
-            }
-            if (!empty($exist))
-            {
-                $start_date = new DateTime($exist);
-            }
-            else
-            {
-                $start_date = new DateTime(date('Y-m-d H:i:s'));
-            }
-            $since_start = $start_date->diff(new DateTime(date('Y-m-d H:i:s')));
-            if ($since_start->i < 2 && !empty($exist))
-            {
-				$atual = date('H:i:s', strtotime($exist));
-                $_SESSION['alert_trocaremail'] = "<div class='alert alert-danger'>Aguarde 2 minutos para enviar outro e-mail, você enviou um e-mail em $atual</div>";
-            }
-            else
-            {
-                $query = $Connect->query("SELECT VerifiedEmail FROM $BaseServer.dbo.Mem_UserInfo WHERE Email = '$_SESSION[UserName]'");
-                $result = $query->fetchAll();
-                foreach ($result as $infoBase)
-                {
-                    $VerifiedEmail = $infoBase['VerifiedEmail'];
-                }
-
-                if ($VerifiedEmail != 0)
-                {
-                    $Email = $_SESSION['UserName'];
-                    if (!empty($Email))
-                    {
-                        $EncMail = $Ddtank->EncryptText($KeyPublicCrypt, $KeyPrivateCrypt, $Email);
-                    }
-                    $data = date('d/m/Y H:i:s');
-                    $token = md5(time());
-                    $stmt = $Connect->prepare('INSERT INTO Db_Center.dbo.change_email(userID, token, Date) VALUES(:userID, :token, :Date)');
-                    $stmt->bindParam(':userID', $UserId);
-                    $stmt->bindParam(':token', $token);
-                    $stmt->bindParam(':Date', $data);
-                    $stmt->execute();
-                    $mail = new PHPMailer;
-                    $mail->CharSet = 'UTF-8';
-                    $mail->isSMTP();
-                    $mail->Host = $SMTP_HOST;
-                    $mail->SMTPAuth = true;
-                    $mail->SMTPSecure = 'tls';
-                    $mail->Username = $SMTP_EMAIL; // E-mail SMTP
-                    $mail->Password = $SMTP_PASSWORD;
-                    $mail->Port = 587;
-                    $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true, ]];
-                    $mail->setFrom('noreply@redezaptank.com.br', 'DDTank'); // E-mail SMTP
-                    $mail->addAddress('' . $Email . '', 'DDTank'); // E-mail do usuário
-                    $mail->isHTML(true);
-                    $mail->Subject = 'Alerta de segurança: ' . $Email . ', verifique o acesso à sua conta do ZapTank';
-                    $mail->Body = ' <style>@import url(https://fonts.googleapis.com/css?family=Roboto);body{font-family: "Roboto", sans-serif; font-size: 48px;}</style><table cellpadding="0" cellspacing="0" border="0" style="padding:0;margin:0 auto;width:100%;max-width:620px"> <tbody> <tr> <td colspan="3" style="padding:0;margin:0;font-size:1px;height:1px" height="1">&nbsp;</td></tr><tr> <td style="padding:0;margin:0;font-size:1px">&nbsp;</td><td style="padding:0;margin:0" width="590"> <span class="im"> <table width="100%" cellspacing="0" cellpadding="0" border="0"> <tbody> <tr style="background-color:#fff"> <td style="padding:11px 23px 8px 15px;float:right;font-size:12px;font-weight:300;line-height:1;color:#666;font-family:"Proxima Nova",Helvetica,Arial,sans-serif"> <p style="float:right">' . $Email . '</p></td></tr></tbody> </table> <table bgcolor="#d65900" width="100%" cellspacing="0" cellpadding="0" border="0"> <tbody> <tr> <td height="0"></td></tr><tr> <td align="center" style="display:none"><img alt="DDTank" width="90" style="width:90px;text-align:center"></td></tr><tr> <td height="0"></td></tr><tr> <td class="m_-5336645264442155576title m_-5336645264442155576bold" style="padding:63px 33px;text-align:center" align="center"> <span class="m_-5336645264442155576mail__title" style=""> <h1><font color="#ffffff">Recebemos um pedido para alterar seu e-mail!</font></h1> </span> </td></tr><tr> <td style="text-align:center;padding:0"> <div id="m_-5336645264442155576responsive-width" class="m_-5336645264442155576responsive-width" width="78.2% !important" style="width:77.8%!important;margin:0 auto;background-color:#fbee00;display:none"> <div style="height:50px;margin:0 auto">&nbsp;</div></div></td></tr></tbody> </table> </span> <div id="m_-5336645264442155576div-table-wrapper" class="m_-5336645264442155576div-table-wrapper" style="text-align:center;margin:0 auto"> <table class="m_-5336645264442155576main-card-shadow" bgcolor="#ffffff" align="center" border="0" cellpadding="0" cellspacing="0" style="border:none;padding:48px 33px 0;text-align:center"> <tbody> <tr> <td align="center"> <table class="m_-5336645264442155576mail__buttons-container" align="center" width="200" border="0" cellpadding="0" cellspacing="0" style="border-radius:4px;height:48px;width:240px;table-layout:fixed;margin:32px auto"> <tbody> <tr> <td style="border-radius:4px;height:30px;font-family:"Proxima nova",Helvetica,Arial,sans-serif" bgcolor="#d65900"><a href="https://redezaptank.com.br/change_mail?token=' . $token . '" style="padding:10px 3px;display:block;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:#fff;text-decoration:none;text-align:center" target="_blank" data-saferedirecturl="https://redezaptank.com.br/change_mail?token=' . $token . '">Alterar e-mail</a></td></tr></tbody> </table> </td></tr><tr> <td align="center"><p class="m_-5336645264442155576mail__text-card m_-5336645264442155576bold" style="text-decoration:none;font-family:"Proxima Nova",Arial,Helvetica,sans-serif;text-align:center;line-height:16px;max-width:390px;width:100%;margin:0 auto 44px;font-size:14px;color:#999">O ZapTank enviou este e-mail pois você optou por recebê-lo ao cadastrar-se no site. Se você não deseja receber e-mails, <a href="https://redezaptank.com.br/unsubscribemaillist?mail=' . $EncMail . '" style="color:rgb(227, 72, 0);text-decoration:none" target="_blank" data-saferedirecturl="">cancele o recebimento</p></td></tr></tbody> </table> </div></td><td style="padding:0;margin:0;font-size:1px">&nbsp;</td></tr><tr> <td colspan="3" style="padding:0;margin:0;font-size:1px;height:1px" height="1">&nbsp;</td></tr></tbody></table><small class="text-muted"><?php setlocale(LC_TIME, "pt_BR", "pt_BR.utf-8", "pt_BR.utf-8", "portuguese"); date_default_timezone_set("America/Sao_Paulo"); echo strftime("%A, %d de %B de %Y", strtotime("today"));?></small> </p></div></div>';
-                    $mail->AltBody = 'Troca de e-mail';
-                    if ($mail->send())
-                    {
-                        $_SESSION['alert_trocaremail'] = "<div class='alert alert-success ocult-time'>Email enviado com sucesso, caso não encontre nenhum email verifique o SPAM.</div>";
-                    }
-                    else
-                    {
-                        $_SESSION['alert_trocaremail'] = "<div class='alert alert-danger ocult-time'>Seu e-mail não foi enviado, estamos com uma demanda de e-mails acima do normal. Nossos engenheiros foram notificados e estão resolvendo o mais rápido possível.</div>";
-                    }
-                }
-                else
-                {
-                    $_SESSION['alert_trocaremail'] = "<div class='alert alert-danger ocult-time'>$Email não foi verificado, verifique-o primeiro para prosseguir com a alteração!</div>";
-                }
-            }
-        }
-        else
-        {
-            $_SESSION['alert_trocaremail'] = "<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>";
-        }
-    }
-    else
-    {
-        $_SESSION['alert_trocaremail'] = "<div class='alert alert-danger ocult-time'>Sua conta não está verificada é necessário verificar seu e-mail primeiro.</div>";
-    }
-}
 $min_number = 1;
 $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
