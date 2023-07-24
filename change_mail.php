@@ -190,6 +190,14 @@ if (isset($_POST['confirm_email']))
 	  <script type="text/javascript" src="./assets/utils/cookie.js"></script>
 	  <script type="text/javascript" src="./assets/config.js"></script>
 	  <script type="text/javascript">
+		
+		var usp = new URLSearchParams(window.location.search);
+		var token = usp.get('token');
+		
+		if(token == '') {
+			window.location.href = '/';
+		}
+		
 		var error_div = document.getElementById('error');
 	  
 		document.getElementById('confirm_email').addEventListener('click', function(event){
@@ -204,7 +212,7 @@ if (isset($_POST['confirm_email']))
 				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A confirmação do e-mail está diferente do e-mail preenchido.</div>`;
 			} else {
 				var url = `${api_url}/account/email/change`;
-				var params = `new_email=${new_email}`;
+				var params = `token=${token}&new_email=${new_email}`;
 				var jwt_hash = getCookie('jwt_authentication_hash');
 				
 				var xhr = new XMLHttpRequest();
