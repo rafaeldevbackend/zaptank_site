@@ -17,6 +17,7 @@ if (empty($_GET['token']))
     exit();
 }
 
+// ...++++
 $token = $_GET['token'];
 
 $query = $Connect->query("SELECT userID, IsChanged, Date FROM $BaseServer.dbo.change_email WHERE token = '$token'");
@@ -171,15 +172,8 @@ if (isset($_POST['confirm_email']))
                      </span>
                   </div>
 				  <a class="input-label-secondary"><p style="color:white">Esse link expira após o uso ou em <?php echo 31 - $since_start->i;?> minutos.</p></a>
-                  <div class="error">
-                     <?php
-                        if(isset($_SESSION['alert_changemail'])){
-                        	echo $_SESSION['alert_changemail'];
-                        	unset($_SESSION['alert_changemail']);
-                        }
-                        ?>
-                  </div>
-				  <button name="confirm_email" type="submit" class="login100-form-btn shinyfont">Mudar e-mail</button>
+                  <div class="error" id="error"></div>
+				  <button name="confirm_email" type="submit" class="login100-form-btn shinyfont" id="confirm_email">Mudar e-mail</button>
                   <div class="text-center w-full p-t-20">
                      <a class="input-label-secondary" href="/">
                      Não quero mudar o e-mail!							
@@ -193,5 +187,59 @@ if (isset($_POST['confirm_email']))
       </div>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
+	  <script type="text/javascript" src="./assets/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./assets/config.js"></script>
+	  <script type="text/javascript">
+		var error_div = document.getElementById('error');
+	  
+		document.getElementById('confirm_email').addEventListener('click', function(event){
+			event.preventDefault();
+			
+			var new_email = document.getElementById('register_email').value.trim();
+			var rnew_email = document.getElementById('c_register_email').value.trim();
+			
+			if(new_email == '' || rnew_email == '') {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
+			} else if(rnew_email != new_email) {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A confirmação do e-mail está diferente do e-mail preenchido.</div>`;
+			} else {
+				var url = `${api_url}/account/email/change`;
+				var params = `new_email=${new_email}`;
+				var jwt_hash = getCookie('jwt_authentication_hash');
+				
+				var xhr = new XMLHttpRequest();
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+				
+				xhr.onreadystatechange = function(){
+					if(xhr.readyState == 4) {
+						if(xhr.status == 200) {
+							var response = JSON.parse(xhr.responseText);
+							if(response.success == true) {
+								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;	
+								setTimeout(function(){
+									window.location.href = '/selectserver?logout=true';
+								}, 1000);	
+							} else {
+								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+							}
+						} else if(xhr.status == 401) {
+							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							setTimeout(function(){
+								window.location.href = '/selectserver?logout=true';
+							}, 1000);
+						} else {
+							console.log("Erro na solicitação. Código do status: " + xhr.status);
+						}
+					}
+				};
+			}
+		});
+	  </script>
    </body>
 </html>
