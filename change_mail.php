@@ -1,8 +1,6 @@
 <?php
 include 'globalconn.php';
-include 'getconnect.php';
 include 'loadautoloader.php';
-$Connect = Connect::getConnection();
 
 if (session_status() !== PHP_SESSION_ACTIVE)
 {
@@ -10,137 +8,7 @@ if (session_status() !== PHP_SESSION_ACTIVE)
 }
 
 $Dados = new Conectado();
-
-if (empty($_GET['token']))
-{
-    header("Location: /");
-    exit();
-}
-
-// ...++++
-$token = $_GET['token'];
-
-$query = $Connect->query("SELECT userID, IsChanged, Date FROM $BaseServer.dbo.change_email WHERE token = '$token'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-	$userID = $infoBase['userID'];
-    $IsChanged = $infoBase['IsChanged'];
-    $Date = $infoBase['Date'];
-}
-
-$query = $Connect->query("SELECT Email FROM $BaseServer.dbo.Mem_UserInfo WHERE UserId = '$userID'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-	$Email = $infoBase['Email'];
-}
-
-if (!isset($Date))
-{
-    header("location: /selectserver");
-    $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Seu token de acesso expirou ou não existe, pode ser que você tenha tentado acessar uma página que não tenha permissão.</div>";
-    exit();
-}
-
-$start_date = new DateTime($Date);
-$since_start = $start_date->diff(new DateTime(date('Y-m-d H:i:s')));
-
-if ($IsChanged == 1 || $IsChanged == null || $since_start->i > 30)
-{
-    if (isset($_SESSION['Status']) == "Conectado")
-    {
-       header("location: /selectserver");
-       $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Seu token de acesso expirou ou não existe, pode ser que você tenha tentado acessar uma página que não tenha permissão.</div>";
-       exit();
-    }
-    else
-    {
-       header("location: /selectserver");
-       $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Seu token de acesso expirou ou não existe, pode ser que você tenha tentado acessar uma página que não tenha permissão.</div>";
-       exit();
-    }
-}
-
-if (isset($_POST['confirm_email']))
-{
-    $emailatual = $Email;
-    $email = addslashes($_POST["email"]);
-    $c_email = addslashes($_POST["c_email"]);
-    $token = $_GET['token'];
-    if ($token != null)
-    {
-        $query = $Connect->query("SELECT COUNT(*) AS HaveMail FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$email'");
-        $result = $query->fetchAll();
-        foreach ($result as $infoBase)
-        {
-            $HaveMail = $infoBase['HaveMail'];
-        }
-        if ($email != $c_email)
-        {
-            $_SESSION['alert_changemail'] = "<div class='alert alert-danger ocult-time'>A confirmação do e-mail está diferente do e-mail preenchido.</div>";
-        }
-        else
-        {
-            if ($HaveMail == 1)
-            {
-                $_SESSION['alert_changemail'] = "<div class='alert alert-danger ocult-time'>Já existe alguém com esse endereço de e-mail...</div>";
-            }
-            else
-            {
-				$stmt = $Connect->prepare("UPDATE Db_Center.dbo.Mem_UserInfo SET Email = :email WHERE Email = :emailatual");
-		        $stmt->bindParam(':email', $email);
-				$stmt->bindParam(':emailatual', $emailatual);
-		        $stmt->execute();	
-                $query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List");
-                $result = $query->fetchAll();
-                foreach ($result as $infoBase)
-                {
-					$BaseUser = $infoBase['BaseUser'];
-					$stmt = $Connect->prepare("UPDATE $BaseUser.dbo.Sys_Users_Detail SET UserName = :email WHERE UserName = :emailatual");			
-                }
-				$stmt->bindParam(':email', $email);
-				$stmt->bindParam(':emailatual', $emailatual);
-		        $stmt->execute();
-				$stmt = $Connect->prepare("UPDATE Db_Center.dbo.Bag_Goods SET UserName = :email WHERE UserName= :emailatual");
-		        $stmt->bindParam(':email', $email);
-				$stmt->bindParam(':emailatual', $emailatual);
-		        $stmt->execute();			
-                $stmt = $Connect->prepare("UPDATE Db_Center.dbo.Vip_Data SET UserName = :email WHERE UserName= :emailatual");
-		        $stmt->bindParam(':email', $email);
-				$stmt->bindParam(':emailatual', $emailatual);
-		        $stmt->execute();				
-				$stmt = $Connect->prepare("UPDATE Db_Center.dbo.User_Award_GiftCode SET UserName = :email WHERE UserName= :emailatual");
-		        $stmt->bindParam(':email', $email);
-				$stmt->bindParam(':emailatual', $emailatual);
-		        $stmt->execute();			
-				$stmt = $Connect->prepare("UPDATE Db_Center.dbo.Mem_UserInfo SET BadMail='0' WHERE Email= :email");
-		        $stmt->bindParam(':email', $email);
-		        $stmt->execute();			
-				$stmt = $Connect->prepare("UPDATE Db_Center.dbo.Mem_UserInfo SET VerifiedEmail='0' WHERE Email= :email");
-		        $stmt->bindParam(':email', $email);
-		        $stmt->execute();
-				$stmt = $Connect->prepare("UPDATE Db_Center.dbo.change_email SET IsChanged='1' WHERE userID = :userID");
-		        $stmt->bindParam(':userID', $userID);
-		        $stmt->execute();
-                $_SESSION['alert_changemail'] = "<div class='alert alert-success'>E-mail alterado com sucesso, realize o login novamente.</div>";
-                echo "<meta http-equiv='refresh' content='3;url=/' />";
-                if (isset($_SESSION['Status']) == "Conectado")
-                {
-                    session_destroy();
-                }
-            }
-        }
-    }
-    else
-    {
-        $_SESSION['alert_changemail'] = "<div class='alert alert-danger ocult-time'>Seu token não é válido!</div>";
-    }
-
-}
-
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
    <head>
@@ -192,10 +60,10 @@ if (isset($_POST['confirm_email']))
 	  <script type="text/javascript">
 		
 		var usp = new URLSearchParams(window.location.search);
-		var token = usp.get('token');
+		var token = usp.get('token') ?? null;
 		
-		if(token == '') {
-			window.location.href = '/';
+		if(token == null) {
+			window.location.href = '/selectserver';
 		}
 		
 		var error_div = document.getElementById('error');
@@ -246,6 +114,8 @@ if (isset($_POST['confirm_email']))
 						}
 					}
 				};
+				
+				xhr.send(params);
 			}
 		});
 	  </script>
