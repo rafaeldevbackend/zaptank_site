@@ -24,23 +24,21 @@ if (empty($UserName) || $UserName == 0)
     exit();
 }
 
-if (!empty($_GET['suv']))
-{
-    $i = $_GET['suv'];
-    $DecryptServer = $Ddtank->DecryptText($KeyPublicCrypt, $KeyPrivateCrypt, $i);
-    $query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List WHERE ID = '$DecryptServer'");
-    $result = $query->fetchAll();
-    foreach ($result as $infoBase)
-    {
-        $ID = $infoBase['ID'];
-        $BaseUser = $infoBase['BaseUser'];
-    }
-}
-else
-{
+if(!isset($_GET['suv']) || empty($_GET['suv'])) {
     header("Location: /selectserver");
     $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Não foi possível encontrar o servidor.</div>";
-    exit();
+    exit();	
+}
+
+$i = $_GET['suv'];
+$DecryptServer = $Ddtank->DecryptText($KeyPublicCrypt, $KeyPrivateCrypt, $i);
+
+$query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List WHERE ID = '$DecryptServer'");
+$result = $query->fetchAll();
+
+foreach ($result as $infoBase) {
+	$ID = $infoBase['ID'];
+    $BaseUser = $infoBase['BaseUser'];
 }
 
 if (empty($ID) || empty($BaseUser))
@@ -55,14 +53,6 @@ foreach ($result as $infoBase)
 {
     $CountUser = $infoBase['UserName'];
 }
-
-$query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List WHERE ID = '$DecryptServer'");
-    $result = $query->fetchAll();
-    foreach ($result as $infoBase)
-    {
-        $ID = $infoBase['ID'];
-        $BaseUser = $infoBase['BaseUser'];
-    }
 
 if ($CountUser == 0)
 {
@@ -90,6 +80,8 @@ $min_number = 1;
 $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
 $random_number2 = mt_rand($min_number, $max_number);
+$totalCaptcha = $random_number1 + $random_number2;
+setcookie('captchaResult', $totalCaptcha);
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -107,30 +99,21 @@ $random_number2 = mt_rand($min_number, $max_number);
                   ALTERAR-NOME
                   </span>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do nome é obrigatório">
-                     <input class="input100" type="text" name="newname" id="login_username" placeholder="Nick Atual - <?php echo $NickName ?>" autofocus>
+                     <input class="input100" type="text" name="newname" id="newname" placeholder="Nick Atual - <?php echo $NickName ?>" autofocus>
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-user"></span>
                      </span>
                   </div>
 				  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do código é obrigatório">
-                     <input class="input100" type="text" name="captchaResult" size="2" id="register_password" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
-					 <input name="coderandom1" type="hidden" value="<?php echo $random_number1; ?>" />
-                     <input name="coderandom2" type="hidden" value="<?php echo $random_number2; ?>" />
+                     <input class="input100" type="text" name="captchaResult" size="2" id="captchaResult" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-sync"></span>
                      </span>
                   </div>
-				  <div class="error">
-                  <?php
-					if(isset($_SESSION['alert_trocarnome'])){
-						echo $_SESSION['alert_trocarnome'];
-						unset($_SESSION['alert_trocarnome']);
-					}
-				  ?>
-                  </div>
-				  <button name="changeNamed" class="login100-form-btn shinyfont" type="submit">CONFIRMAR</button>
+				  <div class="error" id="error"></div>
+				  <button name="changeNamed" class="login100-form-btn shinyfont" id="btnChangeNick" type="submit">CONFIRMAR</button>
                   <div class="error">
                      <p id="login_error"></p>
                   </div>
@@ -147,5 +130,56 @@ $random_number2 = mt_rand($min_number, $max_number);
       <div class="fixed-bottom text-center p-0 text-white footer">Você precisa de suporte? <a href="/ticket?suv=<?php echo $i ?>">Clique aqui e abra um ticket.</a></div>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
+	  <script type="text/javascript" src="./assets/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./assets/config.js"></script>	  
+	  <script type="text/javascript">
+		var error_div = document.getElementById('error');
+		
+		document.getElementById('btnChangeNick').addEventListener('click', function(event){
+			event.preventDefault();
+			
+			var newnick = document.getElementById('newname').value.trim();
+			var captchaChallenge = document.getElementById('captchaResult').value.trim();
+			
+			if(newnick == '' || captchaChallenge == '') {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
+			} else if(captchaChallenge !== getCookie('captchaResult')) {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>`;
+			} else {
+				var url = `${api_url}/character/config/changenick`;
+				var params = `newnick=${newnick}`;
+				var jwt_hash = getCookie('jwt_authentication_hash');
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+				
+				xhr.onreadystatechange = function() {
+					if(xhr.readyState == 4) {
+						if(xhr.status == 200) {
+							var response = JSON.parse(xhr.responseText);
+							if(response.success == true) {
+								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;								
+							} else {
+								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+							}
+						} else if(xhr.status == 401) {
+							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							setTimeout(function(){
+								window.location.href = '/selectserver?logout=true';
+							}, 1000);
+						} else {
+							console.log("Erro na solicitação. Código do status: " + xhr.status);
+						}						
+					}
+				};
+				
+				xhr.send(params);
+			}
+		});
+	  </script>
    </body>
 </html>
