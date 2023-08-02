@@ -60,22 +60,6 @@ if ($CountUser == 0)
     exit();
 }
 
-$query = $Connect->query("SELECT * FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $NickName = $infoBase['NickName'];
-}
-
-if (isset($_POST['changeNamed']))
-{
-    $captchaResult = addslashes($_POST["captchaResult"]);
-    $coderandom1 = addslashes($_POST["coderandom1"]);
-    $coderandom2 = addslashes($_POST["coderandom2"]);
-    $checkTotal = addslashes($coderandom1 + $coderandom2);
-    $Modify->trocarNome($Connect, $newname = addslashes($_POST['newname']) , $captchaResult, $coderandom1, $coderandom2, $checkTotal, $BaseUser, $UserName, $NickName);
-}
-
 $min_number = 1;
 $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
@@ -162,7 +146,10 @@ setcookie('captchaResult', $totalCaptcha);
 						if(xhr.status == 200) {
 							var response = JSON.parse(xhr.responseText);
 							if(response.success == true) {
-								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;								
+								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;
+								setTimeout(function(){
+									window.location.reload();
+								}, 1000);
 							} else {
 								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
 							}
