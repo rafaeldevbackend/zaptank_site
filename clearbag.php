@@ -60,49 +60,6 @@ if ($CountUser == 0)
     header("Location: /selectserver?nvic=new&sid=$i");
     exit();
 }
-
-if (isset($_POST['execute']))
-{
-    $Password = md5(addslashes($_POST['password']));
-    $UserId = $_SESSION['UserId'];
-    $query = $Connect->query("SELECT COUNT(*) AS CheckPass FROM $BaseServer.dbo.Mem_UserInfo WHERE Password = '$Password' AND UserId = '" . $UserId . "'");
-    $result = $query->fetchAll();
-    foreach ($result as $infoBase)
-    {
-        $CheckPass = $infoBase['CheckPass'];
-    }
-    if ($CheckPass == 0)
-    {
-        $_SESSION['alert_clearbag'] = "<div class='alert alert-danger ocult-time'>Sua senha está incorreta!</div>";
-    }
-    else
-    {
-        $query = $Connect->query("SELECT State, UserID FROM $BaseUser.dbo.Sys_Users_Detail WHERE UserName = '$UserName'");
-        $result = $query->fetchAll();
-        foreach ($result as $infoBase)
-        {
-            $State = $infoBase['State'];
-			$UserID = $infoBase['UserID'];
-        }
-        if ($UserID != null)
-        {
-			if ($State == 0)
-            {
-                $query = $Connect->query("UPDATE $BaseUser.dbo.Sys_Users_Goods SET IsExist=0 WHERE UserID='$UserID' AND BagType=0 AND place >=80 AND StrengthenLevel = 0");
-                $_SESSION['alert_clearbag'] = "<div class='alert alert-success ocult-time'>Sua mochila foi limpa com sucesso!</div>";
-            }
-            else
-            {
-                $_SESSION['alert_clearbag'] = "<div class='alert alert-warning ocult-time'>Sua conta está online, saia do jogo para limpar a mochila.</div>";
-            }
-        }
-        else
-        {
-            $_SESSION['alert_clearbag'] = "<div class='alert alert-warning ocult-time'>Ocorreu um erro interno, faça login novamente.</div>";
-			   session_destroy();
-        }
-    }
-}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -118,23 +75,15 @@ if (isset($_POST['execute']))
                <form class="login100-form validate-form p-t-20" action="" method="POST" id="frmLogin" autocomplete="off">
                   <span class="login100-form-title p-b-25">LIMPAR-MOCHILA</span>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo de senha é obrigatório">
-                     <input class="input100" type="password" name="password" placeholder="Digite sua senha..." autofocus>
+                     <input class="input100" type="password" name="password" id="password" placeholder="Digite sua senha..." autofocus>
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-lock"></span>
                      </span>
                   </div>
                   <a class="input-label-secondary"><p style="color:white">Após esta ação sua mochila de roupas será completamente apagada, nada nesse universo trará seus trapos de volta, certifique-se de ativar todas as fuguras antes do procedimento.</p></a>
-                  <div class="error">
-                     <?php
-                        if (isset($_SESSION['alert_clearbag']))
-                        {
-                            echo $_SESSION['alert_clearbag'];
-                            unset($_SESSION['alert_clearbag']);
-                        }
-                        ?>
-                  </div>
-                  <button name="execute" class="login100-form-btn shinyfont" type="submit">CONFIRMAR</button>
+                  <div class="error" id="error"></div>
+                  <button name="execute" class="login100-form-btn shinyfont" id="btnClearBag" type="submit">CONFIRMAR</button>
                   <div class="error">
                      <p id="login_error"></p>
                   </div>
@@ -149,5 +98,53 @@ if (isset($_POST['execute']))
       <div class="fixed-bottom text-center p-0 text-white footer">Você precisa de suporte? <a href="/ticket?suv=<?php echo $i ?>">Clique aqui e abra um ticket.</a></div>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
+	  <script type="text/javascript" src="./assets/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./assets/config.js"></script>
+	  <script type="text/javascript">
+		var error_div = document.getElementById('error');
+		
+		document.getElementById('btnClearBag').addEventListener('click', function(event){
+			event.preventDefault();
+			
+			var password = document.getElementById('password').value.trim();
+			
+			if(password == '') {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
+			} else {
+				var url = `${api_url}/character/config/clearbag`;
+				var params = `password=${password}`;
+				var jwt_hash = getCookie('jwt_authentication_hash');
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+				
+				xhr.onreadystatechange = function() {
+					if(xhr.readyState == 4) {
+						if(xhr.status == 200) {
+							var response = JSON.parse(xhr.responseText);
+							if(response.success == true) {
+								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;
+							} else {
+								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+							}
+						} else if(xhr.status == 401) {
+							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							setTimeout(function(){
+								window.location.href = '/selectserver?logout=true';
+							}, 1000);
+						} else {
+							console.log("Erro na solicitação. Código do status: " + xhr.status);
+						}						
+					}
+				};
+				
+				xhr.send(params);
+			}
+		});
+	  </script>
    </body>
 </html>
