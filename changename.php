@@ -1,8 +1,6 @@
 <?php
 include 'globalconn.php';
-include 'getconnect.php';
 
-$Connect = Connect::getConnection();
 $_SESSION['Status'] = "Conectado";
 
 if (session_status() !== PHP_SESSION_ACTIVE)
@@ -20,43 +18,7 @@ $UserName = $_SESSION['UserName'] ?? 0;
 if (empty($UserName) || $UserName == 0)
 {
     session_destroy();
-    header("Location: /selectserver");
-    exit();
-}
-
-if(!isset($_GET['suv']) || empty($_GET['suv'])) {
-    header("Location: /selectserver");
-    $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Não foi possível encontrar o servidor.</div>";
-    exit();	
-}
-
-$i = $_GET['suv'];
-$DecryptServer = $Ddtank->DecryptText($KeyPublicCrypt, $KeyPrivateCrypt, $i);
-
-$query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List WHERE ID = '$DecryptServer'");
-$result = $query->fetchAll();
-
-foreach ($result as $infoBase) {
-	$ID = $infoBase['ID'];
-    $BaseUser = $infoBase['BaseUser'];
-}
-
-if (empty($ID) || empty($BaseUser))
-{
-    header("Location: /selectserver");
-    exit();
-}
-
-$query = $Connect->query("SELECT COUNT(*) AS UserName FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $CountUser = $infoBase['UserName'];
-}
-
-if ($CountUser == 0)
-{
-    header("Location: /selectserver?nvic=new&sid=$i");
+    header("Location: /");
     exit();
 }
 
@@ -114,10 +76,23 @@ setcookie('captchaResult', $totalCaptcha);
       <div class="fixed-bottom text-center p-0 text-white footer">Você precisa de suporte? <a href="/ticket?suv=<?php echo $i ?>">Clique aqui e abra um ticket.</a></div>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
-	  <script type="text/javascript" src="./assets/utils/cookie.js"></script>
-	  <script type="text/javascript" src="./assets/config.js"></script>	  
+	  <script type="text/javascript" src="./js/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./js/config.js"></script>	  	  
+	  <script type="text/javascript" src="./js/utils/url.js"></script>
+	  <script type="text/javascript" src="./js/functions.js"></script>
 	  <script type="text/javascript">
 		var error_div = document.getElementById('error');
+		
+		var usp = new URLSearchParamsPolyfill(window.location.search);
+			
+		var suv = usp.get('suv');	
+			
+		if(suv == null || suv == '') {
+			window.location.href = 'selectserver';
+		}
+		
+		checkServerSuv(suv);
+		checkCharacter(suv);
 		
 		document.getElementById('btnChangeNick').addEventListener('click', function(event){
 			event.preventDefault();
