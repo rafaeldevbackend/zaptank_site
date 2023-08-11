@@ -107,8 +107,8 @@
       </footer>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
-	  <script type="text/javascript" src="./assets/utils/cookie.js"></script>
-	  <script type="text/javascript" src="./assets/config.js"></script>
+	  <script type="text/javascript" src="./js/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./js/config.js"></script>
 	  <script type="text/javascript">
 		var error_div = document.getElementById('error');
 	  
