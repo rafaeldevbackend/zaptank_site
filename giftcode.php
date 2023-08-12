@@ -85,7 +85,7 @@ if (empty($UserName) || $UserName == 0)
 			if(giftcode == '') {
 				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
 			} else {
-				var url = `${api_url}/character/config/giftcode`;
+				var url = `${api_url}/character/config/giftcode/${suv}`;
 				var params = `giftcode=${giftcode}`;
 				var jwt_hash = getCookie('jwt_authentication_hash');
 				

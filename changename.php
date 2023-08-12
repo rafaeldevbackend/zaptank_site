@@ -105,7 +105,7 @@ setcookie('captchaResult', $totalCaptcha);
 			} else if(captchaChallenge !== getCookie('captchaResult')) {
 				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>`;
 			} else {
-				var url = `${api_url}/character/config/changenick`;
+				var url = `${api_url}/character/config/changenick/${suv}`;
 				var params = `newnick=${newnick}`;
 				var jwt_hash = getCookie('jwt_authentication_hash');
 				

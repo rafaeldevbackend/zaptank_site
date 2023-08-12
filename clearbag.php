@@ -86,7 +86,7 @@ if (empty($UserName) || $UserName == 0)
 			if(password == '') {
 				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
 			} else {
-				var url = `${api_url}/character/config/clearbag`;
+				var url = `${api_url}/character/config/clearbag/${suv}`;
 				var params = `password=${password}`;
 				var jwt_hash = getCookie('jwt_authentication_hash');
 				
