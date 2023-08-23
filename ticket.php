@@ -1,11 +1,4 @@
 <?php
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-require './supplier/phpmailer/phpmailer/src/PHPMailer.php';
-require './supplier/phpmailer/phpmailer/src/Exception.php';
-require './supplier/phpmailer/phpmailer/src/SMTP.php';
-
 include 'globalconn.php';
 include 'getconnect.php';
 
@@ -24,47 +17,11 @@ $Dados->Destroy();
 
 $UserName = $_SESSION['UserName'] ?? 0;
 
-if (!empty($_GET['suv']))
-{
-    $i = $_GET['suv'];
-    $DecryptServer = $Ddtank->DecryptText($KeyPublicCrypt, $KeyPrivateCrypt, $i);
-    $query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List WHERE ID = '$DecryptServer'");
-    $result = $query->fetchAll();
-    foreach ($result as $infoBase)
-    {
-        $ID = $infoBase['ID'];
-        $BaseUser = $infoBase['BaseUser'];
-        $Release = $infoBase['Release'];
-        $Temporada = $infoBase['Temporada'];
-        $Maintenance = $infoBase['Maintenance'];;
-    }
-}
-else
-{
-    header("Location: selectserver");
-    $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Não foi possível encontrar o servidor.</div>";
-    exit();
-}
-
 $query = $Connect->query("SELECT COUNT(*) AS UserName FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
 $result = $query->fetchAll();
 foreach ($result as $infoBase)
 {
     $CountUser = $infoBase['UserName'];
-}
-
-$query = $Connect->query("SELECT * FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $NickName = $infoBase['NickName'];
-    $UserID = $infoBase['UserID'];
-}
-
-if ($CountUser == 0)
-{
-    header("Location: /selectserver?nvic=new&sid=$i");
-	exit();
 }
 
 $query = $Connect->query("SELECT VerifiedEmail FROM $BaseServer.dbo.Mem_UserInfo WHERE Email = '$UserName'");
@@ -74,129 +31,12 @@ foreach ($result as $infoBase)
     $VerifiedEmail = $infoBase['VerifiedEmail'];
 }
 
-if (isset($_POST['ticket']))
-{
-    $checkbox = addslashes($_POST["exampleRadios"]);
-    $textarea = addslashes($_POST["textarea"]);
-    $Number = addslashes($_POST["phone"]);
-    $captchaResult = addslashes($_POST["captchaResult"]);
-    $coderandom1 = addslashes($_POST["coderandom1"]);
-    $coderandom2 = addslashes($_POST["coderandom2"]);
-    $checkTotal = addslashes($coderandom1 + $coderandom2);
-    $illegalChar = array("'", "(" , ")" , '"', ";", "-", "+", "<", ">", "%", "~", "€", "$", "[", "]", "{", "}", "&", "#", "*", "„");
-	$textarea = str_replace($illegalChar , '', $textarea);
-	
-    if (empty($checkbox) || empty($textarea) || empty($captchaResult) || empty($Number))
-    {
-        $_SESSION['ticket_alert'] = "<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados para enviar o ticket...</div>";
-    }
-    else if ($VerifiedEmail == 0)
-    {
-        $_SESSION['ticket_alert'] = "<div class='alert alert-danger ocult-time'>Para ter acesso ao sistema de tickets você precisa ter uma conta com e-mail verificado.</div>";
-        echo "<meta http-equiv='refresh' content='3;url=checkmail' />";
-    }
-    else if (strlen($textarea) < 10)
-    {
-        $_SESSION['ticket_alert'] = "<div class='alert alert-danger ocult-time'>Seu problema deve conter mais que 10 caracteres...</div>";
-    }
-    else if ($captchaResult != $checkTotal)
-    {
-        $_SESSION['ticket_alert'] = "<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>";
-    }
-    else
-    {
-        $query = $Connect->query("SELECT COUNT(*) AS Status FROM Db_Center.dbo.Tickets WHERE Status = '0' AND UserName = '$UserName'");
-        $result = $query->fetchAll();
-        foreach ($result as $infoBase)
-        {
-            $Status = $infoBase['Status'];
-        }
-        if ($Status >= 3)
-        {
-            $_SESSION['ticket_alert'] = "<div class='alert alert-danger ocult-time'>Você tem muitos tickets abertos, aguarde a resolução dos tickets.</div>";
-        }
-        else if ($UserName != null && $NickName != null && $UserID != null && $textarea != null && $checkbox != null)
-        {
-            $query = $Connect->query("INSERT INTO Db_Center.dbo.Tickets (UserName, NickName, Email, UserID, Texto, Data, Status, CheckBox, Number, EvaluationStars, EvaluationText, IsEvaluation, SolvedBy, ServerID) VALUES (N'$UserName', N'$NickName', N'$UserName', N'$UserID', N'$textarea', getdate(), '0', N'$checkbox', N'$Number', N'0', N'Sem Avaliação', N'0', N'Não resolvido', N'$DecryptServer')");
-            if ($checkbox == 'Problemas de Login')
-            {
-                $_SESSION['ticket_alert'] = "<div class='alert alert-success'>Sua solicitação foi aberta, entraremos em contato com você através do seu e-mail ou telefone, caso seu problema esteja relacionado ao login, experimente limpar a mochila de roupas pelas <a class='text-black' href='/clearbag?suv=$i'>configurações do site.</a></div>";
-            }
-            else
-            {
-                $_SESSION['ticket_alert'] = "<div class='alert alert-success'>Sua solicitação foi aberta, entraremos em contato com você através do seu e-mail ou telefone.</div>";
-            }
-            if ($VerifiedEmail == 1)
-            {
-                if (!empty($UserName))
-                {
-                   $EncMail = $Ddtank->EncryptText($KeyPublicCrypt, $KeyPrivateCrypt, $UserName);
-                }
-                $mail = new PHPMailer;
-                $mail->CharSet = 'UTF-8';
-                $mail->isSMTP();
-                $mail->Host = $SMTP_HOST;
-                $mail->SMTPAuth = true;
-                $mail->SMTPSecure = 'tls';
-                $mail->Username = $SMTP_EMAIL; // E-mail SMTP
-                $mail->Password = $SMTP_PASSWORD;
-                $mail->Port = 587;
-                $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true, ]];
-                $mail->setFrom('noreply@redezaptank.com.br', 'DDTank'); // E-mail SMTP
-                $mail->addAddress('' . $UserName . '', 'DDTank'); // E-mail do usuário
-                $mail->isHTML(true);
-                $mail->Subject = 'Recebemos seu ticket!';
-                $mail->Body = '<style>@import url(https://fonts.googleapis.com/css?family=Roboto);body{font-family: "Roboto", sans-serif; font-size: 48px;}</style><table cellpadding="0" cellspacing="0" border="0" style="padding:0;margin:0 auto;width:100%;max-width:620px"> <tbody> <tr> <td colspan="3" style="padding:0;margin:0;font-size:1px;height:1px" height="1">&nbsp;</td></tr><tr> <td style="padding:0;margin:0;font-size:1px">&nbsp;</td><td style="padding:0;margin:0" width="590"> <span class="im"> <table width="100%" cellspacing="0" cellpadding="0" border="0"> <tbody> <tr style="background-color:#fff"> <td style="padding:11px 23px 8px 15px;float:right;font-size:12px;font-weight:300;line-height:1;color:#666;font-family:"Proxima Nova",Helvetica,Arial,sans-serif"> <p style="float:right">' . $UserName . '</p></td></tr></tbody> </table> <table bgcolor="#d65900" width="100%" cellspacing="0" cellpadding="0" border="0"> <tbody> <tr> <td height="0"></td></tr><tr> <td align="center" style="display:none"><img alt="DDTank" width="90" style="width:90px;text-align:center"></td></tr><tr> <td height="0"></td></tr><tr> <td class="m_-5336645264442155576title m_-5336645264442155576bold" style="padding:63px 33px;text-align:center" align="center"> <span class="m_-5336645264442155576mail__title" style=""> <h1><font color="#ffffff">Recebemos o seu ticket :) iremos analisar o seu caso e retornamos com uma resposta em até 24 horas. O nosso suporte funciona 24 horas por dia 7 dias por semana.</b></font></h1> <h4><font color="#ffffff">Mensagem do Ticket: ' . $textarea . '</b></font></h4> </span> </td></tr><tr> <td style="text-align:center;padding:0"> <div id="m_-5336645264442155576responsive-width" class="m_-5336645264442155576responsive-width" width="78.2% !important" style="width:77.8%!important;margin:0 auto;background-color:#fbee00;display:none"> <div style="height:50px;margin:0 auto">&nbsp;</div></div></td></tr></tbody> </table> </span> <div id="m_-5336645264442155576div-table-wrapper" class="m_-5336645264442155576div-table-wrapper" style="text-align:center;margin:0 auto"> <table class="m_-5336645264442155576main-card-shadow" bgcolor="#ffffff" align="center" border="0" cellpadding="0" cellspacing="0" style="border:none;padding:48px 33px 0;text-align:center"> <tbody> <tr> <td align="center"> <table class="m_-5336645264442155576mail__buttons-container" align="center" width="200" border="0" cellpadding="0" cellspacing="0" style="border-radius:4px;height:48px;width:240px;table-layout:fixed;margin:32px auto"> <tbody> <tr> <td style="border-radius:4px;height:30px;font-family:"Proxima nova",Helvetica,Arial,sans-serif" bgcolor="#d65900"><a href="https://redezaptank.com.br/" style="padding:10px 3px;display:block;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:#fff;text-decoration:none;text-align:center" target="_blank" data-saferedirecturl="https://redezaptank.com.br/">Voltar para o Jogo</a></td></tr></tbody> </table> </td></tr><tr> <td align="center"> <p class="m_-5336645264442155576mail__text-card m_-5336645264442155576bold" style="text-decoration:none;font-family:"Proxima Nova",Arial,Helvetica,sans-serif;text-align:center;line-height:16px;max-width:390px;width:100%;margin:0 auto 0;font-size:14px;color:#999">O ZapTank enviou este e-mail pois você optou por recebê-lo ao cadastrar-se no site. Se você não deseja receber e-mails, <a href="https://redezaptank.com.br/unsubscribemaillist?mail=' . $EncMail . '" style="color:rgb(227, 72, 0);text-decoration:none" target="_blank" data-saferedirecturl="">cancele o recebimento</p></td></tr></tbody> </table> </div></td><td style="padding:0;margin:0;font-size:1px">&nbsp;</td></tr><tr> <td colspan="3" style="padding:0;margin:0;font-size:1px;height:1px" height="1">&nbsp;</td></tr></tbody></table><small class="text-muted"><?php setlocale(LC_TIME, "pt_BR", "pt_BR.utf-8", "pt_BR.utf-8", "portuguese"); date_default_timezone_set("America/Sao_Paulo"); echo strftime("%A, %d de %B de %Y", strtotime("today"));?></small> </p></div></div>';
-                $mail->AltBody = 'Recebemos seu ticket!';
-                $mail->send();
-            }
-            $query = $Connect->query("SELECT UserName FROM Db_Center.dbo.Admin_Permission");
-            $result = $query->fetchAll();
-            foreach ($result as $infoBase)
-            {
-                $AdminUsers = $infoBase['UserName'];
-                $query = $Connect->query("SELECT UserId FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$AdminUsers'");
-                $result = $query->fetchAll();
-                foreach ($result as $infoBase)
-                {
-                    $UserId = $infoBase['UserId'];
-                    $query = $Connect->query("SELECT Email FROM Db_Center.dbo.Mem_UserInfo WHERE UserId = '$UserId'");
-                    $result = $query->fetchAll();
-                    foreach ($result as $infoBase)
-                    {
-                        $GetMail = $infoBase['Email'];
-                        $mail = new PHPMailer;
-                        $mail->CharSet = 'UTF-8';
-                        $mail->isSMTP();
-                        $mail->Host = $SMTP_HOST;
-                        $mail->SMTPAuth = true;
-                        $mail->SMTPSecure = 'tls';
-                        $mail->Username = $SMTP_EMAIL; // E-mail SMTP
-                        $mail->Password = $SMTP_PASSWORD;
-                        $mail->Port = 587;
-                        $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true, ]];
-                        $mail->setFrom('noreply@redezaptank.com.br', 'DDTank'); // E-mail SMTP
-                        $mail->addAddress('' . $GetMail . '', 'DDTank'); // E-mail do usuário
-                        $mail->isHTML(true);
-                        $mail->Subject = 'Novo ticket!';
-                        $mail->Body = '<style>@import url(https://fonts.googleapis.com/css?family=Roboto);body{font-family: "Roboto", sans-serif; font-size: 48px;}</style><table cellpadding="0" cellspacing="0" border="0" style="padding:0;margin:0 auto;width:100%;max-width:620px"> <tbody> <tr> <td colspan="3" style="padding:0;margin:0;font-size:1px;height:1px" height="1">&nbsp;</td></tr><tr> <td style="padding:0;margin:0;font-size:1px">&nbsp;</td><td style="padding:0;margin:0" width="590"> <span class="im"> <table width="100%" cellspacing="0" cellpadding="0" border="0"> <tbody> <tr style="background-color:#fff"> <td style="padding:11px 23px 8px 15px;float:right;font-size:12px;font-weight:300;line-height:1;color:#666;font-family:"Proxima Nova",Helvetica,Arial,sans-serif"> <p style="float:right">' . $UserName . '</p></td></tr></tbody> </table> <table bgcolor="#d65900" width="100%" cellspacing="0" cellpadding="0" border="0"> <tbody> <tr> <td height="0"></td></tr><tr> <td align="center" style="display:none"><img alt="DDTank" width="90" style="width:90px;text-align:center"></td></tr><tr> <td height="0"></td></tr><tr> <td class="m_-5336645264442155576title m_-5336645264442155576bold" style="padding:63px 33px;text-align:center" align="center"> <span class="m_-5336645264442155576mail__title" style=""> <h1><font color="#ffffff">Um novo ticket foi aberto</b></font></h1> <h4><font color="#ffffff">Mensagem do Ticket: ' . $textarea . '</b></font></h4> </span> </td></tr><tr> <td style="text-align:center;padding:0"> <div id="m_-5336645264442155576responsive-width" class="m_-5336645264442155576responsive-width" width="78.2% !important" style="width:77.8%!important;margin:0 auto;background-color:#fbee00;display:none"> <div style="height:50px;margin:0 auto">&nbsp;</div></div></td></tr></tbody> </table> </span> <div id="m_-5336645264442155576div-table-wrapper" class="m_-5336645264442155576div-table-wrapper" style="text-align:center;margin:0 auto"> <table class="m_-5336645264442155576main-card-shadow" bgcolor="#ffffff" align="center" border="0" cellpadding="0" cellspacing="0" style="border:none;padding:48px 33px 0;text-align:center"> <tbody> <tr> <td align="center"> <table class="m_-5336645264442155576mail__buttons-container" align="center" width="200" border="0" cellpadding="0" cellspacing="0" style="border-radius:4px;height:48px;width:240px;table-layout:fixed;margin:32px auto"> <tbody> <tr> <td style="border-radius:4px;height:30px;font-family:"Proxima nova",Helvetica,Arial,sans-serif" bgcolor="#d65900"><a href="https://redezaptank.com.br/viewtickets?suv=' . $i . '" style="padding:10px 3px;display:block;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:#fff;text-decoration:none;text-align:center" target="_blank" data-saferedirecturl="https://redezaptank.com.br/viewtickets?suv=' . $i . '">Verificar Ticket</a></td></tr></tbody> </table> </td></tr><tr> <td align="center"> <p class="m_-5336645264442155576mail__text-card m_-5336645264442155576bold" style="text-decoration:none;font-family:"Proxima Nova",Arial,Helvetica,sans-serif;text-align:center;line-height:16px;max-width:390px;width:100%;margin:0 auto 0;font-size:14px;color:#999">E-mail enviado automaticamente, não responda.</p></td></tr></tbody> </table> </div></td><td style="padding:0;margin:0;font-size:1px">&nbsp;</td></tr><tr> <td colspan="3" style="padding:0;margin:0;font-size:1px;height:1px" height="1">&nbsp;</td></tr></tbody></table><small class="text-muted"><?php setlocale(LC_TIME, "pt_BR", "pt_BR.utf-8", "pt_BR.utf-8", "portuguese"); date_default_timezone_set("America/Sao_Paulo"); echo strftime("%A, %d de %B de %Y", strtotime("today"));?></small> </p></div></div>';
-                        $mail->AltBody = 'Novo ticket!';
-                        $mail->send();
-                    }
-                }
-            }
-        }
-        else
-        {
-            $_SESSION['ticket_alert'] = "<div class='alert alert-danger ocult-time'>Seu e-mail não foi enviado, estamos com uma demanda de e-mails acima do normal. Nossos engenheiros foram notificados e estão resolvendo o mais rápido possível.</div>";
-        }
-    }
-}
-
 $min_number = 1;
 $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
 $random_number2 = mt_rand($min_number, $max_number);
+$totalCaptcha = $random_number1 + $random_number2;
+setcookie('captchaResult', $totalCaptcha);
 ?>
 
 <!DOCTYPE html>
@@ -245,78 +85,69 @@ $random_number2 = mt_rand($min_number, $max_number);
                   </div>
                   <script>setTimeout(faceAnmite, 400); function faceAnmite (){var faceObj=$('#p_picture').find('.f_face').find('img'); var current=faceObj.data('current'); var faceTrans=[0, 397, 264.8, 397]; current++; if (current==4){current=0;}faceObj.data('current', current); faceObj.css('transform', 'translateX(-' + faceTrans[current] + 'px)'); if (current > 0){setTimeout(faceAnmite, 100);}else{setTimeout(faceAnmite, 2000);}}</script>
                   <form class="validate-form" method="post" id="frmregistercenter">
-                  <div class="form-group">
-                     <div class="form-check">
-                        <input class="form-check-input col-md-1" type="radio" name="exampleRadios" value="Problemas de Login" checked>
-                        <label class="form-check-label text-white">
-                        Problemas de Login
-                        </label>
-                     </div>
-                     <div class="form-check">
-                        <input class="form-check-input col-md-1" type="radio" name="exampleRadios" value="Problema com Recarga">
-                        <label class="form-check-label text-white">
-                        Problemas com recargas
-                        </label>
-                     </div>
-                     <div class="form-check">
-                        <input class="form-check-input col-md-1" type="radio" name="exampleRadios" value="Reportar Jogador">
-                        <label class="form-check-label text-white">
-                        Reportar Jogador
-                        </label>
-                     </div>
-                     <div class="form-check">
-                        <input class="form-check-input col-md-1" type="radio" name="exampleRadios" value="Problema não especificado">
-                        <label class="form-check-label text-white">
-                        Outros
-                        </label>
-                     </div>
-					 <?php
-						if ($CountUser == 0)
-						{
-						    echo '<textarea class="form-control" disabled placeholder="Para abrir um ticket primeiro você deve criar um personagem..." rows="5"></textarea>';
-						}
-						else
-						{
-							echo '<textarea class="form-control" name="textarea" placeholder="Descreva aqui seu problema detalhadamente..." rows="5"></textarea>';
-						}
-						
-                        ?>			
-                  </div>
-				  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo de Telefone é obrigatório">
-                     <input class="input100" type="text" data-mask="(+55) 00 90000-0000" name="phone" value="<?php if (!empty($_SESSION['Telefone'])){echo preg_replace('/[^0-9]/', '', $_SESSION['Telefone']);} ?>" placeholder="Telefone para contato">
-                     <span class="focus-input100"></span>
-                     <span class="symbol-input100">
-                     <span class="lnr lnr-phone"></span>
-                     </span>
-                  </div>
-                  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do código é obrigatório">
-                     <input class="input100" type="text" name="captchaResult" size="2" id="register_password" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
-                     <input name="coderandom1" type="hidden" value="<?php echo $random_number1; ?>" />
-                     <input name="coderandom2" type="hidden" value="<?php echo $random_number2; ?>" />
-                     <span class="focus-input100"></span>
-                     <span class="symbol-input100">
-                     <span class="lnr lnr-sync"></span>
-                     </span>
-                  </div>
-                  <div class="error">
-                     <?php
-                        if (isset($_SESSION['ticket_alert']))
-                        {
-                            echo $_SESSION['ticket_alert'];
-                            unset($_SESSION['ticket_alert']);
-                        }
-						
-						if ($CountUser == 0)
-						{
-						    echo '<button class="login100-form-btn" disabled>ENVIAR TICKET</button>';
-						}
-						else
-						{
-							echo '<button class="login100-form-btn shinyfont" name="ticket" onclick="Register()">ENVIAR TICKET</button>';
-						}
-						
-                        ?>
-                  </div>
+					  <div class="form-group">
+						 <div class="form-check">
+							<input class="form-check-input col-md-1" type="radio" name="subject" value="Problemas de Login" checked>
+							<label class="form-check-label text-white">
+							Problemas de Login
+							</label>
+						 </div>
+						 <div class="form-check">
+							<input class="form-check-input col-md-1" type="radio" name="subject" value="Problema com Recarga">
+							<label class="form-check-label text-white">
+							Problemas com recargas
+							</label>
+						 </div>
+						 <div class="form-check">
+							<input class="form-check-input col-md-1" type="radio" name="subject" value="Reportar Jogador">
+							<label class="form-check-label text-white">
+							Reportar Jogador
+							</label>
+						 </div>
+						 <div class="form-check">
+							<input class="form-check-input col-md-1" type="radio" name="subject" value="Problema não especificado">
+							<label class="form-check-label text-white">
+							Outros
+							</label>
+						 </div>
+						 <?php
+							if ($CountUser == 0)
+							{
+								echo '<textarea class="form-control" placeholder="Para abrir um ticket primeiro você deve criar um personagem..." rows="5" id="description" disabled></textarea>';
+							}
+							else
+							{
+								echo '<textarea class="form-control" id="description" placeholder="Descreva aqui seu problema detalhadamente..." rows="5"></textarea>';
+							}
+							
+							?>			
+					  </div>
+					  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo de Telefone é obrigatório">
+						 <input class="input100" type="text" data-mask="(+55) 00 90000-0000" name="phone" id="phone" value="<?php if (!empty($_SESSION['Telefone'])){echo preg_replace('/[^0-9]/', '', $_SESSION['Telefone']);} ?>" placeholder="Telefone para contato">
+						 <span class="focus-input100"></span>
+						 <span class="symbol-input100">
+						 <span class="lnr lnr-phone"></span>
+						 </span>
+					  </div>
+					  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do código é obrigatório">
+						 <input class="input100" type="text" name="captchaResult" size="2" id="captchaResult" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
+						 <span class="focus-input100"></span>
+						 <span class="symbol-input100">
+						 <span class="lnr lnr-sync"></span>
+						 </span>
+					  </div>
+					  <div class="error" id="error"></div>
+					  <div id="container-button">
+						 <?php					
+							if ($CountUser == 0) {
+								echo '<button class="login100-form-btn" disabled>ENVIAR TICKET</button>';
+							}
+							else {
+								echo '<button class="login100-form-btn shinyfont" name="ticket" id="btnSendTicket">ENVIAR TICKET</button>';
+							}
+							
+						 ?>
+					  </div>
                   </form>
                   <div class="text-center w-full p-t-10">
                      <a class="input-label-secondary" href="/serverlist?suv=<?php echo $i ?>">
@@ -331,5 +162,78 @@ $random_number2 = mt_rand($min_number, $max_number);
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
       <script async src="./assets/jquery.mask.min.js"></script>
+	  <script type="text/javascript" src="./js/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./js/config.js"></script>
+	  <script type="text/javascript" src="./js/utils/url.js"></script>
+	  <script type="text/javascript" src="./js/utils/form.js"></script>
+	  <script type="text/javascript" src="./js/functions.js"></script>
+	  <script type="text/javascript">
+
+		var error_div = document.getElementById('error');
+		
+		var usp = new URLSearchParamsPolyfill(window.location.search);
+			
+		var suv = usp.get('suv');	
+		
+		if(suv == null || suv == '') {
+			window.location.href = 'selectserver';
+		}
+		
+		checkServerSuv(suv);
+		checkCharacter(suv);		
+
+		document.getElementById('container-button').addEventListener('click', function(event) {
+			event.preventDefault();
+			
+			if (event.target && event.target.nodeName === "BUTTON") {
+
+				var subject = getSelectedValueFromInputRadio('subject');
+				var description = document.getElementById('description').value.trim();
+				var phone = document.getElementById('phone').value.trim();				
+				var captchaChallenge = document.getElementById('captchaResult').value.trim();		
+				
+				if(subject == '' || description == '' || phone == '' || captchaChallenge == '') {
+					error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
+				} else if(captchaChallenge !== getCookie('captchaResult')) {
+					error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>`;
+				} else {
+					var url = `${api_url}/ticket/new/${suv}`;
+					var params = `subject=${subject}&description=${description}&phone=${phone}`;
+					var jwt_hash = getCookie('jwt_authentication_hash');
+					
+					var xhr = new XMLHttpRequest();
+					
+					xhr.open('POST', url, true);
+					xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+					xhr.setRequestHeader('Content-type', 'application/json');
+					xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+					
+					xhr.onreadystatechange = function() {
+						if(xhr.readyState == 4) {
+							if(xhr.status == 200) {
+								var response = JSON.parse(xhr.responseText);
+								if(response.success == true && response.status_code == 'ticket_created_with_advice') {
+									error_div.innerHTML = `<div class='alert alert-success ocult-time'>Sua solicitação foi aberta, entraremos em contato com você através do seu e-mail ou telefone, caso seu problema esteja relacionado ao login, experimente limpar a mochila de roupas pelas <a class='text-black' href='/clearbag?suv=${suv}'>configurações do site.</a></div>`;
+								} else if(response.success == true && response.status_code == 'ticket_created') {
+									error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;
+								} else {
+									error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+								}
+							} else if(xhr.status == 401) {
+								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+								setTimeout(function(){
+									window.location.href = '/selectserver?logout=true';
+								}, 1000);
+							} else {
+								console.log("Erro na solicitação. Código do status: " + xhr.status);
+							}						
+						}
+					};
+					
+					xhr.send(params);
+				}				
+			}
+		});			
+	  </script>
    </body>
 </html>
