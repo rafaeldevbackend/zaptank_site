@@ -27,7 +27,7 @@ function checkServerSuv(suv) {
 
 function checkCharacter(suv) {
 	
-	var url = `${api_url}/character/check`;
+	var url = `${api_url}/character/check/${suv}`;
 	var jwt_hash = getCookie('jwt_authentication_hash');
 
 	var xhr = new XMLHttpRequest();
