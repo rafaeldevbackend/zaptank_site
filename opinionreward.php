@@ -24,11 +24,10 @@ if (empty($UserName) || $UserName == 0)
     exit();
 }
 
-$query = $Connect->query("SELECT VerifiedEmail, Opinion FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$UserName'");
+$query = $Connect->query("SELECT Opinion FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$UserName'");
 $result = $query->fetchAll();
 foreach ($result as $infoBase)
 {
-    $VerifiedEmail = $infoBase['VerifiedEmail'];
     $Opinion = $infoBase['Opinion'];
 }
 
@@ -42,76 +41,14 @@ if (!empty($_GET['suv']))
     {
         $ID = $infoBase['ID'];
         $BaseUser = $infoBase['BaseUser'];
-        $Release = $infoBase['Release'];
-        $Temporada = $infoBase['Temporada'];
-        $Maintenance = $infoBase['Maintenance'];;
     }
 }
-else
-{
-    header("Location: selectserver");
-    $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Não foi possível encontrar o servidor.</div>";
-    exit();
-}
 
-if (empty($ID) || empty($BaseUser))
-{
-    header("Location: selectserver");
-    exit();
-}
-
-$query = $Connect->query("SELECT COUNT(*) AS UserName FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $CountUser = $infoBase['UserName'];
-}
-
-if ($CountUser == 0)
-{
-    header("Location: /selectserver?nvic=new&sid=$i");
-    exit();
-}
-
-if ($Opinion)
-{
+if ($Opinion) {
     header("location: /selectserver");
     exit();
 }
-
-if (isset($_POST['execute']) && !$Opinion)
-{
-    $checkbox = addslashes($_POST["exampleRadios"]);
-
-    if (empty($checkbox))
-    {
-        $_SESSION['ticket_alert'] = "<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados...</div>";
-    }
-    else if ($VerifiedEmail == 0)
-    {
-        $_SESSION['ticket_alert'] = "<div class='alert alert-danger ocult-time'>Para ter acesso ao sistema de opiniões você precisa ter uma conta com e-mail verificado.</div>";
-        echo "<meta http-equiv='refresh' content='3;url=checkmail' />";
-    }
-    else
-    {
-        if (!empty($UserName))
-        {
-            $query = $Connect->query("UPDATE Db_Center.dbo.Mem_UserInfo SET Reference='$checkbox' WHERE Email='$UserName'");
-			$query = $Connect->query("UPDATE Db_Center.dbo.Mem_UserInfo SET Opinion='1' WHERE Email='$UserName'");
-			$query = $Connect->query("INSERT INTO Db_Center.dbo.Bag_Goods (UserName, TemplateID, Count) VALUES (N'$UserName', N'2100000014', N'1')");
-            $_SESSION['ticket_alert'] = "<div class='alert alert-success'>Valeu :) com certeza sua contribuição tornará nosso jogo melhor, suas recompensas foram enviadas para sua <a style='color:black' href='/backpack?suv=$i'>mochila virtual</a>!</div>";
-			echo "<meta http-equiv='refresh' content='10;url=/backpack?suv=$i' />";
-        }
-        else
-        {
-            session_destroy();
-            header("Location: /selectserver");
-            exit();
-        }
-    }
-}
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
    <title><?php echo $Title; ?> Opinião valiosa</title>
@@ -158,52 +95,42 @@ if (isset($_POST['execute']) && !$Opinion)
                   </div>
                   <script>setTimeout(faceAnmite, 400); function faceAnmite (){var faceObj=$('#p_picture').find('.f_face').find('img'); var current=faceObj.data('current'); var faceTrans=[0, 397, 264.8, 397]; current++; if (current==4){current=0;}faceObj.data('current', current); faceObj.css('transform', 'translateX(-' + faceTrans[current] + 'px)'); if (current > 0){setTimeout(faceAnmite, 100);}else{setTimeout(faceAnmite, 2000);}}</script>
                   <form class="validate-form" method="post" id="frmregistercenter">
-                  <div class="form-group">
-                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="exampleRadios" value="Google" checked>
-                        <label class="form-check-label text-white">
-                        Anúncios do Google.
-                        </label>
-                     </div>
-                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="exampleRadios" value="Facebook">
-                        <label class="form-check-label text-white">
-                        Anúncios do Facebook.
-                        </label>
-                     </div>
-                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="exampleRadios" value="Email">
-                        <label class="form-check-label text-white">
-                        Recebi um E-mail
-                        </label>
-                     </div>
-					 <div class="form-check">
-                        <input class="form-check-input" type="radio" name="exampleRadios" value="SMS">
-                        <label class="form-check-label text-white">
-                        Recebi um SMS.
-                        </label>
-                     </div>
-                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="exampleRadios" value="Other">
-                        <label class="form-check-label text-white">
-                        Outros.
-                        </label>
-                     </div>
-                  </div>
-                  <div class="error">
-                     <?php
-                        if (isset($_SESSION['ticket_alert']))
-                        {
-                            echo $_SESSION['ticket_alert'];
-                            unset($_SESSION['ticket_alert']);
-                        }
-                        ?>
-                  </div>
-				  <a style="color:white" class="input-label-secondary">Cada recompensa só pode ser resgatada uma única vez para cada conta.</a>
-				  <br></br>
-                  <button class="login100-form-btn shinyfont" name="execute" onclick="Register()">
-                  RECEBER RECOMPENSAS
-                  </button>
+					  <div class="form-group">
+						 <div class="form-check">
+							<input class="form-check-input" type="radio" name="method" value="Google" checked>
+							<label class="form-check-label text-white">
+							Anúncios do Google.
+							</label>
+						 </div>
+						 <div class="form-check">
+							<input class="form-check-input" type="radio" name="method" value="Facebook">
+							<label class="form-check-label text-white">
+							Anúncios do Facebook.
+							</label>
+						 </div>
+						 <div class="form-check">
+							<input class="form-check-input" type="radio" name="method" value="Email">
+							<label class="form-check-label text-white">
+							Recebi um E-mail
+							</label>
+						 </div>
+						 <div class="form-check">
+							<input class="form-check-input" type="radio" name="method" value="SMS">
+							<label class="form-check-label text-white">
+							Recebi um SMS.
+							</label>
+						 </div>
+						 <div class="form-check">
+							<input class="form-check-input" type="radio" name="method" value="Other">
+							<label class="form-check-label text-white">
+							Outros.
+							</label>
+						 </div>
+					  </div>
+					  <div class="error" id="error"></div>
+					  <a style="color:white" class="input-label-secondary">Cada recompensa só pode ser resgatada uma única vez para cada conta.</a>
+					  <br></br>
+					  <button class="login100-form-btn shinyfont" id="btnSendSurvey">RECEBER RECOMPENSAS</button>
                   </form>
                   <div class="text-center w-full p-t-20">
                      <a class="input-label-secondary" href="serverlist?suv=<?php echo $i ?>">
@@ -218,5 +145,71 @@ if (isset($_POST['execute']) && !$Opinion)
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
       <script async src="./assets/jquery.mask.min.js"></script>
+	  <script type="text/javascript" src="./js/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./js/config.js"></script>
+	  <script type="text/javascript" src="./js/utils/url.js"></script>
+	  <script type="text/javascript" src="./js/utils/form.js"></script>
+	  <script type="text/javascript" src="./js/functions.js"></script>
+	  <script type="text/javascript">
+
+		var error_div = document.getElementById('error');
+		
+		var usp = new URLSearchParamsPolyfill(window.location.search);
+			
+		var suv = usp.get('suv');	
+		
+		if(suv == null || suv == '') {
+			window.location.href = 'selectserver';
+		}
+		
+		checkServerSuv(suv);
+		checkCharacter(suv);		
+
+		document.getElementById('btnSendSurvey').addEventListener('click', function(event) {
+			event.preventDefault();
+			
+			var method = getSelectedValueFromInputRadio('method');
+			
+			if(method == '') {
+				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
+			} else {
+				var url = `${api_url}/survey/save/${suv}`;
+				var params = `method=${method}`;
+				var jwt_hash = getCookie('jwt_authentication_hash');
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+				
+				xhr.onreadystatechange = function() {
+					if(xhr.readyState == 4) {
+						if(xhr.status == 200) {
+							var response = JSON.parse(xhr.responseText);
+							if(response.success == true) {
+								error_div.innerHTML = `<div class='alert alert-success'>Valeu :) com certeza sua contribuição tornará nosso jogo melhor, suas recompensas foram enviadas para sua <a style='color:black' href='/backpack?suv=$i'>mochila virtual</a>!</div>`;
+								setTimeout(function(){
+									window.location.href = '/backpack?suv=${suv}';
+								}, 5000);									
+							} else {
+								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+							}
+						} else if(xhr.status == 401) {
+							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							setTimeout(function(){
+								window.location.href = '/selectserver?logout=true';
+							}, 1000);
+						} else {
+							console.log("Erro na solicitação. Código do status: " + xhr.status);
+						}						
+					}
+				};
+				
+				xhr.send(params);
+			}
+		});			
+	  </script>
    </body>
 </html>
