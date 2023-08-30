@@ -1,1 +1,1 @@
-api_url = 'http://localhost:8080/zaptank_api';
+api_url = 'http://localhost/api';
