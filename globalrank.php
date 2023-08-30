@@ -23,85 +23,7 @@ if (empty($UserName) || $UserName == 0)
     header("Location: /");
     exit();
 }
-
-if (!empty($_GET['suv']))
-{
-    $i = $_GET['suv'];
-    $DecryptServer = $Ddtank->DecryptText($KeyPublicCrypt, $KeyPrivateCrypt, $i);
-    $query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List WHERE ID = '$DecryptServer'");
-    $result = $query->fetchAll();
-    foreach ($result as $infoBase)
-    {
-        $ID = $infoBase['ID'];
-        $BaseUser = $infoBase['BaseUser'];
-    }
-}
-else
-{
-    header("Location: selectserver");
-    $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Não foi possível encontrar o servidor.</div>";
-    exit();
-}
-
-if (empty($ID) || empty($BaseUser))
-{
-    header("Location: selectserver");
-    exit();
-}
-
-$query = $Connect->query("SELECT COUNT(*) AS UserName FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $CountUser = $infoBase['UserName'];
-}
-
-if ($CountUser == 0)
-{
-    header("Location: /selectserver?nvic=new&sid=$i");
-    exit();
-}
-
-   $query = $Connect->query("SELECT TOP 1 * FROM $BaseServer.dbo.Rank_Temporada WHERE ServerID = '$ID'");
-   $result = $query->fetchAll();
-   foreach ($result as $infoBase)
-   {
-       $Nome1 = $infoBase['Nome'];
-       $Level1 = $infoBase['Level'];
-       $PartidasJogadas1 = $infoBase['PartidasJogadas'];
-       $PartidasGanhas1 = $infoBase['PartidasGanhas'];
-       $Poder1 = $infoBase['Poder'];
-       $Style1 = $infoBase['Style'];
-       $Sex1 = $infoBase['Sex'];
-   }
-
-   $query = $Connect->query("SELECT TOP 2 * FROM $BaseServer.dbo.Rank_Temporada WHERE ServerID = '$ID'");
-   $result = $query->fetchAll();
-   foreach ($result as $infoBase)
-   {
-       $Nome2 = $infoBase['Nome'];
-       $Level2 = $infoBase['Level'];
-       $PartidasJogadas2 = $infoBase['PartidasJogadas'];
-       $PartidasGanhas2 = $infoBase['PartidasGanhas'];
-       $Poder2 = $infoBase['Poder'];
-       $Style2 = $infoBase['Style'];
-       $Sex2 = $infoBase['Sex'];
-   }
-
-   $query = $Connect->query("SELECT TOP 3 * FROM $BaseServer.dbo.Rank_Temporada WHERE ServerID = '$ID'");
-   $result = $query->fetchAll();
-   foreach ($result as $infoBase)
-   {
-       $Nome3 = $infoBase['Nome'];
-       $Level3 = $infoBase['Level'];
-       $PartidasJogadas3 = $infoBase['PartidasJogadas'];
-       $PartidasGanhas3 = $infoBase['PartidasGanhas'];
-       $Poder3 = $infoBase['Poder'];
-       $Style3 = $infoBase['Style'];
-       $Sex3 = $infoBase['Sex'];
-   }
-   
-   ?>
+?>
 <!DOCTYPE html>
 <html lang="pt-br">
    <title><?php echo $Title; ?> Rank Temporadas</title>
@@ -116,93 +38,8 @@ if ($CountUser == 0)
                   <div class="subpage-content" style="">
                      <div class="player_profile">
                         <div class="">
-                           <div class="p_border" style="">
+                           <div class="p_border" id="characters" style="">
                               <div class="f_nick" style="">
-                              </div>
-                              <?php
-                                 $string1 = $Ddtank->GetStyleTemporada($Connect, 1, $ID);
-                                 $string2 = $Ddtank->GetStyleTemporada($Connect, 2, $ID);
-                                 $string3 = $Ddtank->GetStyleTemporada($Connect, 3, $ID);
-                                 
-                                 $arr1 = explode(',', $string1);
-                                 
-                                 $head1 = explode('|', $arr1[0]);
-                                 
-                                 $eff1 = explode('|', $arr1[3]);
-                                 
-                                 $hair1 = explode('|', $arr1[2]);
-                                 
-                                 $face1 = explode('|', $arr1[5]);
-                                 
-                                 $cloth1 = explode('|', $arr1[4]);
-                                 
-                                 $sex1 = ($Ddtank->GetSexByTemporada($Connect, 1, $ID)) ? 'm': 'f';
-                                 
-                                 $arr2 = explode(',', $string2);
-                                 
-                                 $head2 = explode('|', $arr2[0]);
-                                 
-                                 $eff2 = explode('|', $arr2[3]);
-                                 
-                                 $hair2 = explode('|', $arr2[2]);
-                                 
-                                 $face2 = explode('|', $arr2[5]);
-                                 
-                                 $cloth2 = explode('|', $arr2[4]);
-                                 
-                                 $sex2 = ($Ddtank->GetSexByTemporada($Connect, 2, $ID)) ? 'm': 'f';
-                                 
-                                 $arr3 = explode(',', $string3);
-                                 
-                                 $head3 = explode('|', $arr3[0]);
-                                 
-                                 $eff3 = explode('|', $arr3[3]);
-                                 
-                                 $hair3 = explode('|', $arr3[2]);
-                                 
-                                 $face3 = explode('|', $arr3[5]);
-                                 
-                                 $cloth3 = explode('|', $arr3[4]);
-                                 
-                                 $arm1 = explode('|', $arr1[6]);
-                                 $arm2 = explode('|', $arr2[6]);
-                                 $arm3 = explode('|', $arr3[6]);
-                                 
-                                 $sex3 = ($Ddtank->GetSexByTemporada($Connect, 3, $ID)) ? 'm': 'f';
-                                 
-                                 ?>
-                              <div class="p_picture" id="p_picture">
-                                 <!--<div class="f_head"><img alt="DDTank" src="<?php echo $Resource ?>equip/<?php echo $sex1 ?>/head/<?= (!empty($head1[1]))? ($head1[1]): 'default' ?>/1/show.png"></div>-->
-                                 <div class="f_hair"><img alt="DDTank" src="<?php echo $Resource ?>equip/<?php echo $sex1 ?>/hair/<?= (!empty($hair1[1]))? ($hair1[1]): 'default' ?>/1/B/show.png"></div>
-                                 <div class="f_effect"><img alt="DDTank" src="<?php echo $Resource ?>equip/<?php echo $sex1 ?>/eff/<?= (!empty($eff1[1]))? ($eff1[1]): 'default' ?>/1/show.png"></div>
-                                 <div class="f_face"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/<?php echo $sex1 ?>/face/<?= (!empty($face1[1]))? ($face1[1]): 'default' ?>/1/show.png"></div>
-                                 <div class="f_cloth"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/<?php echo $sex1 ?>/cloth/<?= (!empty($cloth1[1]))? ($cloth1[1]): 'default' ?>/1/show.png"></div>
-                                 <div class="f_arm">
-                                    <img src="<?php echo $Resource ?>arm/<?= (!empty($arm1[1]))? ($arm1[1]): 'axe' ?>/1/0/show.png"> 
-                                 </div>
-                                 <div class="i_grade" style="background-image: url('../assets/images/grade/<?php echo $Ddtank->GetLevelTemporada($Connect, 1, $ID) ?>.png');"></div>
-                              </div>
-                              <div class="p_picture2" id="p_picture2">
-                                 <!--<div class="f_head"><img alt="DDTank" src="<?php echo $Resource ?>equip/<?php echo $sex2 ?>/head/<?= (!empty($head2[1]))? ($head2[1]): 'default' ?>/1/show.png"></div>-->
-                                 <div class="f_hair"><img alt="DDTank" src="<?php echo $Resource ?>equip/<?php echo $sex2 ?>/hair/<?= (!empty($hair2[1]))? ($hair2[1]): 'default' ?>/1/B/show.png"></div>
-                                 <div class="f_effect"><img alt="DDTank" src="<?php echo $Resource ?>equip/<?php echo $sex2 ?>/eff/<?= (!empty($eff2[1]))? ($eff2[1]): 'default' ?>/1/show.png"></div>
-                                 <div class="f_face"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/<?php echo $sex2 ?>/face/<?= (!empty($face2[1]))? ($face2[1]): 'default' ?>/1/show.png"></div>
-                                 <div class="f_cloth"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/<?php echo $sex2 ?>/cloth/<?= (!empty($cloth2[1]))? ($cloth2[1]): 'default' ?>/1/show.png"></div>
-                                 <div class="f_arm">
-                                    <img src="<?php echo $Resource ?>arm/<?= (!empty($arm2[1]))? ($arm2[1]): 'axe' ?>/1/0/show.png"> 
-                                 </div>
-                                 <div class="i_grade" style="background-image: url('../assets/images/grade/<?php echo $Ddtank->GetLevelTemporada($Connect, 2, $ID) ?>.png');"></div>
-                              </div>
-                              <div class="p_picture3" id="p_picture3">
-                                 <!--<div class="f_head"><img alt="DDTank" src="<?php echo $Resource ?>equip/<?php echo $sex3 ?>/head/<?= (!empty($head3[1]))? ($head3[1]): 'default' ?>/1/show.png"></div>-->
-                                 <div class="f_hair"><img alt="DDTank" src="<?php echo $Resource ?>equip/<?php echo $sex3 ?>/hair/<?= (!empty($hair3[1]))? ($hair3[1]): 'default' ?>/1/B/show.png"></div>
-                                 <div class="f_effect"><img alt="DDTank" src="<?php echo $Resource ?>equip/<?php echo $sex3 ?>/eff/<?= (!empty($eff3[1]))? ($eff3[1]): 'default' ?>/1/show.png"></div>
-                                 <div class="f_face"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/<?php echo $sex3 ?>/face/<?= (!empty($face3[1]))? ($face3[1]): 'default' ?>/1/show.png"></div>
-                                 <div class="f_cloth"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/<?php echo $sex3 ?>/cloth/<?= (!empty($cloth3[1]))? ($cloth3[1]): 'default' ?>/1/show.png"></div>
-                                 <div class="f_arm">
-                                    <img alt="DDTank" src="<?php echo $Resource ?>arm/<?= (!empty($arm3[1]))? ($arm3[1]): 'axe' ?>/1/0/show.png"> 
-                                 </div>
-                                 <div class="i_grade" style="background-image: url('../assets/images/grade/<?php echo $Ddtank->GetLevelTemporada($Connect, 3, $ID) ?>.png');"></div>
                               </div>
                            </div>
                         </div>
@@ -223,32 +60,7 @@ if ($CountUser == 0)
                                           <th scope="col">Poder</th>
                                        </tr>
                                     </thead>
-                                    <tbody>
-                                       <tr>
-                                          <th scope="row">1</th>
-                                          <td><?php echo $Nome1 ?></td>
-                                          <td><?php echo $Level1 ?></td>
-                                          <td><?php echo $PartidasJogadas1 ?></td>
-                                          <td><?php echo $PartidasGanhas1 ?></td>
-                                          <td><?php echo $Poder1 ?></td>
-                                       </tr>
-                                       <tr>
-                                          <th scope="row">2</th>
-                                          <td><?php echo $Nome2 ?></td>
-                                          <td><?php echo $Level2 ?></td>
-                                          <td><?php echo $PartidasJogadas2 ?></td>
-                                          <td><?php echo $PartidasGanhas2 ?></td>
-                                          <td><?php echo $Poder2 ?></td>
-                                       </tr>
-                                       <tr>
-                                          <th scope="row">3</th>
-                                          <td><?php echo $Nome3 ?></td>
-                                          <td><?php echo $Level3 ?></td>
-                                          <td><?php echo $PartidasJogadas3 ?></td>
-                                          <td><?php echo $PartidasGanhas3 ?></td>
-                                          <td><?php echo $Poder3 ?></td>
-                                       </tr>
-                                    </tbody>
+                                    <tbody id="rank_list"></tbody>
                                  </table>
                               </div>
                      </div>
@@ -263,5 +75,98 @@ if ($CountUser == 0)
          </div>
       </div>
       <div class="fixed-bottom text-center p-0 text-white footer">Você precisa de suporte? <a href="/ticket?suv=<?php echo $i ?>">Clique aqui e abra um ticket.</a></div>
+	  <script type="text/javascript" src="./js/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./js/config.js"></script>
+	  <script type="text/javascript" src="./js/utils/url.js"></script>
+	  <script type="text/javascript" src="./js/functions.js"></script>
+	  <script type="text/javascript">
+
+         var error_div = document.getElementById('error');
+
+         var usp = new URLSearchParamsPolyfill(window.location.search);
+            
+         var suv = usp.get('suv');	
+
+         if(suv == null || suv == '') {
+            window.location.href = 'selectserver';
+         }
+
+         checkServerSuv(suv);
+         checkCharacter(suv);		
+
+         var url = `${api_url}/rank/temporada/list/${suv}`;
+         var jwt_hash = getCookie('jwt_authentication_hash');
+
+         var xhr = new XMLHttpRequest();
+
+         xhr.open('GET', url, true);
+         xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+         xhr.setRequestHeader('Content-type', 'application/json');
+         xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+		
+         xhr.onreadystatechange = function() {
+            if(xhr.readyState == 4) {
+               if(xhr.status == 200) {
+                  var response = JSON.parse(xhr.responseText);
+				  var data = response.data;
+				  
+				  var container_characters = document.getElementById('characters');
+                  var tbody = document.getElementById('rank_list');
+
+				  tableContent = '';
+                  data.forEach(function(character, index) {
+					  
+					 var picture = document.createElement('div');
+					 
+					 var id = (index == 0) ? 'p_picture' : 'p_picture' + (index + 1);
+					 picture.setAttribute('id', id);
+					 picture.classList.add(id);
+					 
+					 var hair = (character.style.hair[1] != '') ? character.style.hair[1] : 'default';
+					 var effect = (character.style.effect[1] != '') ? character.style.effect[1] : 'default';
+					 var face = (character.style.face[1] != '') ? character.style.face[1] : 'default';
+					 var cloth = (character.style.cloth[1] != '') ? character.style.cloth[1] : 'default';
+					 var arm = (character.style.arm[1] != '') ? character.style.arm[1] : 'default';
+					 
+					 picture.innerHTML = `
+						<div class="f_hair"><img alt="DDTank" src="<?php echo $Resource ?>equip/${character.gender}/hair/${hair}/1/B/show.png"></div>
+					    <div class="f_effect"><img alt="DDTank" src="<?php echo $Resource ?>equip/${character.gender}/eff/${effect}/1/show.png"></div>
+					    <div class="f_face"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${character.gender}/face/${face}/1/show.png"></div>
+					    <div class="f_cloth"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${character.gender}/cloth/${cloth}/1/show.png"></div>
+					    <div class="f_arm">
+						  <img src="<?php echo $Resource ?>arm/${arm}/1/0/show.png"> 
+					    </div>
+					   <div class="i_grade" style="background-image: url('../assets/images/grade/${character.level}.png');"></div>
+					 `;
+					 
+					 container_characters.appendChild(picture);
+					  
+					 var tr = document.createElement('tr');
+					  
+					 tr.innerHTML = `
+                        <th scope="row">${character.rank}</th>
+                        <td>${character.nickname}</td>
+                        <td>${character.level}</td>
+                        <td>${character.matches}</td>
+                        <td>${character.wins}</td>
+                        <td>${character.power}</td>
+                     `;
+					 
+					 tbody.appendChild(tr);
+                  });
+
+               } else if(xhr.status == 401) {
+                  error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+                  setTimeout(function(){
+                     window.location.href = '/selectserver?logout=true';
+                  }, 1000);
+               } else {
+                  console.log("Erro na solicitação. Código do status: " + xhr.status);
+               }						
+            }
+         };
+         
+         xhr.send();
+	  </script>
    </body>
 </html>
