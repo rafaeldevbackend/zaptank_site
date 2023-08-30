@@ -1,8 +1,6 @@
 <?php
 include 'globalconn.php';
-include 'getconnect.php';
 
-$Connect = Connect::getConnection();
 $_SESSION['Status'] = "Conectado";
 
 if (session_status() !== PHP_SESSION_ACTIVE)
@@ -113,7 +111,6 @@ if (empty($UserName) || $UserName == 0)
 				  var container_characters = document.getElementById('characters');
                   var tbody = document.getElementById('rank_list');
 
-				  tableContent = '';
                   data.forEach(function(character, index) {
 					  
 					 var picture = document.createElement('div');
