@@ -1,6 +1,8 @@
 <?php
 include 'globalconn.php';
+include 'getconnect.php';
 
+$Connect = Connect::getConnection();
 $_SESSION['Status'] = "Conectado";
 
 if (session_status() !== PHP_SESSION_ACTIVE)
@@ -20,6 +22,12 @@ if (empty($UserName) || $UserName == 0)
     session_destroy();
     header("Location: /");
     exit();
+}
+
+$query = $Connect->query("SELECT * FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
+$result = $query->fetchAll();
+foreach ($result as $infoBase) {
+    $NickName = $infoBase['NickName'];
 }
 
 $min_number = 1;
