@@ -40,19 +40,6 @@ if (empty($ID) || empty($BaseUser))
     exit();
 }
 
-$query = $Connect->query("SELECT COUNT(*) AS UserName FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $CountUser = $infoBase['UserName'];
-}
-
-if ($CountUser == 0)
-{
-    header("Location: /selectserver?nvic=new&sid=$i");
-    exit();
-}
-
 $query = $Connect->query("SELECT IsFirstCharge FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$UserName'");
 $result = $query->fetchAll();
 foreach ($result as $infoBase)
@@ -66,16 +53,6 @@ foreach ($result as $infoBase)
 {
     $NickName = $infoBase['NickName'];
 }
-
-if (isset($_POST['buyVip']))
-{
-    $name = addslashes($_POST['name']);
-    $number = addslashes($_POST['number']);
-    $email = addslashes($_POST['email']);
-	$selval = addslashes($_POST['selval']);
-    $Pacotes->newInvoice($Connect, $BaseServer, $name = $name, $number = $number, $email = $email, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, $selval);
-}
-
 ?>
 <style type="text/css">.div-only-mobile{display:none}@media screen and (max-width:1001px){.div-no-mobile{display:none}.div-only-mobile{display:block}}.inv {display: none;}</style>
 <div class="card-body row">
@@ -127,13 +104,13 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
    <form method="post">
       <div class="card-body">
          <div class="form-group">
-            <input name="name" id="form3Address" type="text" class="form-control" placeholder="Qual o seu nome real ?" maxlength="25" required autofocus>
+            <input name="name" id="fullname" type="text" class="form-control" placeholder="Qual o seu nome real ?" maxlength="25" required autofocus>
          </div>
          <div class="form-group">
-            <input name="number" id="form3PostalCode" type="text" data-mask="(+55) 00 90000-0000" class="form-control" placeholder="Qual seu número de telefone ?" value="<?php if (!empty($_SESSION['Telefone'])){echo preg_replace('/[^0-9]/', '', $_SESSION['Telefone']);} ?>" minlength="16" min="16" autocomplete="off" maxlength="16" required>
+            <input name="number" id="number" type="text" data-mask="(+55) 00 90000-0000" class="form-control" placeholder="Qual seu número de telefone ?" value="<?php if (!empty($_SESSION['Telefone'])){echo preg_replace('/[^0-9]/', '', $_SESSION['Telefone']);} ?>" minlength="16" min="16" autocomplete="off" maxlength="16" required>
          </div>
          <div class="form-group">
-            <input name="email" id="form3PostalCode" type="email" class="form-control" placeholder="Qual seu e-mail para contato" value="<?php if(isset($_SESSION['UserName'])){echo $_SESSION['UserName'];} ?>" required>
+            <input name="email" id="email" type="email" class="form-control" placeholder="Qual seu e-mail para contato" value="<?php if(isset($_SESSION['UserName'])){echo $_SESSION['UserName'];} ?>" required>
          </div>
          <select id="target" name="selval" class="form-control">
 		 <?php		 
@@ -150,7 +127,7 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
          }		 
 		 ?>
          </select>
-         <div class="error">
+         <div class="error" id="error">
             <?php
                if(isset($_SESSION['alert_listarpacote'])){
                	echo $_SESSION['alert_listarpacote'];
@@ -162,7 +139,7 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
 			   }
                ?>
          </div>
-         <button class="btn btn-primary btn-sm shiny" style="width:98%;float:left;margin-left:5px;font-size:15px;" type="submit" name="buyVip">Continuar</button>
+         <button class="btn btn-primary btn-sm shiny" style="width:98%;float:left;margin-left:5px;font-size:15px;" type="submit" name="buyVip" id="buyVip">Continuar</button>
 		 <div class="p-t-40"></div>
       </div>
 </div>
@@ -175,3 +152,72 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
 <script language="javascript"> function checkrules(){location.assign("/rules");}</script>
 <script type="text/javascript">document .getElementById('target') .addEventListener('change', function (){'use strict'; var vis=document.querySelector('.vis'), target=document.getElementById(this.value); if (vis !==null){vis.className='inv';}if (target !==null ){target.className='vis';}});</script>
 <script async src="./assets/jquery.mask.min.js"></script>
+<script type="text/javascript" src="./js/utils/cookie.js"></script>
+<script type="text/javascript" src="./js/config.js"></script>
+<script type="text/javascript" src="./js/utils/url.js"></script>
+<script type="text/javascript" src="./js/functions.js"></script>
+<script type="text/javascript">
+	var error_div = document.getElementById('error');
+	
+	var usp = new URLSearchParamsPolyfill(window.location.search);
+			
+	var suv = usp.get('server');	
+		
+	if(suv == null || suv == '') {
+		window.location.href = 'selectserver';
+	}
+		
+	checkServerSuv(suv);
+	checkCharacter(suv);		
+	
+	document.getElementById("buyVip").addEventListener("click", function(event) {
+
+		event.preventDefault();
+
+		var full_name = document.getElementById("fullname").value.trim();
+		var phone = document.getElementById("number").value.trim();
+		var email = document.getElementById("email").value.trim();
+		var vip_package = document.getElementById("target").value.trim();
+
+		if (full_name == "" || phone == "" || email == "" || vip_package == "") {
+			error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
+		}else if (full_name.length < 3 || full_name.length > 100) {
+			error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Seu nome deve ser maior que 3 e menor que 100 caracteres...</div>`;
+		} else if(phone.length != 19) {
+			error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Seu número de telefone deve conter 19 caracteres...</div>`;
+		} else {
+			var url = `${api_url}/invoice/new/${suv}`;
+			var params = `full_name=${encodeURIComponent(full_name)}&phone=${phone}&email=${encodeURIComponent(email)}&vip_package=${vip_package}`;
+			var jwt_hash = getCookie('jwt_authentication_hash');
+			
+			var xhr = new XMLHttpRequest();
+			
+			xhr.open('POST', url, true);
+			xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+			xhr.setRequestHeader('Content-type', 'application/json');
+			xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+			
+			xhr.onreadystatechange = function() {
+				if(xhr.readyState == 4) {
+					if(xhr.status == 200) {
+						var response = JSON.parse(xhr.responseText);
+						if(response.success == true && response.data.redirect != '') {
+							window.location.href = response.data.redirect;
+						} else {
+							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+						}
+					} else if(xhr.status == 401) {
+						error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+						setTimeout(function(){
+							window.location.href = '/selectserver?logout=true';
+						}, 1000);
+					} else {
+						console.log("Erro na solicitação. Código do status: " + xhr.status);
+					}						
+				}
+			};
+			
+			xhr.send(params);
+		}
+	});
+</script>
