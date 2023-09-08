@@ -27,48 +27,6 @@ if (empty($UserName) || $UserName == 0)
     header("Location: /");
     exit();
 }
-
-if (!empty($_GET['server']))
-{
-    $i = $_GET['server'];
-    $DecryptServer = $Ddtank->DecryptText($KeyPublicCrypt, $KeyPrivateCrypt, $i);
-    $query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List WHERE ID = '$DecryptServer'");
-    $result = $query->fetchAll();
-    foreach ($result as $infoBase)
-    {
-        $ID = $infoBase['ID'];
-        $BaseUser = $infoBase['BaseUser'];
-        $Release = $infoBase['Release'];
-        $Temporada = $infoBase['Temporada'];
-        $Maintenance = $infoBase['Maintenance'];;
-    }
-}
-else
-{
-    header("Location: selectserver");
-    $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Não foi possível encontrar o servidor.</div>";
-    exit();
-}
-
-if (empty($ID) || empty($BaseUser))
-{
-    header("Location: selectserver");
-    exit();
-}
-
-$query = $Connect->query("SELECT COUNT(*) AS UserName FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $CountUser = $infoBase['UserName'];
-}
-
-if ($CountUser == 0)
-{
-    header("Location: /selectserver?nvic=new&sid=$i");
-    exit();
-}
-
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -115,5 +73,20 @@ if ($CountUser == 0)
          </div>
       </div>
       <script async src="./assets/main.js"></script>
+	  <script type="text/javascript" src="./js/utils/url.js"></script>
+	  <script type="text/javascript" src="./js/functions.js"></script>
+	  <script type="text/javascript">
+	  
+		var usp = new URLSearchParamsPolyfill(window.location.search);
+			
+		var suv = usp.get('server');	
+		
+		if(suv == null || suv == '') {
+			window.location.href = 'selectserver';
+		}
+		
+		checkServerSuv(suv);
+		checkCharacter(suv);
+	  </script>
    </body>
 </html>
