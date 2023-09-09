@@ -104,6 +104,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
 			var phone = document.getElementById('phone').value.trim();
 			var captcha = document.getElementById('captchaResult').value.trim();
 			var r_email = document.getElementById('n_copy').value.trim();
+			var ReferenceLocation = getCookie('ReferenceLocation');
 			
 			if(email == '' || password == '' || phone == '' || captcha == '' || r_email == '') {
             error_div.innerHTML = '<div class="alert alert-danger ocult-time">todos os campos devem ser preenchidos.</div>';
@@ -115,7 +116,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
             error_div.innerHTML = '<div class="alert alert-danger ocult-time">resposta captcha incorreta.</div>';
 			} else {
 				var url = `${api_url}/account/new`;
-				var params = `email=${email}&password=${password}&phone=${phone}&ReferenceLocation=Other`;
+				var params = `email=${email}&password=${password}&phone=${phone}&ReferenceLocation=${ReferenceLocation}`;
 				
 				var xhr = new XMLHttpRequest();
 				

@@ -98,28 +98,34 @@ class Conectado
                     if (str_contains($_SERVER['HTTP_REFERER'], 'google'))
                     {
                         $_SESSION['ReferenceLocation'] = 'Google';
+						setcookie('ReferenceLocation', 'Google');
                     }
                     else if (str_contains($_SERVER['HTTP_REFERER'], 'facebook'))
                     {
                         $_SESSION['ReferenceLocation'] = 'Facebook';
+						setcookie('ReferenceLocation', 'Facebook');
                     }
                     else
                     {
                         $_SESSION['ReferenceLocation'] = 'Other';
+						setcookie('ReferenceLocation', 'Other');
                     }
                 }
                 else
                 {
                     $_SESSION['ReferenceLocation'] = 'Other';
+					setcookie('ReferenceLocation', 'Other');
                 }
             }
             else if (!empty($_GET['fbclid']))
             {
                 $_SESSION['ReferenceLocation'] = 'Facebook';
+				setcookie('ReferenceLocation', 'Facebook');
             }
             else if (!empty($_GET['gclid']))
             {
                 $_SESSION['ReferenceLocation'] = 'Google';
+				setcookie('ReferenceLocation', 'Google');
             }
         }
     }
