@@ -62,10 +62,9 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
       <script async src="./assets/main.js"></script>
 	  <script type="text/javascript" src="./js/config.js"></script>
 	  <script type="text/javascript" src="./js/utils/hash.js"></script>
+	  <script type="text/javascript" src="./js/utils/alert.js"></script>
       <script type="text/javascript">
 		
-		var error_div = document.getElementById('error');
-	  
          document.getElementById('login-button').addEventListener('click', function(event) {
            
             event.preventDefault();
@@ -96,13 +95,13 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
 							document.cookie = 'csrf_token=' + csrf; 							
 							saveSession(response.data, csrf);
 							
-							error_div.innerHTML = '<div class="alert alert-success ocult-time">Login bem-sucedido, você será redirecionado em breve...</div>';
+							displayMessage(type = 'success', message = 'Login bem-sucedido, você será redirecionado em breve...');
 							
 							setTimeout(function(){
 								window.location.href = "/selectserver";
 							}, 1500);							
                         } else {
-							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+							displayMessage(type = 'error', message = response.message);
                         }                        
                      } else {
                         console.log("Erro na solicitação. Código do status: " + xhr.status);
@@ -130,8 +129,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                   if(xhr.status === 200) {
                      var response = JSON.parse(xhr.responseText);
 					 if(response.success == false) {
-						 error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Houve um erro interno</div>`;
-						 console.log('csrf_token é inválido.');
+						 displayMessage(type = 'error', message = 'Houve um erro interno');
 					 }                     
                   } else {
                      console.log("Erro na solicitação. Código do status: " + xhr.status);
