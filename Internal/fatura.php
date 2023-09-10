@@ -221,10 +221,10 @@ $url = "$WEBSITE";
 					if(response.success == true) {
 						error_div.innerHTML = `<div class='alert alert-success'></div>`;									
 					} else {
-						error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+						displayMessage(type = 'error', message = response.message);
 					}	
 				} else if(xhr.status == 401) {
-					error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+					displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
 					setTimeout(function(){
 						window.location.href = '/selectserver?logout=true';
 					}, 1000);
@@ -260,10 +260,10 @@ $url = "$WEBSITE";
 					if(response.success == true) {
 						error_div.innerHTML = `<div class='alert alert-success'></div>`;									
 					} else {
-						error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+						displayMessage(type = 'error', message = response.message);
 					}	
 				} else if(xhr.status == 401) {
-					error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+					displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
 					setTimeout(function(){
 						window.location.href = '/selectserver?logout=true';
 					}, 1000);

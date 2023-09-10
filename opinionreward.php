@@ -171,7 +171,7 @@ if ($Opinion) {
 			var method = getSelectedValueFromInputRadio('method');
 			
 			if(method == '') {
-				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
+				displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
 			} else {
 				var url = `${api_url}/survey/save/${suv}`;
 				var params = `method=${method}`;
@@ -189,15 +189,15 @@ if ($Opinion) {
 						if(xhr.status == 200) {
 							var response = JSON.parse(xhr.responseText);
 							if(response.success == true) {
-								error_div.innerHTML = `<div class='alert alert-success'>Valeu :) com certeza sua contribuição tornará nosso jogo melhor, suas recompensas foram enviadas para sua <a style='color:black' href='/backpack?suv=$i'>mochila virtual</a>!</div>`;
+								displayMessage(type = 'success', message = 'Valeu :) com certeza sua contribuição tornará nosso jogo melhor, suas recompensas foram enviadas para sua <a style='color:black' href='/backpack?suv=$i'>mochila virtual</a>!');
 								setTimeout(function(){
 									window.location.href = '/backpack?suv=${suv}';
 								}, 5000);									
 							} else {
-								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+								displayMessage(type = 'error', message = response.message);
 							}
 						} else if(xhr.status == 401) {
-							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
 							setTimeout(function(){
 								window.location.href = '/selectserver?logout=true';
 							}, 1000);

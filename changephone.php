@@ -70,9 +70,9 @@ if (empty($UserName) || $UserName == 0)
 			
 			var phone = document.getElementById('register_phone').value.trim();
 			if(phone == '') {
-				error_div.innerHTML = '<div class="alert alert-danger">Você não preencheu todos os campos...</div>';
+				displayMessage(type = 'error', message = 'Você não preencheu todos os campos...');
 			} else if(phone.length < 19) {
-				error_div.innerHTML = '<div class="alert alert-danger">Por favor, preencha o número de telefone corretamente.</div>';
+				displayMessage(type = 'error', message = 'Por favor, preencha o número de telefone corretamente.');
 			} else {
 				var url = `${api_url}/account/phone/change`;
 				var params = `phone=${phone}`;
@@ -90,16 +90,16 @@ if (empty($UserName) || $UserName == 0)
 						if(xhr.status == 200) {
 							var response = JSON.parse(xhr.responseText);
 							if(response.success == true) {
-								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;
+								displayMessage(type = 'success', message = response.message);
 								setTimeout(function(){
 									window.location.href = '/selectserver';
 								}, 800);
 							} else {
-								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+								displayMessage(type = 'error', message = response.message);
 							}
 							console.log(response);
 						} else if(xhr.status == 401) {
-							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
 							setTimeout(function(){
 								window.location.href = '/selectserver?logout=true';
 							}, 1000);

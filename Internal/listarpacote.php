@@ -180,11 +180,11 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
 		var vip_package = document.getElementById("target").value.trim();
 
 		if (full_name == "" || phone == "" || email == "" || vip_package == "") {
-			error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
+			displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
 		}else if (full_name.length < 3 || full_name.length > 100) {
-			error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Seu nome deve ser maior que 3 e menor que 100 caracteres...</div>`;
+			displayMessage(type = 'error', message = 'Seu nome deve ser maior que 3 e menor que 100 caracteres...');
 		} else if(phone.length != 19) {
-			error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Seu número de telefone deve conter 19 caracteres...</div>`;
+			displayMessage(type = 'error', message = 'Seu número de telefone deve conter 19 caracteres...');
 		} else {
 			var url = `${api_url}/invoice/new/${suv}`;
 			var params = `full_name=${encodeURIComponent(full_name)}&phone=${phone}&email=${encodeURIComponent(email)}&vip_package=${vip_package}`;
@@ -204,10 +204,10 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
 						if(response.success == true && response.data.redirect != '') {
 							window.location.href = response.data.redirect;
 						} else {
-							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+							displayMessage(type = 'error', message = response.message);
 						}
 					} else if(xhr.status == 401) {
-						error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+						displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
 						setTimeout(function(){
 							window.location.href = '/selectserver?logout=true';
 						}, 1000);

@@ -107,13 +107,13 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
 			var ReferenceLocation = getCookie('ReferenceLocation');
 			
 			if(email == '' || password == '' || phone == '' || captcha == '' || r_email == '') {
-            error_div.innerHTML = '<div class="alert alert-danger ocult-time">todos os campos devem ser preenchidos.</div>';
+				displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
 			} else if(email != r_email) {
-            error_div.innerHTML = '<div class="alert alert-danger ocult-time">o email de confirmação é diferente.</div>';
+				displayMessage(type = 'error', message = 'o email de confirmação é diferente.');
 			} else if(phone.length < 19) {
-            error_div.innerHTML = '<div class="alert alert-danger ocult-time">O telefone deve ter no mínimo 19 digitos.</div>';
+				displayMessage(type = 'error', message = 'O telefone deve ter no mínimo 19 digitos.');
 			} else if(captcha != getCookie('captchaResult')) {
-            error_div.innerHTML = '<div class="alert alert-danger ocult-time">resposta captcha incorreta.</div>';
+				displayMessage(type = 'error', message = 'resposta captcha incorreta.');
 			} else {
 				var url = `${api_url}/account/new`;
 				var params = `email=${email}&password=${password}&phone=${phone}&ReferenceLocation=${ReferenceLocation}`;
@@ -135,16 +135,16 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                         saveSession(response.data, csrf);
                         
                         if(response.email_sent == true) {
-                           error_div.innerHTML = '<div class="alert alert-success ocult-time">Parabéns, você criou sua conta com sucesso! para entrar no jogo você precisará verificar seu e-mail.</div>';
+                           displayMessage(type = 'success', message = 'Parabéns, você criou sua conta com sucesso! para entrar no jogo você precisará verificar seu e-mail.');
                         } else {
-                           error_div.innerHTML = '<div class="alert alert-success ocult-time">Sua conta foi criada com sucesso, porém seu e-mail não foi enviado, estamos com uma demanda de e-mails acima do normal.</div>';
+                           displayMessage(type = 'success', message = 'Sua conta foi criada com sucesso, porém seu e-mail não foi enviado, estamos com uma demanda de e-mails acima do normal.');
                         }
                         
                         setTimeout(function(){
                            window.location.href = "/selectserver";
                         }, 1500);							
                      } else {
-                        error_div.innerHTML = `<div class="alert alert-danger ocult-time">${response.message}</div>`;
+                        displayMessage(type = 'error', message = response.message);
                      }					              
                   } else {
                      console.log("Erro na solicitação. Código do status: " + xhr.status);
@@ -172,7 +172,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                   if(xhr.status === 200) {
                      var response = JSON.parse(xhr.responseText);
                      if(response.success == false) {
-                        error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Houve um erro interno</div>`;
+                        displayMessage(type = 'error', message = 'Houve um erro interno');
                         console.log('csrf_token é inválido.');
                      }                     
                   } else {

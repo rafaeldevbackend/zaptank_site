@@ -76,13 +76,13 @@ $Dados->Destroy();
 			var renewpass = document.getElementById('renewpass').value.trim();
 			
 			if(oldpass == '') {
-				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não digitou a senha antiga...</div>`;
+				displayMessage(type = 'error', message = 'Você não digitou a senha antiga...');
 			} else if(newpass == '') {
-				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não digitou uma nova senha...</div>`;
+				displayMessage(type = 'error', message = 'Você não digitou uma nova senha...');
 			} else if(renewpass == '') {
-				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não repetiu a nova senha...</div>`;
+				displayMessage(type = 'error', message = 'Você não repetiu a nova senha...');
 			} else if(newpass != renewpass) {
-				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Senha confirmada diferente da digitada...</div>`;
+				displayMessage(type = 'error', message = 'Senha confirmada diferente da digitada...');
 			} else {
 				var url = `${api_url}/account/password/change`;
 				var params = `oldpass=${oldpass}&newpass=${newpass}`;
@@ -100,15 +100,15 @@ $Dados->Destroy();
 						if(xhr.status == 200) {
 							var response = JSON.parse(xhr.responseText);
 							if(response.success == true) {
-								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;
+								displayMessage(type = 'success', message = response.message);
 								setTimeout(function(){
 									window.location.href = '/selectserver?logout=true';
 								}, 1000);								
 							} else {
-								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+								displayMessage(type = 'error', message = response.message);
 							}
 						} else if(xhr.status == 401) {
-							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
 							setTimeout(function(){
 								window.location.href = '/selectserver?logout=true';
 							}, 1000);

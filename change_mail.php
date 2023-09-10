@@ -75,9 +75,9 @@ $Dados = new Conectado();
 			var rnew_email = document.getElementById('c_register_email').value.trim();
 			
 			if(new_email == '' || rnew_email == '') {
-				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
+				displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
 			} else if(rnew_email != new_email) {
-				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A confirmação do e-mail está diferente do e-mail preenchido.</div>`;
+				displayMessage(type = 'error', message = 'A confirmação do e-mail está diferente do e-mail preenchido.');
 			} else {
 				var url = `${api_url}/account/email/change`;
 				var params = `token=${token}&new_email=${new_email}`;
@@ -97,15 +97,15 @@ $Dados = new Conectado();
 						if(xhr.status == 200) {
 							var response = JSON.parse(xhr.responseText);
 							if(response.success == true) {
-								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;	
+								displayMessage(type = 'success', message = response.message);	
 								setTimeout(function(){
 									window.location.href = '/selectserver?logout=true';
 								}, 1000);	
 							} else {
-								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+								displayMessage(type = 'error', message = response.message);
 							}
 						} else if(xhr.status == 401) {
-							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
 							setTimeout(function(){
 								window.location.href = '/selectserver?logout=true';
 							}, 1000);

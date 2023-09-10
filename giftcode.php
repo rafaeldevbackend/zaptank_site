@@ -83,7 +83,7 @@ if (empty($UserName) || $UserName == 0)
 			var giftcode = document.getElementById('awardgif').value.trim();
 			
 			if(giftcode == '') {
-				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
+				displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
 			} else {
 				var url = `${api_url}/character/config/giftcode/${suv}`;
 				var params = `giftcode=${giftcode}`;
@@ -101,12 +101,12 @@ if (empty($UserName) || $UserName == 0)
 						if(xhr.status == 200) {
 							var response = JSON.parse(xhr.responseText);
 							if(response.success == true) {
-								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;
+								displayMessage(type = 'success', message = response.message);
 							} else {
-								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+								displayMessage(type = 'error', message = response.message);
 							}
 						} else if(xhr.status == 401) {
-							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
 							setTimeout(function(){
 								window.location.href = '/selectserver?logout=true';
 							}, 1000);

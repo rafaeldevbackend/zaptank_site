@@ -120,9 +120,9 @@
 			var captchaChallenge = document.getElementById('register_password').value.trim();
 			
 			if(current_email == '' || new_email == '' || captchaChallenge == '') {
-				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados.</div>`;
+				displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
 			} else if(captchaChallenge !== getCookie('captchaResult')) {
-				error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>`;
+				displayMessage(type = 'error', message = 'A resposta do código está errada tente novamente.');
 			} else {
 				var url = `${api_url}/account/email/changenotverified`;
 				var params = `current_email=${current_email}&new_email=${new_email}`;
@@ -140,15 +140,15 @@
 						if(xhr.status == 200) {
 							var response = JSON.parse(xhr.responseText);
 							if(response.success == true) {
-								error_div.innerHTML = `<div class='alert alert-success ocult-time'>${response.message}</div>`;
+								displayMessage(type = 'success', message = response.message);
 								setTimeout(function(){
 									window.location.href = '/selectserver?logout=true';
 								}, 1000);								
 							} else {
-								error_div.innerHTML = `<div class='alert alert-danger ocult-time'>${response.message}</div>`;
+								displayMessage(type = 'error', message = response.message);
 							}
 						} else if(xhr.status == 401) {
-							error_div.innerHTML = `<div class='alert alert-danger ocult-time'>A sessão expirou, faça o login novamente.</div>`;
+							displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
 							setTimeout(function(){
 								window.location.href = '/selectserver?logout=true';
 							}, 1000);
