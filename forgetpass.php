@@ -1,186 +1,20 @@
 <?php
 include 'globalconn.php';
-include 'getconnect.php';
 include 'loadautoloader.php';
-include 'supplier/autoload.php';
+
 include 'Objects/gerenciamento.php';
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-
-require './supplier/phpmailer/phpmailer/src/PHPMailer.php';
-require './supplier/phpmailer/phpmailer/src/Exception.php';
-require './supplier/phpmailer/phpmailer/src/SMTP.php';
-
-$Connect = Connect::getConnection();
 
 $Dados = new Conectado();
-$Dados->StartSession($Connect);
-$Dados->CheckConnect($Connect);
-
-function LockOutEndDate()
-{
-    $new_time = date("Y-m-d H:i:s");
-    $start_date = new DateTime($new_time);
-    $since_start = $start_date->diff(new DateTime($_SESSION['PostDate']));
-    $v = $since_start->s - 1;
-
-    if ($v < 0)
-    {
-        $error = "logs/logslogin.txt";
-        $user_ip = $_SERVER["HTTP_CF_CONNECTING_IP"] ?? $_SERVER['REMOTE_ADDR'];
-        file_put_contents($error, $user_ip . PHP_EOL . basename(__FILE__, '.php') . PHP_EOL, FILE_APPEND | LOCK_EX);
-        if (!empty($_SESSION['LockOutEndDate']))
-        {
-            $duration = 59;
-            $new_time = date("Y-m-d H:i:s", strtotime("+$duration sec"));
-            $_SESSION['LockOutEndDate'] = $new_time;
-        }
-    }
-}
-
-if (isset($_POST['reset_pass']))
-{
-    $captchaResult = addslashes($_POST["captchaResult"]);
-    $coderandom1 = addslashes($_POST["coderandom1"]);
-    $coderandom2 = addslashes($_POST["coderandom2"]);
-    $checkTotal = addslashes($coderandom1 + $coderandom2);
-    $a0 = new DateTime($_SESSION['LockOutEndDate']);
-    $a1 = $a0->diff(new DateTime(date('Y-m-d H:i:s')));
-
-    if ($_SESSION['LockOutEndDate'] < date('Y-m-d H:i:s') || $a1->s == 0)
-    {
-        if ($captchaResult != $checkTotal)
-        {
-            $_SESSION['alert_forgetpass'] = "<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>";
-            if (isset($_SESSION['PostDate']))
-            {
-                LockOutEndDate();
-            }
-            $_SESSION['PostDate'] = date("Y-m-d H:i:s");
-        }
-        else
-        {
-            $userID = 0;
-            $email = $_POST['email'];
-            if (!empty($email))
-            {
-                $EncMail = $Ddtank->EncryptText($KeyPublicCrypt, $KeyPrivateCrypt, $email);
-            }
-            $stmt = $Connect->prepare("SELECT VerifiedEmail, userID FROM Db_Center.dbo.Mem_UserInfo WHERE Email = :email");
-	        $stmt->bindParam(':email', $email);
-	        $stmt->execute();
-            $result = $stmt->fetchAll();
-            foreach ($result as $infoBase)
-            {
-                $VerifiedEmail = $infoBase['VerifiedEmail'];
-                $userID = $infoBase['userID'];
-            }
-            if ($userID != 0)
-            {
-                $stmt = $Connect->prepare("SELECT * FROM $BaseServer.dbo.reset_password WHERE userID = :userID AND active = '1'");
-	            $stmt->bindParam(':userID', $userID);
-	            $stmt->execute();
-                $result = $stmt->fetchAll();
-                foreach ($result as $infoBase)
-                {
-                    $token = $infoBase['reset_token'];
-                    $data = $infoBase['data'];
-                }
-                if (!empty($data))
-                {
-                    $start_date = new DateTime($data);
-                }
-                else
-                {
-                    $start_date = new DateTime(date('Y-m-d H:i:s'));
-                }
-                $since_start = $start_date->diff(new DateTime(date('Y-m-d H:i:s')));
-
-                if ($since_start->i < 2 && !empty($data))
-                {
-                    $atual = date('H:i:s', strtotime($data));
-                    $_SESSION['alert_forgetpass'] = "<div class='alert alert-danger ocult-time'>Aguarde 2 minutos para enviar outro e-mail, você enviou um e-mail em $atual</div>";
-
-                }
-                else
-                {
-                    if (empty($token))
-                    {
-                        $token = md5(time());
-                        $atual = date('Y-d-m H:i:s');
-                        $stmt = $Connect->prepare('INSERT INTO Db_Center.dbo.reset_password(userID, reset_token, data) VALUES(:userID, :token, :Date)');
-                        $stmt->bindParam(':userID', $userID);
-                        $stmt->bindParam(':token', $token);
-                        $stmt->bindParam(':Date', $atual);
-                        $stmt->execute();
-                    }
-                    $mail = new PHPMailer;
-                    $mail->CharSet = 'UTF-8';
-                    $mail->isSMTP();
-                    $mail->Host = $SMTP_HOST;
-                    $mail->SMTPAuth = true;
-                    $mail->SMTPSecure = 'tls';
-                    $mail->Username = $SMTP_EMAIL; // E-mail SMTP
-                    $mail->Password = $SMTP_PASSWORD;
-                    $mail->Port = 587;
-
-                    $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true, ]];
-
-                    $mail->setFrom('noreply@redezaptank.com.br', 'DDTank'); // E-mail SMTP
-                    $mail->addAddress('' . $email . '', 'DDTank'); // E-mail do usuário
-                    $mail->isHTML(true);
-                    $mail->Subject = 'Atendimento ZapTank - Recuperação de senha';
-                    $mail->Body = ' <style>@import url(https://fonts.googleapis.com/css?family=Roboto);body{font-family: "Roboto", sans-serif; font-size: 48px;}</style><table cellpadding="0" cellspacing="0" border="0" style="padding:0;margin:0 auto;width:100%;max-width:620px"> <tbody> <tr> <td colspan="3" style="padding:0;margin:0;font-size:1px;height:1px" height="1">&nbsp;</td></tr><tr> <td style="padding:0;margin:0;font-size:1px">&nbsp;</td><td style="padding:0;margin:0" width="590"> <span class="im"> <table width="100%" cellspacing="0" cellpadding="0" border="0"> <tbody> <tr style="background-color:#fff"> <td style="padding:11px 23px 8px 15px;float:right;font-size:12px;font-weight:300;line-height:1;color:#666;font-family:"Proxima Nova",Helvetica,Arial,sans-serif"> <p style="float:right">' . $email . '</p></td></tr></tbody> </table> <table bgcolor="#d65900" width="100%" cellspacing="0" cellpadding="0" border="0"> <tbody> <tr> <td height="0"></td></tr><tr> <td align="center" style="display:none"><img alt="DDTank" width="90" style="width:90px;text-align:center"></td></tr><tr> <td height="0"></td></tr><tr> <td class="m_-5336645264442155576title m_-5336645264442155576bold" style="padding:63px 33px;text-align:center" align="center"> <span class="m_-5336645264442155576mail__title" style=""> <h1><font color="#ffffff">Recebemos um pedido para alterar a sua senha, recupere sua conta clicando no botão abaixo.</font></h1> </span> </td></tr><tr> <td style="text-align:center;padding:0"> <div id="m_-5336645264442155576responsive-width" class="m_-5336645264442155576responsive-width" width="78.2% !important" style="width:77.8%!important;margin:0 auto;background-color:#fbee00;display:none"> <div style="height:50px;margin:0 auto">&nbsp;</div></div></td></tr></tbody> </table> </span> <div id="m_-5336645264442155576div-table-wrapper" class="m_-5336645264442155576div-table-wrapper" style="text-align:center;margin:0 auto"> <table class="m_-5336645264442155576main-card-shadow" bgcolor="#ffffff" align="center" border="0" cellpadding="0" cellspacing="0" style="border:none;padding:48px 33px 0;text-align:center"> <tbody> <tr> <td align="center"> <table class="m_-5336645264442155576mail__buttons-container" align="center" width="200" border="0" cellpadding="0" cellspacing="0" style="border-radius:4px;height:48px;width:240px;table-layout:fixed;margin:32px auto"> <tbody> <tr> <td style="border-radius:4px;height:30px;font-family:"Proxima nova",Helvetica,Arial,sans-serif" bgcolor="#d65900"><a href="https://redezaptank.com.br/recovery_password?token=' . $token . '" style="padding:10px 3px;display:block;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:#fff;text-decoration:none;text-align:center" target="_blank" data-saferedirecturl="https://redezaptank.com.br/recovery_password?token=' . $token . '">Alterar senha</a></td></tr></tbody> </table> </td></tr><tr> <td align="center"><p class="m_-5336645264442155576mail__text-card m_-5336645264442155576bold" style="text-decoration:none;font-family:"Proxima Nova",Arial,Helvetica,sans-serif;text-align:center;line-height:16px;max-width:390px;width:100%;margin:0 auto 44px;font-size:14px;color:#999">O ZapTank enviou este e-mail pois você optou por recebê-lo ao cadastrar-se no site. Se você não deseja receber e-mails, <a href="https://redezaptank.com.br/unsubscribemaillist?mail=' . $EncMail . '" style="color:rgb(227, 72, 0);text-decoration:none" target="_blank" data-saferedirecturl="">cancele o recebimento</p></td></tr></tbody> </table> </div></td><td style="padding:0;margin:0;font-size:1px">&nbsp;</td></tr><tr> <td colspan="3" style="padding:0;margin:0;font-size:1px;height:1px" height="1">&nbsp;</td></tr></tbody></table><small class="text-muted"><?php setlocale(LC_TIME, "pt_BR", "pt_BR.utf-8", "pt_BR.utf-8", "portuguese"); date_default_timezone_set("America/Sao_Paulo"); echo strftime("%A, %d de %B de %Y", strtotime("today"));?></small> </p></div></div>';
-                    $mail->AltBody = 'Atendimento ZapTank - Recuperação de senha';
-                    // $mail->SMTPDebug = 4;
-                    // var_dump($mail);
-                    if ($mail->send())
-                    {
-                        $atual = date('Y-d-m H:i:s');
-                        $query = $Connect->query("UPDATE $BaseServer.dbo.reset_password SET data = '$atual' WHERE userID='$userID'");
-                        $_SESSION['alert_forgetpass'] = "<div class='alert alert-success ocult-time'>Email enviado com sucesso, caso não encontre nenhum email verifique o SPAM.</div>";
-                        if (isset($_SESSION['PostDate']))
-                        {
-                            LockOutEndDate();
-                        }
-                        $_SESSION['PostDate'] = date("Y-m-d H:i:s");
-                    }
-                    else
-                    {
-                        $_SESSION['alert_forgetpass'] = "<div class='alert alert-danger ocult-time'>Seu e-mail não foi enviado, estamos com uma demanda de e-mails acima do normal. Nossos engenheiros foram notificados e estão resolvendo o mais rápido possível.</div>";
-                    }
-                }
-            }
-            else
-            {
-                $_SESSION['alert_forgetpass'] = "<div class='alert alert-danger ocult-time'>Email não existe na base de dados.</div>";
-                if (isset($_SESSION['PostDate']))
-                {
-                    LockOutEndDate();
-                }
-                $_SESSION['PostDate'] = date("Y-m-d H:i:s");
-            }
-        }
-    }
-    else
-    {
-        if (isset($_SESSION['PostDate']))
-        {
-            LockOutEndDate();
-        }
-        $_SESSION['PostDate'] = date("Y-m-d H:i:s");
-        $_SESSION['alert_forgetpass'] = "<div class='alert alert-danger ocult-time'>Seu acesso está restrito aguarde $a1->s segundos e tente novamente.</div>";
-    }
-}
+$Dados->StartSession();
+$Dados->CheckConnect();
 
 $min_number = 1;
 $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
 $random_number2 = mt_rand($min_number, $max_number);
-
+$totalCaptcha = $random_number1 + $random_number2;
+setcookie('captchaResult', $totalCaptcha);
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
    <head>
@@ -203,23 +37,14 @@ $random_number2 = mt_rand($min_number, $max_number);
                      </span>
                   </div>
 				  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do código é obrigatório">
-                     <input class="input100" type="text" name="captchaResult" size="2" id="register_password" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
-					 <input name="coderandom1" type="hidden" value="<?php echo $random_number1; ?>" />
-                     <input name="coderandom2" type="hidden" value="<?php echo $random_number2; ?>" />
+                     <input class="input100" type="text" name="captchaResult" size="2" id="captchaResult" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-sync"></span>
                      </span>
                   </div>
-                  <div class="error">
-                     <?php
-                        if(isset($_SESSION['alert_forgetpass'])){
-                        	echo $_SESSION['alert_forgetpass'];
-                        	unset($_SESSION['alert_forgetpass']);
-                        }
-                        ?>
-                  </div>
-                  <button name="reset_pass" type="submit" class="login100-form-btn shinyfont">Recuperar Senha</button>
+                  <div class="error" id="error"></div>
+                  <button name="reset_pass" id="reset_pass" type="submit" class="login100-form-btn shinyfont">Recuperar Senha</button>
                   <div class="text-center w-full p-t-20">
                      <a class="input-label-secondary" href="/">
                      Não quero recuperar a senha!									
@@ -233,5 +58,50 @@ $random_number2 = mt_rand($min_number, $max_number);
       </div>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async defer src="./assets/main.js"></script>
+	  <script type="text/javascript" src="./js/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./js/config.js"></script>
+	  <script type="text/javascript">
+		document.getElementById('reset_pass').addEventListener('click', function(event) {
+			
+			event.preventDefault();
+			
+			var email = document.getElementById('resetPasswordSrEmail').value.trim();			
+			var captcha = document.getElementById('captchaResult').value.trim();
+
+			if(email == '' || captcha == '') {
+				displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
+			} else if(captcha != getCookie('captchaResult')) {
+				displayMessage(type = 'error', message = 'resposta captcha incorreta.');
+			} else {
+				var url = `${api_url}/account/password/recover`;
+				var params = `email=${email}`;
+				var jwt_hash = getCookie('jwt_authentication_hash');
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+				
+				xhr.onreadystatechange = function() {
+				   if (xhr.readyState === 4) {
+					  if (xhr.status === 200) {
+						 var response = JSON.parse(xhr.responseText);
+						 if(response.success == true) {
+							displayMessage(type = 'success', message = response.message);								
+						 } else {
+							displayMessage(type = 'error', message = response.message);
+						 }			              
+					  } else {
+						 console.log("Erro na solicitação. Código do status: " + xhr.status);
+					  }
+				   }
+				};				
+				
+				xhr.send(params);
+			}
+		});
+	  </script>
    </body>
 </html>
