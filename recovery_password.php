@@ -27,7 +27,7 @@ include 'globalconn.php';
                      <span class="lnr lnr-lock"></span>
                      </span>
                   </div>
-                  <a class="input-label-secondary"><p style="color:white">Esse link expira após o uso ou em <span id="expirationTimeText"></span> horas.</p></a>
+                  <a class="input-label-secondary"><p style="color:white">Esse link expira após o uso ou em <span id="expirationTimeText"></span> Horas.</p></a>
                   <div class="error" id="error"></div>
 				  <button name="confirm_password" id="confirm_password" type="submit" class="login100-form-btn shinyfont">Mudar senha</button>
                   <div class="text-center w-full p-t-20">
@@ -71,7 +71,6 @@ include 'globalconn.php';
 				if(xhr.status == 200) {
 					var response = JSON.parse(xhr.responseText);
 					if(response.password_reset_token_is_valid == true) {
-						console.log(response);
 						var span = document.getElementById('expirationTimeText');
 						span.innerText = response.data.expirationTime;
 					} else {
@@ -110,7 +109,10 @@ include 'globalconn.php';
 						if(xhr.status == 200) {
 							var response = JSON.parse(xhr.responseText);
 							if(response.success == true) {
-								displayMessage(type = 'success', message = response.message);								
+								displayMessage(type = 'success', message = response.message);	
+								setTimeout(function(){
+									window.location.href = '/';				
+								}, 1500);								
 							} else {
 								displayMessage(type = 'error', message = response.message);
 							}
