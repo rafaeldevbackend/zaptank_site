@@ -4,148 +4,7 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 include 'globalconn.php';
-include 'getconnect.php';
-include 'loadautoloader.php';
-include 'Objects/gerenciamento.php';
-$Connect = Connect::getConnection();
-require_once "supplier/autoload.php";
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-
-require './supplier/phpmailer/phpmailer/src/PHPMailer.php';
-require './supplier/phpmailer/phpmailer/src/Exception.php';
-require './supplier/phpmailer/phpmailer/src/SMTP.php';
-
-if (empty($_GET['token']))
-{
-	header("location: /selectserver");
-    $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Seu token de acesso expirou ou não existe, pode ser que você tenha tentado acessar uma página que não tenha permissão.</div>";
-    exit();
-}
-
-$token = $_GET['token'];
-if (!empty($token))
-{
-    $query = $Connect->query("SELECT active, data, userID FROM $BaseServer.dbo.reset_password WHERE reset_token = '$token'");
-    $result = $query->fetchAll();
-    foreach ($result as $infoBase)
-    {
-        $active = $infoBase['active'];
-        $Date = $infoBase['data'];
-        $userID = $infoBase['userID'];
-    }
-    if (!empty($active) && !empty($Date) && !empty($userID))
-    {
-        $start_date = new DateTime($Date);
-        $since_start = $start_date->diff(new DateTime(date('Y-m-d H:i:s')));
-        if ($active == 0 || $active == null || $since_start->i > 30)
-        {
-            if (!empty($_SESSION['Status']) && isset($_SESSION['Status']) == "Conectado")
-            {
-                header("location: /selectserver");
-                $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Seu token de acesso expirou ou não existe, pode ser que você tenha tentado acessar uma página que não tenha permissão.</div>";
-                exit();
-            }
-            else
-            {
-                header("location: /selectserver");
-                $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Seu token de acesso expirou ou não existe, pode ser que você tenha tentado acessar uma página que não tenha permissão.</div>";
-                exit();
-            }
-        }
-    }
-	else
-    {
-        header("location: /selectserver");
-        $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Seu token de acesso expirou ou não existe, pode ser que você tenha tentado acessar uma página que não tenha permissão.</div>";
-        exit();
-    }
-}
-else
-{
-    header("location: /selectserver");
-    $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Seu token de acesso expirou ou não existe, pode ser que você tenha tentado acessar uma página que não tenha permissão.</div>";
-    exit();
-}
-
-if (isset($_POST['confirm_password']))
-{
-    $new_password = $_POST['new_password'];
-    if (empty($new_password))
-    {
-        $_SESSION['alert_recoverypass'] = "<div class='alert alert-danger ocult-time'>Você não preencheu o campo de senha.</div>";
-    }
-    else
-    {
-        $md5newpass = md5(addslashes($new_password));
-        $stmt = $Connect->prepare("UPDATE $BaseServer.dbo.Mem_UserInfo SET Password = '$md5newpass' WHERE UserId = :UserId");
-        $stmt->bindParam('UserId', $userID);
-        $stmt->execute();
-        $stmt = $Connect->prepare("UPDATE $BaseServer.dbo.reset_password SET active = 0 WHERE reset_token = :token");
-        $stmt->bindParam('token', $token);
-        $stmt->execute();
-        $query = $Connect->query("SELECT VerifiedEmail, Email FROM $BaseServer.dbo.Mem_UserInfo WHERE UserId = '$userID'");
-        $result = $query->fetchAll();
-        foreach ($result as $infoBase)
-        {
-            $VerifiedEmail = $infoBase['VerifiedEmail'];
-            $Email = $infoBase['Email'];
-        }
-        if (!empty($Email))
-        {
-            $EncMail = $Ddtank->EncryptText($KeyPublicCrypt, $KeyPrivateCrypt, $Email);
-        }
-
-        if ($VerifiedEmail == 1)
-        {
-            $mail = new PHPMailer;
-            $mail->CharSet = 'UTF-8';
-            $mail->isSMTP();
-            $mail->Host = $SMTP_HOST;
-            $mail->SMTPAuth = true;
-            $mail->SMTPSecure = 'tls';
-            $mail->Username = $SMTP_EMAIL; // E-mail SMTP
-            $mail->Password = $SMTP_PASSWORD;
-            $mail->Port = 587;
-            $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true, ]];
-            $mail->setFrom('noreply@redezaptank.com.br', 'DDTank'); // E-mail SMTP
-            $mail->addAddress('' . $Email . '', 'DDTank'); // E-mail do usuário
-            $mail->isHTML(true);
-            $mail->Subject = 'Alerta de segurança: verifique o acesso à sua conta do ZapTank';
-            $mail->Body = '<style>@import url(https://fonts.googleapis.com/css?family=Roboto);body{font-family: "Roboto", sans-serif; font-size: 48px;}</style><table cellpadding="0" cellspacing="0" border="0" style="padding:0;margin:0 auto;width:100%;max-width:620px"> <tbody> <tr> <td colspan="3" style="padding:0;margin:0;font-size:1px;height:1px" height="1">&nbsp;</td></tr><tr> <td style="padding:0;margin:0;font-size:1px">&nbsp;</td><td style="padding:0;margin:0" width="590"> <span class="im"> <table width="100%" cellspacing="0" cellpadding="0" border="0"> <tbody> <tr style="background-color:#fff"> <td style="padding:11px 23px 8px 15px;float:right;font-size:12px;font-weight:300;line-height:1;color:#666;font-family:"Proxima Nova",Helvetica,Arial,sans-serif"> <p style="float:right">' . $Email . '</p></td></tr></tbody> </table> <table bgcolor="#d65900" width="100%" cellspacing="0" cellpadding="0" border="0"> <tbody> <tr> <td height="0"></td></tr><tr> <td align="center" style="display:none"><img alt="DDTank" width="90" style="width:90px;text-align:center"></td></tr><tr> <td height="0"></td></tr><tr> <td class="m_-5336645264442155576title m_-5336645264442155576bold" style="padding:63px 33px;text-align:center" align="center"> <span class="m_-5336645264442155576mail__title" style=""> <h1><font color="#ffffff">Você está recebendo este aviso pois sua senha foi alterada</font></h1> </span> </td></tr><tr> <td style="text-align:center;padding:0"> <div id="m_-5336645264442155576responsive-width" class="m_-5336645264442155576responsive-width" width="78.2% !important" style="width:77.8%!important;margin:0 auto;background-color:#fbee00;display:none"> <div style="height:50px;margin:0 auto">&nbsp;</div></div></td></tr></tbody> </table> </span> <div id="m_-5336645264442155576div-table-wrapper" class="m_-5336645264442155576div-table-wrapper" style="text-align:center;margin:0 auto"> <table class="m_-5336645264442155576main-card-shadow" bgcolor="#ffffff" align="center" border="0" cellpadding="0" cellspacing="0" style="border:none;padding:48px 33px 0;text-align:center"> <tbody> <tr> <td align="center"> <table class="m_-5336645264442155576mail__buttons-container" align="center" width="200" border="0" cellpadding="0" cellspacing="0" style="border-radius:4px;height:48px;width:240px;table-layout:fixed;margin:32px auto"> <tbody> <tr> <td style="border-radius:4px;height:30px;font-family:"Proxima nova",Helvetica,Arial,sans-serif" bgcolor="#d65900"><a href="https://redezaptank.com.br/" style="padding:10px 3px;display:block;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:#fff;text-decoration:none;text-align:center" target="_blank" data-saferedirecturl="https://redezaptank.com.br/">Verificar atividade</a></td></tr></tbody> </table> </td></tr><tr> <td align="center"><p class="m_-5336645264442155576mail__text-card m_-5336645264442155576bold" style="text-decoration:none;font-family:"Proxima Nova",Arial,Helvetica,sans-serif;text-align:center;line-height:16px;max-width:390px;width:100%;margin:0 auto 44px;font-size:14px;color:#999">O ZapTank enviou este e-mail pois você optou por recebê-lo ao cadastrar-se no site. Se você não deseja receber e-mails, <a href="https://redezaptank.com.br/unsubscribemaillist?mail=' . $EncMail . '" style="color:rgb(227, 72, 0);text-decoration:none" target="_blank" data-saferedirecturl="">cancele o recebimento</p></td></tr></tbody> </table> </div></td><td style="padding:0;margin:0;font-size:1px">&nbsp;</td></tr><tr> <td colspan="3" style="padding:0;margin:0;font-size:1px;height:1px" height="1">&nbsp;</td></tr></tbody></table><small class="text-muted"><?php setlocale(LC_TIME, "pt_BR", "pt_BR.utf-8", "pt_BR.utf-8", "portuguese"); date_default_timezone_set("America/Sao_Paulo"); echo strftime("%A, %d de %B de %Y", strtotime("today"));?></small> </p></div></div>';
-            $mail->AltBody = 'Sua senha foi alterada!';
-            if ($mail->send())
-            {
-                if (!empty($_SESSION['Status']) && isset($_SESSION['Status']) == "Conectado")
-                {
-                    $_SESSION['alert'] = "<div class='alert alert-success ocult-time'>Sua senha foi alterada com sucesso, faça login novamente!</div>";
-                    header("location: /selectserver?");
-                    exit();
-                }
-                else
-                {
-                    $_SESSION['alert'] = "<div class='alert alert-success ocult-time'>Sua senha foi alterada com sucesso, faça login novamente!</div>";
-                    header("location: /");
-                    exit();
-                }
-            }
-            else
-            {
-                $_SESSION['alert_recoverypass'] = "<div class='alert alert-danger'>Seu e-mail não foi enviado, estamos com uma demanda de e-mails acima do normal. Nossos engenheiros foram notificados e estão resolvendo o mais rápido possível.</div>";
-            }
-        }
-        else
-        {
-            $_SESSION['alert'] = "<div class='alert alert-success ocult-time'>Sua senha foi alterada com sucesso, faça login novamente!</div>";
-            header("location: /");
-            exit();
-        }
-    }
-}
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
    <head>
@@ -162,22 +21,15 @@ if (isset($_POST['confirm_password']))
                   RECUPERE SUA SENHA
                   </span>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo da senha é obrigatório">
-                     <input class="input100" name="new_password" type="password" id="login_password" placeholder="Digite sua nova senha">
+                     <input class="input100" name="new_password" id="new_password" type="password" id="login_password" placeholder="Digite sua nova senha">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-lock"></span>
                      </span>
                   </div>
-                  <a class="input-label-secondary"><p style="color:white">Esse link expira após o uso ou em <?php echo 31 - $since_start->i;?> minutos.</p></a>
-                  <div class="error">
-                     <?php
-                        if(isset($_SESSION['alert_recoverypass'])){
-                        	echo $_SESSION['alert_recoverypass'];
-                        	unset($_SESSION['alert_recoverypass']);
-                        }
-                        ?>
-                  </div>
-				  <button name="confirm_password" type="submit" class="login100-form-btn shinyfont">Mudar senha</button>
+                  <a class="input-label-secondary"><p style="color:white">Esse link expira após o uso ou em <span id="expirationTimeText"></span> horas.</p></a>
+                  <div class="error" id="error"></div>
+				  <button name="confirm_password" id="confirm_password" type="submit" class="login100-form-btn shinyfont">Mudar senha</button>
                   <div class="text-center w-full p-t-20">
                      <a class="input-label-secondary" href="/">
                      Não quero recuperar a senha!							
@@ -191,5 +43,86 @@ if (isset($_POST['confirm_password']))
       </div>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
+	  <script type="text/javascript" src="./js/config.js"></script>
+	  <script type="text/javascript" src="./js/utils/url.js"></script>
+	  <script type="text/javascript">
+	  
+		var usp = new URLSearchParamsPolyfill(window.location.search);
+		
+		var token = usp.get('token');
+		
+		if(token == null || token == '') {
+			displayMessage(type = 'error', message = 'Seu token de acesso expirou ou não existe, pode ser que você tenha tentado acessar uma página que não tenha permissão.');
+			setTimeout(function(){
+				window.location.href = '/';				
+			}, 1500);
+		}
+		
+		var url = `${api_url}/account/password/recover/token/check/${token}`;
+		
+		var xhr = new XMLHttpRequest();
+		
+		xhr.open('GET', url, true);
+		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+		xhr.setRequestHeader('Content-type', 'application/json');
+		
+		xhr.onreadystatechange = function() {
+			if(xhr.readyState == 4) {
+				if(xhr.status == 200) {
+					var response = JSON.parse(xhr.responseText);
+					if(response.password_reset_token_is_valid == true) {
+						console.log(response);
+						var span = document.getElementById('expirationTimeText');
+						span.innerText = response.data.expirationTime;
+					} else {
+						displayMessage(type = 'error', message = response.message);
+						setTimeout(function(){
+							window.location.href = '/';				
+						}, 1500);
+					}
+				} else {
+					console.log("Erro na solicitação. Código do status: " + xhr.status);
+				}						
+			}
+		};
+		
+		xhr.send();
+		
+		document.getElementById('confirm_password').addEventListener('click', function(event){
+			event.preventDefault();
+			
+			var password = document.getElementById('new_password').value.trim();
+			
+			if(password == '') {
+				displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
+			} else {
+				var url = `${api_url}/account/password/recover`;
+				var params = `new_password=${password}&token=${token}`;
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				
+				xhr.onreadystatechange = function() {
+					if(xhr.readyState == 4) {
+						if(xhr.status == 200) {
+							var response = JSON.parse(xhr.responseText);
+							if(response.success == true) {
+								displayMessage(type = 'success', message = response.message);								
+							} else {
+								displayMessage(type = 'error', message = response.message);
+							}
+						} else {
+							console.log("Erro na solicitação. Código do status: " + xhr.status);
+						}						
+					}
+				};
+				
+				xhr.send(params);
+			}
+		});
+	  </script>
    </body>
 </html>
