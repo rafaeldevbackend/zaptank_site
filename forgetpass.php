@@ -73,7 +73,7 @@ setcookie('captchaResult', $totalCaptcha);
 			} else if(captcha != getCookie('captchaResult')) {
 				displayMessage(type = 'error', message = 'resposta captcha incorreta.');
 			} else {
-				var url = `${api_url}/account/password/recover`;
+				var url = `${api_url}/account/password/recover/request`;
 				var params = `email=${email}`;
 				var jwt_hash = getCookie('jwt_authentication_hash');
 				
