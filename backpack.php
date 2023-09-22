@@ -1,8 +1,6 @@
 <?php
 include 'globalconn.php';
-include 'getconnect.php';
 
-$Connect = Connect::getConnection();
 $_SESSION['Status'] = "Conectado";
 
 if (session_status() !== PHP_SESSION_ACTIVE)
@@ -194,11 +192,6 @@ if (empty($UserName) || $UserName == 0)
 				loader.innerHTML = ('Carregando...');
 			};
 
-			/*xhr.onload = function() {
-				var loader = document.getElementById('loader');
-				loader.innerHTML = '';
-			};*/
-						
 			xhr.send();
 		}
 		
