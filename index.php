@@ -6,13 +6,6 @@ include 'loadautoloader.php';
 $Dados = new Conectado();
 $Dados->StartSession();
 
-if (!empty($_GET['page'])) switch ($_GET['page'])
-{
-    case 'unsubscribemaillist':
-        $_SESSION['alert'] = "<div class='alert alert-success ocult-time'>Seu e-mail foi removido da nossa lista.</div>";
-    break;
-}
-
 if (strstr($_SERVER['HTTP_USER_AGENT'], 'LoggerZapTank')){header("Location: /discontinued");}
 if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_USER_AGENT'] != 'Mozilla/5.0 (Windows NT 6.1; Win86; x86; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chromium/106.0.0.0 Safari/537.36 LauncherZapTank/108'){header("Location: /discontinued");}}
 
@@ -138,7 +131,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
             };
 
             xhr.send(params);	
-         }		 
+        }	
       </script>
    </body>
 </html>
