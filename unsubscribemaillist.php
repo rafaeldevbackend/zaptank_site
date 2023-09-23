@@ -1,72 +1,18 @@
 <?php
 include 'globalconn.php';
-include 'getconnect.php';
-include 'loadautoloader.php';
-include 'supplier/autoload.php';
-include 'Objects/gerenciamento.php';
 
-$Connect = Connect::getConnection();
 if (session_status() !== PHP_SESSION_ACTIVE)
 {
     session_start(['cookie_lifetime' => 2592000, 'cookie_secure' => true, 'cookie_httponly' => true]);
-}
-
-$Dados = new Conectado();
-
-if (empty($_GET['mail']))
-{
-    header('Location: /');
-    exit();
-}
-else
-{
-	$DecryptEmail = $Ddtank->DecryptText($KeyPublicCrypt, $KeyPrivateCrypt, $_GET['mail']);
-}
-
-if (isset($_POST['unsubscribe_mail']))
-{
-    $captchaResult = addslashes($_POST["captchaResult"]);
-    $coderandom1 = addslashes($_POST["coderandom1"]);
-    $coderandom2 = addslashes($_POST["coderandom2"]);
-    $checkTotal = addslashes($coderandom1 + $coderandom2);
-    if (!empty($captchaResult))
-    {
-        $query = $Connect->query("SELECT COUNT(*) AS Email FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$DecryptEmail'");
-        $result = $query->fetchAll();
-        foreach ($result as $infoBase)
-        {
-            $Email = $infoBase['Email'];
-        }
-        if ($captchaResult != $checkTotal)
-        {
-            $_SESSION['alert_maillist'] = "<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>";
-        }
-        else if ($Email > 0)
-        {
-			$query = $Connect->query("UPDATE $BaseServer.dbo.Mem_UserInfo SET BadMail = '1' WHERE Email='$DecryptEmail'");
-			$query = $Connect->query("UPDATE $BaseServer.dbo.Mem_UserInfo SET VerifiedEmail = '0' WHERE Email='$DecryptEmail'");
-            session_destroy();
-			header('Location: /?page=unsubscribemaillist');
-            exit();
-        }
-        else
-        {
-            $_SESSION['alert_maillist'] = "<div class='alert alert-danger ocult-time'>Email não existe na base de dados.</div>";
-        }
-    }
-    else
-    {
-        $_SESSION['alert_maillist'] = "<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados para realizar o cadastro...</div>";
-    }
 }
 
 $min_number = 1;
 $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
 $random_number2 = mt_rand($min_number, $max_number);
-
+$totalCaptcha = $random_number1 + $random_number2;
+setcookie('captchaResult', $totalCaptcha);
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
    <head>
@@ -81,24 +27,15 @@ $random_number2 = mt_rand($min_number, $max_number);
                <form class="login100-form validate-form p-t-20" method="post" id="frmrecuperar">
                   <span class="login100-form-title p-b-25">Cancelar inscrição da lista de e-mails</span>
 				  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do código é obrigatório">
-                     <input class="input100" type="text" name="captchaResult" size="2" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?" autofocus>
-					 <input name="coderandom1" type="hidden" value="<?php echo $random_number1; ?>" />
-                     <input name="coderandom2" type="hidden" value="<?php echo $random_number2; ?>" />
+                     <input class="input100" type="text" name="captchaResult" id="captchaResult" size="2" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?" autofocus>
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-sync"></span>
                      </span>
                   </div>
-                  <div class="error">
-                     <?php
-                        if(isset($_SESSION['alert_maillist'])){
-                        	echo $_SESSION['alert_maillist'];
-                        	unset($_SESSION['alert_maillist']);
-                        }
-                        ?>
-                  </div>
+                  <div class="error" id="error"></div>
 				  <div class="alert alert-primary" role="alert">Nos vemos em breve, nada de grande se cria de repente.</div>
-                  <button name="unsubscribe_mail" type="submit" class="login100-form-btn shinyfont">Cancelar Inscrição</button>
+                  <button name="unsubscribe_mail" id="unsubscribe_mail" type="submit" class="login100-form-btn shinyfont">Cancelar Inscrição</button>
                </form>
 			   <div class="p-t-30"></div>
             </div>
@@ -106,5 +43,58 @@ $random_number2 = mt_rand($min_number, $max_number);
       </div>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
+	  <script type="text/javascript" src="./js/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./js/config.js"></script>
+	  <script type="text/javascript" src="./js/utils/url.js"></script>
+	  <script type="text/javascript">
+	  
+		var usp = new URLSearchParamsPolyfill(window.location.search);
+		
+		var mail = usp.get('mail');
+		
+		if(mail == null || mail == '') {
+			window.location.href = '/';
+		}		
+		
+		document.getElementById('unsubscribe_mail').addEventListener('click', function(event){
+			event.preventDefault();
+			
+			var captchaChallenge = document.getElementById('captchaResult').value.trim();
+			
+			if(captchaChallenge == '') {
+				displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
+			} else if(captchaChallenge !== getCookie('captchaResult')) {
+				displayMessage(type = 'error', message = 'A resposta do código está errada tente novamente.');
+			} else {
+				var url = `${api_url}/unsubscribemaillist/${mail}`;								
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');				
+				
+				xhr.onreadystatechange = function() {
+					if(xhr.readyState == 4) {
+						if(xhr.status == 200) {
+							var response = JSON.parse(xhr.responseText);
+							if(response.success == true) {
+								displayMessage(type = 'success', message = response.message);	
+								setTimeout(function(){
+									window.location.href = "/";
+								}, 1500);
+							} else {
+								displayMessage(type = 'error', message = response.message);
+							}
+						} else {
+							console.log("Erro na solicitação. Código do status: " + xhr.status);
+						}						
+					}
+				};
+				
+				xhr.send();
+			}
+		});
+	  </script>
    </body>
 </html>
