@@ -155,6 +155,8 @@ $min_number = 1;
 $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
 $random_number2 = mt_rand($min_number, $max_number);
+$totalCaptcha = $random_number1 + $random_number2;
+setcookie('captchaResult', $totalCaptcha);
 
 if (strstr($_SERVER['HTTP_USER_AGENT'], 'LoggerZapTank')){header("Location: /discontinued");}
 if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_USER_AGENT'] != 'Mozilla/5.0 (Windows NT 6.1; Win86; x86; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chromium/106.0.0.0 Safari/537.36 LauncherZapTank/108'){header("Location: /discontinued");}}
@@ -192,47 +194,37 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                      </span>
                   </div>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo da senha é obrigatório">
-                     <input class="input100" type="password" name="password" placeholder="Senha">
+                     <input class="input100" type="password" name="password" id="password" placeholder="Senha">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-lock"></span>
                      </span>
                   </div>
 				  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo de telefone é obrigatório">
-                     <input class="input100" type="text" name="phone" id="register_phone" data-mask="(+55) 00 90000-0000" placeholder="Qual seu número de celular ?" minlength="16" min="16" autocomplete="off" maxlength="16">
+                     <input class="input100" type="text" name="phone" id="phone" data-mask="(+55) 00 90000-0000" placeholder="Qual seu número de celular ?" minlength="16" min="16" autocomplete="off" maxlength="16">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-phone-handset"></span>
                      </span>
                   </div>
 				  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do código é obrigatório">
-                     <input class="input100" type="text" name="captchaResult" size="2" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
-					 <input name="coderandom1" type="hidden" value="<?php echo $random_number1; ?>" />
-                     <input name="coderandom2" type="hidden" value="<?php echo $random_number2; ?>" />
+                     <input class="input100" type="text" name="captchaResult" id="captchaResult" size="2" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-sync"></span>
                      </span>
                   </div>
-                  <div class="error">
-                     <?php
-                        if(isset($_SESSION['alert_cadastro'])){
-                        	echo $_SESSION['alert_cadastro'];
-                        	unset($_SESSION['alert_cadastro']);
-                        }
-                            	?>
-								<?php
-                        if(isset($_SESSION['buttonwhatsapp'])){
+                  <div class="error" id="error"></div>
+				  <div>
+					<?php
+						if(isset($_SESSION['buttonwhatsapp'])){
                         	echo $_SESSION['buttonwhatsapp'];
                         	unset($_SESSION['buttonwhatsapp']);
-                        }
-						else
-							{
-								echo '<button class="login100-form-btn shiny" name="现在注册">CRIAR CONTA</button>';
-							}
-							
-                            	?>
-                  </div>
+                        } else {
+							echo '<button class="login100-form-btn shiny" name="现在注册" id="register">CRIAR CONTA</button>';
+						}
+					?>
+				  </div>
                   <div class="text-center w-full p-t-20">
                      <a class="input-label-secondary"><p style="color:white">Insira um E-mail verdadeiro, após o registro você receberá um e-mail para ativar sua conta.</p></a>
                   </div>
@@ -249,5 +241,31 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
 	  <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
 	  <script async src="./assets/jquery.mask.min.js"></script>
+	  <script type="text/javascript" src="./js/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./js/config.js"></script>
+	  <script type="text/javascript">
+		
+		document.getElementById('register').addEventListener('click', function(event){
+			event.preventDefault();
+			
+			var email = document.getElementById('first').value.trim();
+			var password = document.getElementById('password').value.trim();
+			var phone = document.getElementById('phone').value.trim();
+			var captcha = document.getElementById('captchaResult').value.trim();
+			var r_email = document.getElementById('n_copy').value.trim();
+			
+			if(email == '' || password == '' || phone == '' || captcha == '' || r_email == '') {
+				displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
+			} else if(email != r_email) {
+				displayMessage(type = 'error', message = 'o email de confirmação é diferente.');
+			} else if(phone.length < 19) {
+				displayMessage(type = 'error', message = 'O telefone deve ter no mínimo 19 digitos.');
+			} else if(captcha != getCookie('captchaResult')) {
+				displayMessage(type = 'error', message = 'resposta captcha incorreta.');
+			} else {
+				alert('cadastro.');
+			}
+		});
+	  </script>
    </body>
 </html>
