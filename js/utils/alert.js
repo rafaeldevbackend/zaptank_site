@@ -18,7 +18,7 @@ function displayMessage(type, message) {
 
     var alert = document.createElement('div');
     alert.className = cssClass;
-    alert.textContent = message;
+    alert.innerHTML = message;
 
     errorDiv.appendChild(alert);
 
