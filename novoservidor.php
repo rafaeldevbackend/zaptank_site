@@ -1,155 +1,10 @@
 <?php
 include 'globalconn.php';
-include 'getconnect.php';
 include 'loadautoloader.php';
 
-$Connect = Connect::getConnection();
-
 $Dados = new Conectado();
-$Ddtank = new Ddtank();
-$Dados->StartSession($Connect);
-$Dados->CheckConnect($Connect);
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-
-require './supplier/phpmailer/phpmailer/src/PHPMailer.php';
-require './supplier/phpmailer/phpmailer/src/Exception.php';
-require './supplier/phpmailer/phpmailer/src/SMTP.php';
-
-if (isset($_POST['现在注册']))
-{
-    $captchaResult = addslashes($_POST["captchaResult"]);
-    $coderandom1 = addslashes($_POST["coderandom1"]);
-    $coderandom2 = addslashes($_POST["coderandom2"]);
-    $checkTotal = addslashes($coderandom1 + $coderandom2);
-    $email = strtolower(addslashes($_POST['email']));
-    $r_email = strtolower(addslashes($_POST['r_email']));
-    $phone = addslashes($_POST['phone']);
-    $password = addslashes(strtoupper(md5($_POST['password'])));
-    if (empty($email) || empty($password || empty($phone || empty($captchaResult) || empty($r_email))))
-    {
-        $_SESSION['alert_cadastro'] = "<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados para realizar o cadastro...</div>";
-    }
-    else if ($email != $r_email)
-    {
-        $_SESSION['alert_cadastro'] = "<div class='alert alert-danger ocult-time'>Seu e-mail de confirmação é diferente do e-mail digitado.</div>";
-    }
-    else if (strlen($phone) < 19)
-    {
-        $_SESSION['alert_cadastro'] = "<div class='alert alert-danger ocult-time'>Por favor, preencha o número de telefone corretamente.</div>";
-    }
-    else if ($captchaResult != $checkTotal)
-    {
-        $_SESSION['alert_cadastro'] = "<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>";
-    }
-    else
-    {
-        $stmt = $Connect->prepare("SELECT COUNT(*) AS HaveUser FROM $BaseServer.dbo.Mem_UserInfo WHERE Email = :email");
-		$stmt->bindParam(':email', $email);
-		$stmt->execute();		
-        $result = $stmt->fetchAll();
-        foreach ($result as $infoBase)
-        {
-            $HaveUser = $infoBase['HaveUser'];
-        }		
-		$extension = strrchr($email, '@');
-		$whitelist = array('gmail.com', 'outlook.com', 'hotmail.com', 'hotmail.com.br', 'yahoo.com','yahoo.com.br', 'live.com', 'icloud.com', 'outlook.pt', 'outlook.com.br', 'icloud.com.br', 'qq.com');
-		$ex = explode('@', $email);
-		$stmt = $Connect->prepare("SELECT COUNT(*) AS HaverPhone FROM $BaseServer.dbo.Mem_UserInfo WHERE Telefone = :phone");
-		$stmt->bindParam(':phone', $phone);
-		$stmt->execute();		
-        $result = $stmt->fetchAll();
-        foreach ($result as $infoBase)
-        {
-            $HaverPhone = $infoBase['HaverPhone'];
-        }
-        if (empty($extension))
-        {
-            $_SESSION['alert_cadastro'] = "<div class='alert alert-danger ocult-time'>Esse endereço de e-mail é inválido.</div>";
-        }
-		else if (!in_array(array_pop($ex), $whitelist))
-		{
-            $error = "logs/blacklistemails.txt";
-            file_put_contents($error, $email . PHP_EOL, FILE_APPEND | LOCK_EX);
-			$_SESSION['alert_cadastro'] = "<div class='alert alert-danger ocult-time'>Esse endereço de e-mail é inválido, tente o Gmail ou o Outlook.</div>";
-		}
-        else if ($HaveUser == 1)
-        {
-            $_SESSION['alert_cadastro'] = "<div class='alert alert-danger ocult-time'>Já existe alguém com esse e-mail...</div>";
-        }
-        else if ($HaverPhone == 1)
-        {
-            $_SESSION['alert_cadastro'] = "<div class='alert alert-danger ocult-time'>Já existe alguém com esse número de celular...</div>";
-        }
-        else
-        {
-            $stmt = $Connect->prepare("SELECT COUNT(*) AS HaveMail FROM $BaseServer.dbo.Mem_UserInfo WHERE Email = :email");
-		    $stmt->bindParam(':email', $email);
-		    $stmt->execute();			
-            $result = $stmt->fetchAll();
-            foreach ($result as $infoBase)
-            {
-                $HaveMail = $infoBase['HaveMail'];
-            }
-            if ($HaveMail == 1)
-            {
-                $_SESSION['alert_cadastro'] = "<div class='alert alert-danger ocult-time'>Já existe alguém com esse endereço de e-mail...</div>";
-            }
-            else
-            {
-                if (!empty($email))
-                {
-                    $EncMail = $Ddtank->EncryptText($KeyPublicCrypt, $KeyPrivateCrypt, $email);
-                }
-                $query = $Connect->query("EXEC $BaseServer.dbo.Webshop_Register @ApplicationName=N'DanDanTang',@password=N'$password',@email='$email',@passtwo = '$password',@error = 0, @VerifiedEmail = 0, @phone=N'$phone',@Reference=N'$_SESSION[ReferenceLocation]'");
-                $stmt = $Connect->prepare("SELECT UserId FROM Db_Center.dbo.Mem_UserInfo WHERE Email = :email");
-		        $stmt->bindParam(':email', $email);
-		        $stmt->execute();
-                $result = $stmt->fetchAll();
-                foreach ($result as $infoBase)
-                {
-                    $UserId = $infoBase['UserId'];
-                }
-                $token = md5(time());
-                $stmt = $Connect->prepare('INSERT INTO Db_Center.dbo.activate_email(userID, token, Date) VALUES(:userID, :token, :Date)');
-                $Date = date('d/m/Y H:i');
-                $UserId = $infoBase['UserId'];
-                $stmt->bindParam(':userID', $UserId);
-                $stmt->bindParam(':token', $token);
-                $stmt->bindParam(':Date', $Date);
-                $stmt->execute();
-                $mail = new PHPMailer;
-                $mail->CharSet = 'UTF-8';
-                $mail->isSMTP();
-                $mail->Host = $SMTP_HOST;
-                $mail->SMTPAuth = true;
-                $mail->SMTPSecure = 'tls';
-                $mail->Username = $SMTP_EMAIL; // E-mail SMTP
-                $mail->Password = $SMTP_PASSWORD;
-                $mail->Port = 587;
-                $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true, ]];
-                $mail->setFrom('noreply@redezaptank.com.br', 'DDTank'); // E-mail SMTP
-                $mail->addAddress('' . $email . '', 'DDTank'); // E-mail do usuário
-                $mail->isHTML(true);
-                $mail->Subject = 'Atendimento ZapTank - Ative sua conta';
-                $mail->Body = '<style>@import url(https://fonts.googleapis.com/css?family=Roboto);body{font-family: "Roboto", sans-serif; font-size: 48px;}</style><table cellpadding="0" cellspacing="0" border="0" style="padding:0;margin:0 auto;width:100%;max-width:620px"> <tbody> <tr> <td colspan="3" style="padding:0;margin:0;font-size:1px;height:1px" height="1">&nbsp;</td></tr><tr> <td style="padding:0;margin:0;font-size:1px">&nbsp;</td><td style="padding:0;margin:0" width="590"> <span class="im"> <table width="100%" cellspacing="0" cellpadding="0" border="0"> <tbody> <tr style="background-color:#fff"> <td style="padding:11px 23px 8px 15px;float:right;font-size:12px;font-weight:300;line-height:1;color:#666;font-family:"Proxima Nova",Helvetica,Arial,sans-serif"> <p style="float:right">' . $email . '</p></td></tr></tbody> </table> <table bgcolor="#d65900" width="100%" cellspacing="0" cellpadding="0" border="0"> <tbody> <tr> <td height="0"></td></tr><tr> <td align="center" style="display:none"><img alt="DDTank" width="90" style="width:90px;text-align:center"></td></tr><tr> <td height="0"></td></tr><tr> <td class="m_-5336645264442155576title m_-5336645264442155576bold" style="padding:63px 33px;text-align:center" align="center"> <span class="m_-5336645264442155576mail__title" style=""> <h1><font color="#ffffff">Esse e-mail é para que você tenha acesso total à sua conta ZapTank a ativação é bem rápida! Clique no botão para ativar sua conta.</font></h1> </span> </td></tr><tr> <td style="text-align:center;padding:0"> <div id="m_-5336645264442155576responsive-width" class="m_-5336645264442155576responsive-width" width="78.2% !important" style="width:77.8%!important;margin:0 auto;background-color:#fbee00;display:none"> <div style="height:50px;margin:0 auto">&nbsp;</div></div></td></tr></tbody> </table> </span> <div id="m_-5336645264442155576div-table-wrapper" class="m_-5336645264442155576div-table-wrapper" style="text-align:center;margin:0 auto"> <table class="m_-5336645264442155576main-card-shadow" bgcolor="#ffffff" align="center" border="0" cellpadding="0" cellspacing="0" style="border:none;padding:48px 33px 0;text-align:center"> <tbody> <tr> <td align="center"> <table class="m_-5336645264442155576mail__buttons-container" align="center" width="200" border="0" cellpadding="0" cellspacing="0" style="border-radius:4px;height:48px;width:240px;table-layout:fixed;margin:32px auto"> <tbody> <tr> <td style="border-radius:4px;height:30px;font-family:"Proxima nova",Helvetica,Arial,sans-serif" bgcolor="#d65900"><a href="https://redezaptank.com.br/active_account?token=' . $token . '" style="padding:10px 3px;display:block;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:#fff;text-decoration:none;text-align:center" target="_blank" data-saferedirecturl="https://redezaptank.com.br/active_account?token=' . $token . '">Ativar conta</a></td></tr></tbody> </table> </td></tr><tr> <td align="center"><p class="m_-5336645264442155576mail__text-card m_-5336645264442155576bold" style="text-decoration:none;font-family:"Proxima Nova",Arial,Helvetica,sans-serif;text-align:center;line-height:16px;max-width:390px;width:100%;margin:0 auto 44px;font-size:14px;color:#999">O ZapTank enviou este e-mail pois você optou por recebê-lo ao cadastrar-se no site. Se você não deseja receber e-mails, <a href="https://redezaptank.com.br/unsubscribemaillist?mail=' . $EncMail . '" style="color:rgb(227, 72, 0);text-decoration:none" target="_blank" data-saferedirecturl="">cancele o recebimento</p></td></tr></tbody> </table> </div></td><td style="padding:0;margin:0;font-size:1px">&nbsp;</td></tr><tr> <td colspan="3" style="padding:0;margin:0;font-size:1px;height:1px" height="1">&nbsp;</td></tr></tbody></table><small class="text-muted"><?php setlocale(LC_TIME, "pt_BR", "pt_BR.utf-8", "pt_BR.utf-8", "portuguese"); date_default_timezone_set("America/Sao_Paulo"); echo strftime("%A, %d de %B de %Y", strtotime("today"));?></small> </p></div></div>';
-                $mail->AltBody = 'Atendimento ZapTank - Ative sua conta';
-                if ($mail->send())
-                {
-                    $_SESSION['alert_cadastro'] = "<div class='alert alert-success'>Parabéns você criou sua conta com sucesso! entre no <a target='_blank' href='$WhatsApp'><font color='dark'>Grupo do WhatsApp</font></a> para receber seu código de itens.</div>";
-                    $_SESSION['buttonwhatsapp'] = "<a class='login500-form-btn shiny' href='$WhatsApp'><font color='white'>RECEBER CÓDIGO</font></a>";
-                }
-                else
-                {
-                    $_SESSION['alert_cadastro'] = "<div class='alert alert-warning'>Sua conta foi criada com sucesso, porém seu e-mail não foi enviado, estamos com uma demanda de e-mails acima do normal.</div>";
-                    $_SESSION['buttonwhatsapp'] = "<a class='login500-form-btn shiny' href='$WhatsApp'><font color='white'>RECEBER CÓDIGO</font></a>";
-                }
-            }
-        }
-    }
-}
+$Dados->StartSession();
+$Dados->CheckConnect();
 
 $min_number = 1;
 $max_number = 9;
@@ -215,16 +70,8 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                      </span>
                   </div>
                   <div class="error" id="error"></div>
-				  <div>
-					<?php
-						if(isset($_SESSION['buttonwhatsapp'])){
-                        	echo $_SESSION['buttonwhatsapp'];
-                        	unset($_SESSION['buttonwhatsapp']);
-                        } else {
-							echo '<button class="login100-form-btn shiny" name="现在注册" id="register">CRIAR CONTA</button>';
-						}
-					?>
-				  </div>
+				  <button class="login100-form-btn shiny" name="现在注册" id="register">CRIAR CONTA</button>
+				  <a class='login500-form-btn shiny' href='<?= $WhatsApp; ?>' id="whatsapp-link" style="display: none;"><font color='white'>RECEBER CÓDIGO</font></a>
                   <div class="text-center w-full p-t-20">
                      <a class="input-label-secondary"><p style="color:white">Insira um E-mail verdadeiro, após o registro você receberá um e-mail para ativar sua conta.</p></a>
                   </div>
@@ -253,6 +100,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
 			var phone = document.getElementById('phone').value.trim();
 			var captcha = document.getElementById('captchaResult').value.trim();
 			var r_email = document.getElementById('n_copy').value.trim();
+			var ReferenceLocation = getCookie('ReferenceLocation');
 			
 			if(email == '' || password == '' || phone == '' || captcha == '' || r_email == '') {
 				displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
@@ -263,9 +111,42 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
 			} else if(captcha != getCookie('captchaResult')) {
 				displayMessage(type = 'error', message = 'resposta captcha incorreta.');
 			} else {
-				alert('cadastro.');
+				var url = `${api_url}/account/new`;
+				var params = `email=${email}&password=${password}&phone=${phone}&ReferenceLocation=${ReferenceLocation}`;
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				
+				xhr.onreadystatechange = function() {
+				   if (xhr.readyState === 4) {
+					  if (xhr.status === 200) {
+						 var response = JSON.parse(xhr.responseText);
+						 if(response.success == true) {
+
+							if(response.email_sent == true) {
+							   displayMessage(type = 'success', message = 'Parabéns você criou sua conta com sucesso! entre no <a target="_blank" href="<?= $WhatsApp; ?>"><font color="dark">Grupo do WhatsApp</font></a> para receber seu código de itens.');
+							} else {
+							   displayMessage(type = 'success', message = 'Sua conta foi criada com sucesso, porém seu e-mail não foi enviado, estamos com uma demanda de e-mails acima do normal.');
+							}
+							
+							document.getElementById('register').style.display = 'none';
+							document.getElementById('whatsapp-link').style.display = 'block';						
+							document.getElementById('whatsapp-link').style.textAlign = 'center';						
+						 } else {
+							displayMessage(type = 'error', message = response.message);
+						 }					              
+					  } else {
+						 console.log("Erro na solicitação. Código do status: " + xhr.status);
+					  }
+				   }
+				};				
+				
+				xhr.send(params);
 			}
-		});
+		});		 	
 	  </script>
    </body>
 </html>
