@@ -91,6 +91,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
       <script async src="./assets/jquery.mask.min.js"></script>
 	  <script type="text/javascript" src="./js/utils/cookie.js"></script>
 	  <script type="text/javascript" src="./js/config.js"></script>
+	  <script type="text/javascript" src="./js/utils/hash.js"></script>
 	  <script type="text/javascript">
 		
 		error_div = document.getElementById('error');
@@ -130,7 +131,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                      var response = JSON.parse(xhr.responseText);
                      if(response.success == true) {
                         
-                        var csrf = 123456;
+                        var csrf = generateToken();
                         document.cookie = 'csrf_token=' + csrf;
                         saveSession(response.data, csrf);
                         
