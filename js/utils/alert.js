@@ -20,6 +20,11 @@ function displayMessage(type, message) {
     alert.className = cssClass;
     alert.innerHTML = message;
 
+    var existingAlert = errorDiv.querySelector('.alert');
+    if (existingAlert) {
+        $(existingAlert).remove();
+    }
+
     errorDiv.appendChild(alert);
 
 	setTimeout(function(){
