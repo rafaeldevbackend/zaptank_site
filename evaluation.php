@@ -1,69 +1,11 @@
 <?php
 include 'globalconn.php';
-include 'getconnect.php';
-
-$Connect = Connect::getConnection();
 
 if (session_status() !== PHP_SESSION_ACTIVE)
 {
     session_start(['cookie_lifetime' => 2592000, 'cookie_secure' => true, 'cookie_httponly' => true]);
 }
-
-include 'loadautoloader.php';
-include 'Objects/gerenciamento.php';
-
-if (!empty($_GET['ref']))
-{
-    $DecryptServer = $Ddtank->DecryptText($KeyPublicCrypt, $KeyPrivateCrypt, $_GET['ref']);
-	if ($DecryptServer == 0)
-	{
-		header("Location: /");
-        exit();
-	}
-}
-else
-{
-    header("Location: /");
-    exit();
-}
-
-$query = $Connect->query("SELECT IsEvaluation FROM Db_Center.dbo.Tickets WHERE ID = '$DecryptServer'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $IsEvaluation = $infoBase['IsEvaluation'];
-}
-
-if ($IsEvaluation == 1)
-{
-	header("Location: /");
-    exit();
-}
-
-if (isset($_POST['execute']))
-{
-    $checkbox = addslashes($_POST["exampleRadios"]);
-	$text = addslashes($_POST["text"]);
-
-    if (empty($checkbox) || empty($text))
-    {
-        $_SESSION['ticket_alert'] = "<div class='alert alert-danger ocult-time'>Você não preencheu todos os campos solicitados...</div>";
-    }
-	else if ($IsEvaluation == 1)
-	{
-		$_SESSION['ticket_alert'] = "<div class='alert alert-danger'>Não foi possível concluir a avaliação para esse ticket ele já foi avaliado.</div>";
-	}
-    else
-    {
-	    $query = $Connect->query("UPDATE Db_Center.dbo.Tickets SET EvaluationStars='$checkbox' WHERE ID='$DecryptServer'");
-		$query = $Connect->query("UPDATE Db_Center.dbo.Tickets SET EvaluationText='$text' WHERE ID='$DecryptServer'");
-		$query = $Connect->query("UPDATE Db_Center.dbo.Tickets SET IsEvaluation='1' WHERE ID='$DecryptServer'");
-        $_SESSION['ticket_alert'] = "<div class='alert alert-success'>Valeu :) obrigado(a) pelo seu feedback</a>!</div>";
-		echo "<meta http-equiv='refresh' content='3;url=/' />";
-    }
-}
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
    <title><?php echo $Title; ?> Opinião valiosa</title>
@@ -82,49 +24,41 @@ if (isset($_POST['execute']))
                   <form class="validate-form" method="post" id="frmregistercenter">
                   <div class="form-group p-t-20">
                      <div class="form-check">
-                        <input class="form-check-input col-md-1" type="radio" name="exampleRadios" value="1" checked>
+                        <input class="form-check-input col-md-1" type="radio" name="rating" value="1" checked>
                         <label class="form-check-label text-white">
                         ★ Ruim, demita o estagiário.
                         </label>
                      </div>
                      <div class="form-check">
-                        <input class="form-check-input col-md-1" type="radio" name="exampleRadios" value="2">
+                        <input class="form-check-input col-md-1" type="radio" name="rating" value="2">
                         <label class="form-check-label text-white">
                         ★★ Péssimo, mas pode melhorar.
                         </label>
                      </div>
                      <div class="form-check">
-                        <input class="form-check-input col-md-1" type="radio" name="exampleRadios" value="3">
+                        <input class="form-check-input col-md-1" type="radio" name="rating" value="3">
                         <label class="form-check-label text-white">
                         ★★★ Bom, mas deixou a desejar.
                         </label>
                      </div>
 					 <div class="form-check">
-                        <input class="form-check-input col-md-1" type="radio" name="exampleRadios" value="4">
+                        <input class="form-check-input col-md-1" type="radio" name="rating" value="4">
                         <label class="form-check-label text-white">
                         ★★★★ Muito bom :)
                         </label>
                      </div>
                      <div class="form-check">
-                        <input class="form-check-input col-md-1" type="radio" name="exampleRadios" value="5">
+                        <input class="form-check-input col-md-1" type="radio" name="rating" value="5">
                         <label class="form-check-label text-white">
                         ★★★★★ Atendimento Excelente.
                         </label>
                      </div>
                   </div>
-                  <div class="error">
-                     <?php
-                        if (isset($_SESSION['ticket_alert']))
-                        {
-                            echo $_SESSION['ticket_alert'];
-                            unset($_SESSION['ticket_alert']);
-                        }
-                        ?>
-                  </div>
-				  <textarea class="form-control" placeholder="Nos conte com suas palavras, como foi o atendimento?" name="text" rows="5"></textarea>
-				 <div class="p-t-20"></div>
-                  <button class="login100-form-btn shinyfont" name="execute" onclick="Register()">
-                  ENVIAR RESPOSTA
+				  <textarea class="form-control" placeholder="Nos conte com suas palavras, como foi o atendimento?" id="text" rows="5"></textarea>
+				  <div class="error" id="error"></div>
+				  <div class="p-t-20"></div>
+                  <button class="login100-form-btn shinyfont" name="execute" onclick="Register(event)">
+					ENVIAR RESPOSTA
                   </button>
                   </form>
 				  <div class="p-t-30"></div>
@@ -135,5 +69,96 @@ if (isset($_POST['execute']))
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
       <script async src="./assets/jquery.mask.min.js"></script>
+	  <script type="text/javascript" src="./js/utils/form.js"></script>
+	  <script type="text/javascript" src="./js/config.js"></script>
+	  <script type="text/javascript" src="./js/utils/url.js"></script>
+	  <script type="text/javascript" src="./js/utils/cookie.js"></script>
+	  <script type="text/javascript">
+		
+		var usp = new URLSearchParamsPolyfill(window.location.search);
+			
+		var reference = usp.get('ref');	
+			
+		if(reference == null || reference == '') {
+			window.location.href = 'selectserver';
+		}
+		
+		var url = `${api_url}/ticket/details/${reference}`;
+		var jwt_hash = getCookie('jwt_authentication_hash');
+		
+		var xhr = new XMLHttpRequest();
+		
+		xhr.open('GET', url, true);
+		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+		xhr.setRequestHeader('Content-type', 'application/json');
+		xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+		
+		xhr.onreadystatechange = function() {
+			if(xhr.readyState == 4) {
+				if(xhr.status == 200) {
+					var response = JSON.parse(xhr.responseText);
+					if(response.reference_is_valid == false || response.is_evaluation == true) {
+						window.location.href = '/selectserver';
+					}
+				} else if(xhr.status == 401) {
+					displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
+					setTimeout(function(){
+						window.location.href = '/selectserver?logout=true';
+					}, 1000);
+				} else {
+					console.log("Erro na solicitação. Código do status: " + xhr.status);
+				}						
+			}
+		};
+		
+		xhr.send();
+	  
+		function Register(event) {
+			event.preventDefault();
+			
+			var rating = getSelectedValueFromInputRadio('rating');
+			var text = document.getElementById('text').value.trim();
+			
+			if(text == '') {
+				displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
+			} else {
+				var url = `${api_url}/ticket/evaluate/${reference}`;
+				var params = `rating=${rating}&text=${text}`;
+				var jwt_hash = getCookie('jwt_authentication_hash');
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+				
+				xhr.onreadystatechange = function() {
+					if(xhr.readyState == 4) {
+						if(xhr.status == 200) {
+							var response = JSON.parse(xhr.responseText);
+							if(response.success == true) {
+								displayMessage(type = 'success', message = response.message);
+								setTimeout(function(){
+									window.location.href = '/selectserver';
+								}, 1500);
+							} else {
+								displayMessage(type = 'error', message = response.message);
+							}
+						} else if(xhr.status == 401) {
+							displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
+							setTimeout(function(){
+								window.location.href = '/selectserver?logout=true';
+							}, 1000);
+						} else {
+							console.log("Erro na solicitação. Código do status: " + xhr.status);
+						}						
+					}
+				};
+				
+				xhr.send(params);
+			}
+		}
+	  </script>
    </body>
 </html>
