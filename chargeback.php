@@ -34,7 +34,6 @@ if (empty($UserName) || $UserName == 0)
 			 <span class="login100-form-title p-b-55">
                   Pacotes de chargeback disponíveis.
              </span>
-             <?php // $Pacotes->ShowChargeBack($Connect, $BaseServer, $BaseUser, $QuestUrl, $AreaID); ?>
 			 <div id="alert"></div>
 			 <div id="data"></div>
 			 <div class="alert alert-warning" role="alert">É proibido a venda de itens, contas ou cupons dentro do jogo por dinheiro real, caso descumpra essa regra reservamos o direito de desabilitar a conta imediatamente da plataforma.</div>
