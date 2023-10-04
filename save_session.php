@@ -2,7 +2,7 @@
  
 if(isset($_COOKIE['csrf_token']) && $_POST['csrf_token'] == $_COOKIE['csrf_token']) {
 	
-	if(session_status() !== PHP_SESSION_ACTIVE) session_start(['cookie_lifetime' => 2592000, 'cookie_secure' => true, 'cookie_httponly' => true]);	
+	if(session_status() !== PHP_SESSION_ACTIVE) session_start(['cookie_lifetime' => 2592000, 'cookie_secure' => false, 'cookie_httponly' => false]);	
 	 
 	setcookie(
 		$name = 'jwt_authentication_hash', 
