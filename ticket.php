@@ -213,7 +213,7 @@ setcookie('captchaResult', $totalCaptcha);
 							if(xhr.status == 200) {
 								var response = JSON.parse(xhr.responseText);
 								if(response.success == true && response.status_code == 'ticket_created_with_advice') {
-									displayMessage(type = 'success', message = 'Sua solicitação foi aberta, entraremos em contato com você através do seu e-mail ou telefone, caso seu problema esteja relacionado ao login, experimente limpar a mochila de roupas pelas <a class='text-black' href='/clearbag?suv=${suv}'>configurações do site.</a>');
+									displayMessage(type = 'success', message = 'Sua solicitação foi aberta, entraremos em contato com você através do seu e-mail ou telefone, caso seu problema esteja relacionado ao login, experimente limpar a mochila de roupas pelas <a class="text-black" href="/clearbag?suv=${suv}">configurações do site.</a>');
 								} else if(response.success == true && response.status_code == 'ticket_created') {
 									displayMessage(type = 'success', message = response.message);
 								} else {
