@@ -26,6 +26,13 @@ if (empty($UserName) || $UserName == 0)
 <html lang="pt-br">
    <title><?php echo $Title; ?> Mochila permanente</title>
    <?php include 'Controllers/header.php'; ?>
+   <style>
+	#bag-items {
+		display: flex;
+		justify-content: space-around;
+		flex-wrap: wrap;
+	}
+   </style>
    </head>
    <body>
       <div class="limiter">
