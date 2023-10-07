@@ -5,6 +5,7 @@ include 'loadautoloader.php';
 
 $Dados = new Conectado();
 $Dados->StartSession();
+$Dados->CheckConnect($Connect);
 
 if (strstr($_SERVER['HTTP_USER_AGENT'], 'LoggerZapTank')){header("Location: /discontinued");}
 if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_USER_AGENT'] != 'Mozilla/5.0 (Windows NT 6.1; Win86; x86; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chromium/106.0.0.0 Safari/537.36 LauncherZapTank/108'){header("Location: /discontinued");}}
