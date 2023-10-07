@@ -47,24 +47,10 @@ if (empty($UserName) || $UserName == 0)
                         <h5 class="card-title">Itens da sua Mochila</h5>
 						<div id="bag-items"></div>
 						<div id="loader" style="text-align: center;"></div>
-                        <div class="error" id="error">
-                           <?php
-                              if(isset($_SESSION['error'])){
-                              	echo $_SESSION['error'];
-                              	unset($_SESSION['error']);
-                              }
-                            ?>
-                        </div>
+                        <div class="error" id="error"></div>
                      </div>
                   </div>
-                  <div class="error" id="error">
-                           <?php
-                              if(isset($_SESSION['alert'])){
-                              	echo $_SESSION['alert'];
-                              	unset($_SESSION['alert']);
-                              }
-                               ?>
-                        </div>
+                  <div class="error" id="error"></div>
                   <div class="container-login100-form-btn p-t-25"><a class="server-form-btn" style="color:white;" href="/serverlist?suv=<?php echo $i ?>">Voltar</a></div>
                </div>
             </div>
