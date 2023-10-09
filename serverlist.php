@@ -242,6 +242,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
 						
                         ?>
                   </div>
+				  <div id="alert_message"></div>
                   <!--<div class='alert alert-dark'>Todas as recargas estão com recompensas em dobro. Oferta expira em <b class="glow" id="timer">Carregando...</b><a class="change-form-btn" style="color:white;font-size:15px;" href="/viplist?page=vipitemlist&server=<?php echo $i; ?>">aproveitar promoção</a></div>-->
 				  <!--<div class='alert alert-warning'>Todas as recargas estão com 10% de desconto aproveite.<a class="change-form-btn" style="color:white;font-size:15px;" href="/viplist?page=vipitemlist&server=<?php echo $i; ?>">aproveitar promoção</a></div>-->
 				  <!--<div class='alert alert-dark'>A temporada 15 será encerrada no dia 29/05/2023 às 4:00 A.M<a class="change-form-btn" style="color:white;font-size:15px;" href="/selectwhats">Ficar ciente das novidades.</a></div>-->
@@ -266,5 +267,23 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
       <script language="javascript"> function checkmail(){location.assign("/checkmail");}</script>
       <script language="javascript"> function rules(){location.assign("/rules");}</script>
 	  <!--<script language="javascript">var countDownDate=new Date("May 28, 2023 00:00:00").getTime();var x=setInterval(function(){var now=new Date().getTime(); var distance=countDownDate - now; var days=Math.floor(distance / (1000 * 60 * 60 * 24)); var hours=Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); var minutes=Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)); var seconds=Math.floor((distance % (1000 * 60)) / 1000); document.getElementById("timer").innerHTML=days + "d " + hours + "h " + minutes + "m " + seconds + "s "; if (distance < 0){clearInterval(x); document.getElementById("timer").innerHTML="Expirou";}}, 1000);</script>-->
+	  <script type="text/javascript" src="./js/utils/url.js"></script>
+	  <script type="text/javascript">
+		var usp = new URLSearchParamsPolyfill(window.location.search);
+		
+		if(usp.get('error_code') != null) {
+			
+			var error_code = usp.get('error_code');
+			
+			switch(error_code) {
+				case '3': 
+					document.getElementById('alert_message').innerHTML = `<div class='alert alert-danger ocult-time'>O servidor que você tentou entrar ainda não foi inaugurado, para mais informações visite nosso <a target="_blank" href=<?php echo $WhatsApp; ?>><font color='green'>Grupo do WhatsApp</font></a>!</div>`;
+					break;
+				case '4':
+					document.getElementById('alert_message').innerHTML = `<div class='alert alert-danger ocult-time'>O servidor que você tentou entrar está em manutenção, para mais informações visite nosso <a target="_blank" href=<?php echo $WhatsApp; ?>><font color='green'>Grupo do WhatsApp</font></a>!</div>`;
+					break;
+			}
+		}	
+	  </script>
    </body>
 </html>

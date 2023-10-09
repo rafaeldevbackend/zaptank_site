@@ -287,6 +287,9 @@ setcookie('captchaResult', $totalCaptcha);
 				case '1': 
 					document.getElementById('alert_message').innerHTML = `<div class='alert alert-danger ocult-time'>O servidor que você tentou acessar não existe ou está restrito para um pequeno número de pessoas.</div>`;
 					break;
+				case '2': 
+					document.getElementById('alert_message').innerHTML = `<div class='alert alert-danger ocult-time'>Sua conta foi suspensa, entre em contato com o suporte para obter mais informações.</div>`;
+					break;
 			}
 		}			
 	  </script>
