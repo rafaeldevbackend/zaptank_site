@@ -67,6 +67,7 @@ if (empty($UserName) || $UserName == 0)
                   <div class="alert alert-light" role="alert">
                      Os jogadores que se manterem até o final da temporada no RANK estarão expostos nesse mural até o final da próxima temporada, as recompensas do hall da fama são as seguintes: TOP 1 <a style="color:green!important">R$99,99</a> em recarga + Título <b style="color:black!important">Rei da Temporada</b>, TOP 2 <a style="color:green!important">R$69,99</a> em recarga + Título <b style="color:black!important">Imperador da Temporada</b>, TOP 3 <a style="color:green!important">R$29,99</a> em recarga + Título <b style="color:black!important">Duque da Temporada</b>, caso o jogador não responda o nosso contato a recarga será destinada ao jogador do rank anterior. Jogadores do Rank 4 ao 10 receberão uma recarga de R$14,99.
                   </div>
+				  <div id="error"></div>
                   <div class="container-login100-form-btn p-t-25"><a class="server-form-btn" style="color:white;" href="/rank?suv=<?php echo $i ?>">Voltar</a></div>
                </div>
             </div>
@@ -156,7 +157,7 @@ if (empty($UserName) || $UserName == 0)
                   displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
                   setTimeout(function(){
                      window.location.href = '/selectserver?logout=true';
-                  }, 1000);
+                  }, 1500);
                } else {
                   console.log("Erro na solicitação. Código do status: " + xhr.status);
                }						

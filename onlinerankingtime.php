@@ -52,6 +52,7 @@ if (empty($UserName) || $UserName == 0)
                               </div>
                            </div>
                   </div>
+				  <div id="error"></div>
                   <div class="container-login100-form-btn p-t-25"><a class="server-form-btn" style="color:white;" href="/rank?suv=<?php echo $i ?>">Voltar</a></div>
                </div>
             </div>
@@ -114,7 +115,7 @@ if (empty($UserName) || $UserName == 0)
                   displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
                   setTimeout(function(){
                      window.location.href = '/selectserver?logout=true';
-                  }, 1000);
+                  }, 1500);
                } else {
                   console.log("Erro na solicitação. Código do status: " + xhr.status);
                }						
