@@ -18,6 +18,10 @@ if(isset($_COOKIE['csrf_token']) && $_POST['csrf_token'] == $_COOKIE['csrf_token
 	$_SESSION['PassWord'] = $_POST['password'];
 	$_SESSION['Telefone'] = $_POST['phone'];
 	$_SESSION['Status'] = "Conectado"; 
+	$_SESSION['verifiedEmail'] = $_POST['verified_email'];
+	$_SESSION['opinion'] = $_POST['opinion'];
+	$_SESSION['badMail'] = $_POST['badMail'];
+	$_SESSION['isFirstCharge'] = $_POST['isFirstCharge'];
 	 
 	echo json_encode(['success' => true]);	
 } else {
