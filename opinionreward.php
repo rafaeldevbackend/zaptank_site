@@ -90,33 +90,33 @@ if ($_SESSION['opinion']) {
                   <form class="validate-form" method="post" id="frmregistercenter">
 					  <div class="form-group">
 						 <div class="form-check">
-							<input class="form-check-input" type="radio" name="method" value="Google" checked>
-							<label class="form-check-label text-white">
-							Anúncios do Google.
+							<input class="form-check-input" type="radio" name="method" value="Google" id="byGoogle" checked>
+							<label class="form-check-label text-white" for="byGoogle">
+								Anúncios do Google.
 							</label>
 						 </div>
 						 <div class="form-check">
-							<input class="form-check-input" type="radio" name="method" value="Facebook">
-							<label class="form-check-label text-white">
-							Anúncios do Facebook.
+							<input class="form-check-input" type="radio" name="method" value="Facebook" id="byFacebook">
+							<label class="form-check-label text-white" for="byFacebook">
+								Anúncios do Facebook.
 							</label>
 						 </div>
 						 <div class="form-check">
-							<input class="form-check-input" type="radio" name="method" value="Email">
-							<label class="form-check-label text-white">
-							Recebi um E-mail
+							<input class="form-check-input" type="radio" name="method" value="Email" id="byEmail">
+							<label class="form-check-label text-white" for="byEmail">
+								Recebi um E-mail
 							</label>
 						 </div>
 						 <div class="form-check">
-							<input class="form-check-input" type="radio" name="method" value="SMS">
-							<label class="form-check-label text-white">
-							Recebi um SMS.
+							<input class="form-check-input" type="radio" name="method" value="SMS" id="bySms">
+							<label class="form-check-label text-white" for="bySms">
+								Recebi um SMS.
 							</label>
 						 </div>
 						 <div class="form-check">
-							<input class="form-check-input" type="radio" name="method" value="Other">
-							<label class="form-check-label text-white">
-							Outros.
+							<input class="form-check-input" type="radio" name="method" value="Other" id="byOther">
+							<label class="form-check-label text-white" for="byOther">
+								Outros.
 							</label>
 						 </div>
 					  </div>
@@ -184,7 +184,7 @@ if ($_SESSION['opinion']) {
 							if(response.success == true) {
 								displayMessage(type = 'success', message = `Valeu :) com certeza sua contribuição tornará nosso jogo melhor, suas recompensas foram enviadas para sua <a style="color:black" href="/backpack?suv=${suv}">mochila virtual</a>!`);
 								setTimeout(function(){
-									window.location.href = '/backpack?suv=${suv}';
+									window.location.href = `/backpack?suv=${suv}`;
 								}, 5000);									
 							} else {
 								displayMessage(type = 'error', message = response.message);
