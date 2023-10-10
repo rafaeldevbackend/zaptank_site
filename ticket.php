@@ -24,13 +24,6 @@ foreach ($result as $infoBase)
     $CountUser = $infoBase['UserName'];
 }
 
-$query = $Connect->query("SELECT VerifiedEmail FROM $BaseServer.dbo.Mem_UserInfo WHERE Email = '$UserName'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $VerifiedEmail = $infoBase['VerifiedEmail'];
-}
-
 $min_number = 1;
 $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
@@ -56,9 +49,9 @@ setcookie('captchaResult', $totalCaptcha);
                   <div class="centered">
                   </div>
                   <?php
-                     if ($VerifiedEmail == 0)
+                     if ($_SESSION['verifiedEmail'] == 0)
                      {
-                     echo '<p>Para liberar novas funções confirme seu e-mail.</p>';
+						echo '<p>Para liberar novas funções confirme seu e-mail.</p>';
                      }
                      ?>
                   <div class="subpage-content" style="">
@@ -87,27 +80,27 @@ setcookie('captchaResult', $totalCaptcha);
                   <form class="validate-form" method="post" id="frmregistercenter">
 					  <div class="form-group">
 						 <div class="form-check">
-							<input class="form-check-input col-md-1" type="radio" name="subject" value="Problemas de Login" checked>
-							<label class="form-check-label text-white">
-							Problemas de Login
+							<input class="form-check-input col-md-1" type="radio" name="subject" value="Problemas de Login" id="login" checked>
+							<label class="form-check-label text-white" for="login">
+								Problemas de Login
 							</label>
 						 </div>
 						 <div class="form-check">
-							<input class="form-check-input col-md-1" type="radio" name="subject" value="Problema com Recarga">
-							<label class="form-check-label text-white">
-							Problemas com recargas
+							<input class="form-check-input col-md-1" type="radio" name="subject" value="Problema com Recarga" id="recharge">
+							<label class="form-check-label text-white" for="recharge">
+								Problemas com recargas
 							</label>
 						 </div>
 						 <div class="form-check">
-							<input class="form-check-input col-md-1" type="radio" name="subject" value="Reportar Jogador">
-							<label class="form-check-label text-white">
-							Reportar Jogador
+							<input class="form-check-input col-md-1" type="radio" name="subject" value="Reportar Jogador" id="reportPlayer">
+							<label class="form-check-label text-white" for="reportPlayer">
+								Reportar Jogador
 							</label>
 						 </div>
 						 <div class="form-check">
-							<input class="form-check-input col-md-1" type="radio" name="subject" value="Problema não especificado">
-							<label class="form-check-label text-white">
-							Outros
+							<input class="form-check-input col-md-1" type="radio" name="subject" value="Problema não especificado" id="other">
+							<label class="form-check-label text-white" for="other">
+								Outros
 							</label>
 						 </div>
 						 <?php
@@ -214,8 +207,14 @@ setcookie('captchaResult', $totalCaptcha);
 								var response = JSON.parse(xhr.responseText);
 								if(response.success == true && response.status_code == 'ticket_created_with_advice') {
 									displayMessage(type = 'success', message = 'Sua solicitação foi aberta, entraremos em contato com você através do seu e-mail ou telefone, caso seu problema esteja relacionado ao login, experimente limpar a mochila de roupas pelas <a class="text-black" href="/clearbag?suv=${suv}">configurações do site.</a>');
+									setTimeout(function(){
+										window.location.href = `/serverlist?suv=${suv}`;
+									}, 6000);
 								} else if(response.success == true && response.status_code == 'ticket_created') {
 									displayMessage(type = 'success', message = response.message);
+									setTimeout(function(){
+										window.location.href = `/serverlist?suv=${suv}`;
+									}, 6000);
 								} else {
 									displayMessage(type = 'error', message = response.message);
 								}

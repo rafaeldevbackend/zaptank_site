@@ -73,19 +73,12 @@ if ($CountUser == 0)
             <div class="wrap-login100 p-l-50 p-r-50 p-t-40">
 			   <div class="p-t-20" id="main_form">
 				  <span class="login100-form-title">Configurações do Personagem</span>
-				   <?php
-                     $query = $Connect->query("SELECT VerifiedEmail FROM $BaseServer.dbo.Mem_UserInfo WHERE Email = '$_SESSION[UserName]'");
-                     $result = $query->fetchAll();
-                     foreach($result as $infoBase)
+				   <?php                     
+                     if ($_SESSION['verifiedEmail'] == 0)
                      {
-                     $VerifiedEmail = $infoBase['VerifiedEmail'];
+						echo '<p>Para liberar novas funções confirme seu e-mail.</p>';
                      }
-                     
-                     if ($VerifiedEmail == 0)
-                     {
-                     echo '<p>Para liberar novas funções confirme seu e-mail.</p>';
-                     }
-                     ?>
+                   ?>
                   <div class="subpage-content" style="">
                      <div class="player_profile">
                         <div class="">

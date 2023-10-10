@@ -24,13 +24,6 @@ if (empty($UserName) || $UserName == 0)
     exit();
 }
 
-$query = $Connect->query("SELECT Opinion FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$UserName'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $Opinion = $infoBase['Opinion'];
-}
-
 if (!empty($_GET['suv']))
 {
     $i = $_GET['suv'];
@@ -44,7 +37,7 @@ if (!empty($_GET['suv']))
     }
 }
 
-if ($Opinion) {
+if ($_SESSION['opinion']) {
     header("location: /selectserver");
     exit();
 }
@@ -66,9 +59,9 @@ if ($Opinion) {
                   <div class="centered">
                   </div>
                   <?php
-                     if ($VerifiedEmail == 0)
+                     if ($_SESSION['verifiedEmail'] == 0)
                      {
-                     echo '<p class="p-t-10">Para liberar novas funções confirme seu e-mail.</p>';
+						echo '<p class="p-t-10">Para liberar novas funções confirme seu e-mail.</p>';
                      }
                      ?>
                   <div class="subpage-content" style="">
@@ -189,7 +182,7 @@ if ($Opinion) {
 						if(xhr.status == 200) {
 							var response = JSON.parse(xhr.responseText);
 							if(response.success == true) {
-								displayMessage(type = 'success', message = 'Valeu :) com certeza sua contribuição tornará nosso jogo melhor, suas recompensas foram enviadas para sua <a style="color:black" href="/backpack?suv=$i">mochila virtual</a>!');
+								displayMessage(type = 'success', message = `Valeu :) com certeza sua contribuição tornará nosso jogo melhor, suas recompensas foram enviadas para sua <a style="color:black" href="/backpack?suv=${suv}">mochila virtual</a>!`);
 								setTimeout(function(){
 									window.location.href = '/backpack?suv=${suv}';
 								}, 5000);									

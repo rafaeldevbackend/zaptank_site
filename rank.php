@@ -75,14 +75,7 @@ if ($CountUser == 0)
                <div id="main_form">
                <h6 style="color:white;"><?php if(isset($_SESSION['UserName'])){echo $_SESSION['UserName'];} ?> </h6>
 				  <?php
-                     $query = $Connect->query("SELECT VerifiedEmail FROM $BaseServer.dbo.Mem_UserInfo WHERE Email = '$_SESSION[UserName]'");
-                     $result = $query->fetchAll();
-                     foreach($result as $infoBase)
-                     {
-					 $VerifiedEmail = $infoBase['VerifiedEmail'];
-                     }
-					 
-					 if ($VerifiedEmail == 0)
+					 if ($_SESSION['verifiedEmail'] == 0)
                      {
                         echo '<p>Sua conta não tem e-mail verificado.</p>';
                      }

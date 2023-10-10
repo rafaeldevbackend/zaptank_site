@@ -24,21 +24,14 @@ if (empty($UserName) || $UserName == 0)
     exit();
 }
 
-// analisar depois
-$query = $Connect->query("SELECT VerifiedEmail, BadMail FROM $BaseServer.dbo.Mem_UserInfo WHERE Email = '$UserName'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $VerifiedEmail = $infoBase['VerifiedEmail'];
-    $BadMail = $infoBase['BadMail'];
-}
+$BadMail = $_SESSION['badMail'];
+$VerifiedEmail = $_SESSION['verifiedEmail'];
 
 if (isset($BadMail) && isset($VerifiedEmail) && ($BadMail == 1 && $VerifiedEmail == 0))
 {
     header("location: /changemailnotverified?page=badmail");
     exit();
 }
-//
 
 $min_number = 1;
 $max_number = 9;

@@ -27,12 +27,6 @@ if (!empty($_GET['server']))
 		$BaseTank = $infoBase['BaseTank'];
     }
 }
-else
-{
-    header("Location: selectserver");
-    $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Não foi possível encontrar o servidor.</div>";
-    exit();
-}
 
 if (empty($ID) || empty($BaseUser))
 {
@@ -40,12 +34,7 @@ if (empty($ID) || empty($BaseUser))
     exit();
 }
 
-$query = $Connect->query("SELECT IsFirstCharge FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$UserName'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $IsFirstCharge = $infoBase['IsFirstCharge'];
-}
+$IsFirstCharge = $_SESSION['isFirstCharge'];
 
 $query = $Connect->query("SELECT NickName FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
 $result = $query->fetchAll();

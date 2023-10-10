@@ -1,8 +1,6 @@
 <?php
 include 'globalconn.php';
-include 'getconnect.php';
 
-$Connect = Connect::getConnection();
 $_SESSION['Status'] = "Conectado";
 
 if (session_status() !== PHP_SESSION_ACTIVE)
@@ -24,15 +22,7 @@ if (empty($UserName) || $UserName == 0)
     exit();
 }
 
-$Email = $_SESSION['UserName'];
-$query = $Connect->query("SELECT VerifiedEmail FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$Email'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $IsActive = $infoBase['VerifiedEmail'];
-}
-
-if ($IsActive == 0)
+if ($_SESSION['verifiedEmail'] == 0)
 {
     $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Parece que você tentou acessar uma página que não tem permissão, talvez seja necessário <a target='_blank' href='checkmail'><font color='dark'>verificar seu e-mail</font></a> primeiro.</div>";
     header("location: /selectserver");

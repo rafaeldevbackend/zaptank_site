@@ -1,8 +1,6 @@
 <?php
    include 'globalconn.php';
-   include 'getconnect.php';
    
-   $Connect = Connect::getConnection();
    $_SESSION['Status'] = "Conectado";
    
    if (session_status() !== PHP_SESSION_ACTIVE)
@@ -21,16 +19,8 @@
            $_SESSION['alert_changemail_notverified'] = "<div class='alert alert-danger'>Nossos sistemas identificaram que o e-mail associado à sua conta não pode ser verificado ou não existe, por favor para sua segurança digite um e-mail válido.</a></div>";
        break;
    }
-   
-   $Email = $_SESSION['UserName'];
-   $query = $Connect->query("SELECT VerifiedEmail FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$Email'");
-   $result = $query->fetchAll();
-   foreach ($result as $infoBase)
-   {
-       $VerifiedEmail = $infoBase['VerifiedEmail'];
-   }
-   
-   if ($VerifiedEmail == 1)
+      
+   if ($_SESSION['verifiedEmail'] == 1)
    {
        $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Parece que você tentou acessar uma página que não tem permissão.</div>";
        header("location: /selectserver");

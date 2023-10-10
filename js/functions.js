@@ -14,7 +14,7 @@ function checkServerSuv(suv) {
 		if(xhr.status == 200) {
 		  var response = JSON.parse(xhr.responseText);
 		  if(response.suv_token_is_valid == false) {
-			window.location.href = '/selectserver';
+			window.location.href = '/selectserver?error_code=1';
 		  }
 		} else {
 		  console.log("Erro na solicitação. Código do status: " + xhr.status);
