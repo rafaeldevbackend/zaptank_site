@@ -55,36 +55,7 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
          <span onClick="checkrules()" class="badge badge-pill badge-danger">Regras da Plataforma</span>
          <br>
          </br>
-		 <div id="1" class="inv">
-         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 1); ?>
-		 </div>
-		 <div id="2" class="inv">
-         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 2); ?>
-		 </div>
-		 <div id="3" class="inv">
-         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 3); ?>
-		 </div>
-		 <div id="4" class="inv">
-         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 4); ?>
-		 </div>
-		 <div id="5" class="inv">
-         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 5); ?>
-		 </div>
-		 <div id="6" class="inv">
-         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 6); ?>
-		 </div>
-		 <div id="7" class="inv">
-         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 7); ?>
-		 </div>
-		 <div id="8" class="inv">
-         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 8); ?>
-		 </div>
-		 <div id="9" class="inv">
-         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 9); ?>
-		 </div>
-		 <div id="10" class="vis">
-         <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 10); ?>
-		 </div>
+		 <div id="items"></div>
       </div>
       <div class="card-body-stretched"><a class="btn btn-block btn-primary" href="/serverlist?suv=<?php echo $i ?>">Voltar</a></div>
    </div>
@@ -102,20 +73,19 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
             <input name="email" id="email" type="email" class="form-control" placeholder="Qual seu e-mail para contato" value="<?php if(isset($_SESSION['UserName'])){echo $_SESSION['UserName'];} ?>" required>
          </div>
          <select id="target" name="selval" class="form-control">
-		 <?php		 
-		 $query = $Connect->query("SELECT * FROM $BaseServer.dbo.Vip_List WHERE ServerID = '1'");
-         $result = $query->fetchAll();
-         foreach ($result as $infoBase)
-         {
-			$ID = $infoBase['ID'];
-			$Price = $infoBase['ValuePrice'];
-			if ($ID == '10')
-			   echo '<option value="' . $ID . '" selected>Pacote Cupons ' . $ID . ' - ' . $Price . ' BRL</option>';
-		    else
-				echo '<option value="' . $ID . '">Pacote Cupons ' . $ID . ' - ' . $Price . ' BRL</option>';
-         }		 
-		 ?>
-         </select>
+			<?php			
+				$query = $Connect->query("SELECT * FROM $BaseServer.dbo.Vip_List WHERE ServerID = $DecryptServer");
+				$result = $query->fetchAll();
+				foreach ($result as $infoBase) {
+					$ID = $infoBase['ID'];
+					$Price = $infoBase['ValuePrice'];
+					if ($ID == '10')
+					   echo '<option value="' . $ID . '" selected>Pacote Cupons ' . $ID . ' - ' . $Price . ' BRL</option>';
+					else
+						echo '<option value="' . $ID . '">Pacote Cupons ' . $ID . ' - ' . $Price . ' BRL</option>';
+				}		 
+			?>
+		 </select>
          <div class="error" id="error">
             <?php
                if(isset($_SESSION['alert_listarpacote'])){
@@ -139,7 +109,6 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
 </form>
 <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
 <script language="javascript"> function checkrules(){location.assign("/rules");}</script>
-<script type="text/javascript">document .getElementById('target') .addEventListener('change', function (){'use strict'; var vis=document.querySelector('.vis'), target=document.getElementById(this.value); if (vis !==null){vis.className='inv';}if (target !==null ){target.className='vis';}});</script>
 <script async src="./assets/jquery.mask.min.js"></script>
 <script type="text/javascript" src="./js/utils/cookie.js"></script>
 <script type="text/javascript" src="./js/config.js"></script>
@@ -155,10 +124,61 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
 	if(suv == null || suv == '') {
 		window.location.href = 'selectserver';
 	}
+
+	function getVipInfo(vip) {
+		var url = `${api_url}/vip/${vip}/details/${suv}`;
+		var jwt_hash = getCookie('jwt_authentication_hash');
 		
-	checkServerSuv(suv);
-	checkCharacter(suv);		
-	
+		var xhr = new XMLHttpRequest();
+		
+		xhr.open('GET', url, true);
+		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+		xhr.setRequestHeader('Content-type', 'application/json');
+		xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+		
+		xhr.onreadystatechange = function() {
+			if(xhr.readyState == 4) {
+				if(xhr.status == 200) {
+					var response = JSON.parse(xhr.responseText);
+					var items = response.data.items;
+					
+					if(items.length > 0) {
+						
+						var items_container = document.getElementById('items');
+						items_container.innerHTML = '';
+						
+						items.forEach(function(item) {
+							
+							var item_container = document.createElement('div');
+							item_container.classList.add('item-shop', 'right');
+							item_container.setAttribute('valign', 'middle');
+							
+							item_container.innerHTML =  `
+								<a>
+								<img alt='DDTank' height='78' src="${item.image}"><br>
+								<center>Quantidade<br>
+									<strong>
+										<a>(x ${item.count})</a>
+									</strong>
+								</center>
+							`;
+							items_container.appendChild(item_container);
+						});
+					}
+				} else if(xhr.status == 401) {
+					displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
+					setTimeout(function(){
+						window.location.href = '/selectserver?logout=true';
+					}, 1000);
+				} else {
+					console.log("Erro na solicitação. Código do status: " + xhr.status);
+				}						
+			}
+		};
+		
+		xhr.send();
+	}
+		
 	document.getElementById("buyVip").addEventListener("click", function(event) {
 
 		event.preventDefault();
@@ -209,4 +229,16 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
 			xhr.send(params);
 		}
 	});
+	
+	document.getElementById('target').addEventListener('change', function(event) {		
+		var select = event.target;
+		var vip = select.value;
+		getVipInfo(vip);
+	});
+	
+	document.addEventListener("DOMContentLoaded", function() {
+		var select = document.getElementById('target');
+		var vip = select.value;
+		getVipInfo(vip);
+	});	
 </script>
