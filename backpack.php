@@ -47,7 +47,6 @@ if (empty($UserName) || $UserName == 0)
                         <h5 class="card-title">Itens da sua Mochila</h5>
 						<div id="bag-items"></div>
 						<div id="loader" style="text-align: center;"></div>
-                        <div class="error" id="error"></div>
                      </div>
                   </div>
                   <div class="error" id="error"></div>
@@ -190,6 +189,8 @@ if (empty($UserName) || $UserName == 0)
 		
 		function sendBagItem(questi, questii) {
 			
+			var button = event.target;
+			
 			var url = `${api_url}/backpack/item/send/${suv}`;
 			var params = `questi=${questi}&questii=${questii}`;
 			var jwt_hash = getCookie('jwt_authentication_hash');
@@ -206,8 +207,8 @@ if (empty($UserName) || $UserName == 0)
 					if(xhr.status == 200) {	
 						var response = JSON.parse(xhr.responseText);
 						if(response.success == true) {
-							var button = document.getElementById('sendBagItem');
 							displayMessage(type = "success", message = response.message);
+							button.innerText = 'Coletado';
 							button.disabled = true;
 						} else {
 							displayMessage(type = "error", message = response.message);
