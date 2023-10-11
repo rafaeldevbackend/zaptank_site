@@ -86,18 +86,7 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
 				}		 
 			?>
 		 </select>
-         <div class="error" id="error">
-            <?php
-               if(isset($_SESSION['alert_listarpacote'])){
-               	echo $_SESSION['alert_listarpacote'];
-               	unset($_SESSION['alert_listarpacote']);
-               }
-			   if ($IsFirstCharge == 1)
-			   {
-				   echo '<div class="alert alert-success" role="alert">Parabéns essa é sua primeira recarga, um bônus de boas vindas será aplicado em sua compra se ela for concluída com sucesso.</div>';
-			   }
-               ?>
-         </div>
+         <div class="error" id="error"></div>
          <button class="btn btn-primary btn-sm shiny" style="width:98%;float:left;margin-left:5px;font-size:15px;" type="submit" name="buyVip" id="buyVip">Continuar</button>
 		 <div class="p-t-40"></div>
       </div>
