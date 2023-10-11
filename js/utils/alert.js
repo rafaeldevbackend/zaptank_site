@@ -1,6 +1,12 @@
-function displayMessage(type, message) {
+function displayMessage(type, message, time) {
 	
     var errorDiv = document.getElementById('error');
+	
+	if(time == null) {
+		var timeout = 2500;
+	} else {
+		var timeout = time;
+	}
 
     if (!errorDiv || message == '') {
         return;
@@ -33,5 +39,5 @@ function displayMessage(type, message) {
 			.slideUp(500, function () {
 				$(this).remove();
 			});
-	}, 750);
+	}, timeout);
 }
