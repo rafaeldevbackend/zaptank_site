@@ -136,14 +136,16 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                         saveSession(response.data, csrf);
                         
                         if(response.email_sent == true) {
-                           displayMessage(type = 'success', message = 'Parabéns, você criou sua conta com sucesso! para entrar no jogo você precisará verificar seu e-mail.');
+                           displayMessage(type = 'success', message = 'Parabéns, você criou sua conta com sucesso! para entrar no jogo você precisará verificar seu e-mail.', timeout = 5000);
+						   setTimeout(function(){
+							window.location.href = "/selectserver";
+						   }, 5500);	
                         } else {
-                           displayMessage(type = 'success', message = 'Sua conta foi criada com sucesso, porém seu e-mail não foi enviado, estamos com uma demanda de e-mails acima do normal.');
-                        }
-                        
-                        setTimeout(function(){
-                           window.location.href = "/selectserver";
-                        }, 1500);							
+                           displayMessage(type = 'success', message = 'Sua conta foi criada com sucesso, porém seu e-mail não foi enviado, estamos com uma demanda de e-mails acima do normal.', timeout = 6500);
+						   setTimeout(function(){
+							window.location.href = "/selectserver";
+						   }, 7000);
+                        }	
                      } else {
                         displayMessage(type = 'error', message = response.message);
                      }					              

@@ -114,9 +114,9 @@ setcookie('captchaResult', $totalCaptcha);
 						if(xhr.status == 200) {
 							var response = JSON.parse(xhr.responseText);
 							if(response.success == true) {
-								displayMessage(type = 'success', message = response.message);								
+								displayMessage(type = 'success', message = response.message, timeout = 3000);								
 							} else {
-								displayMessage(type = 'error', message = response.message);
+								displayMessage(type = 'error', message = response.message, timeout = 4000);
 							}
 						} else if(xhr.status == 401) {
 							displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');

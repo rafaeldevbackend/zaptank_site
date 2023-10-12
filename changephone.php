@@ -93,7 +93,7 @@ if (empty($UserName) || $UserName == 0)
 								displayMessage(type = 'success', message = response.message);
 								setTimeout(function(){
 									window.location.href = '/selectserver';
-								}, 800);
+								}, 3000);
 							} else {
 								displayMessage(type = 'error', message = response.message);
 							}

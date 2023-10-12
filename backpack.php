@@ -28,9 +28,15 @@ if (empty($UserName) || $UserName == 0)
    <?php include 'Controllers/header.php'; ?>
    <style>
 	#bag-items {
+		margin-top: 30px;
 		display: flex;
-		justify-content: space-around;
+		justify-content: flex-start;
 		flex-wrap: wrap;
+	}
+	
+	.item {
+		width: 125px;
+		margin-bottom: 30px;
 	}
    </style>
    </head>
@@ -140,6 +146,7 @@ if (empty($UserName) || $UserName == 0)
 								for(var i=0; i < items.length; i++) {								
 									var item = items[i];
 									var item_container = document.createElement('div');
+									item_container.classList.add('item');
 									
 									if(item.status == 1) {
 										item_container.innerHTML = `

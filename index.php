@@ -63,13 +63,12 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
            
             event.preventDefault();
             
-            var email = document.getElementById('login_email').value;
-            var password = document.getElementById('login_password').value;
+            var email = document.getElementById('login_email').value.trim();
+            var password = document.getElementById('login_password').value.trim();
 
-            if(email.trim() != '' && password.trim() != '') {
+            if(email != '' && password != '') {
 
                var url = `${api_url}/auth/login`;
-
                var params = `email=${email}&password=${password}`;
 
                var xhr = new XMLHttpRequest();
@@ -93,7 +92,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
 							
 							setTimeout(function(){
 								window.location.href = "/selectserver";
-							}, 1500);							
+							}, 3000);							
                         } else {
 							displayMessage(type = 'error', message = response.message);
                         }                        

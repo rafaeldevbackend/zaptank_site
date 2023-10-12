@@ -182,10 +182,10 @@ if ($_SESSION['opinion']) {
 						if(xhr.status == 200) {
 							var response = JSON.parse(xhr.responseText);
 							if(response.success == true) {
-								displayMessage(type = 'success', message = `Valeu :) com certeza sua contribuição tornará nosso jogo melhor, suas recompensas foram enviadas para sua <a style="color:black" href="/backpack?suv=${suv}">mochila virtual</a>!`);
+								displayMessage(type = 'success', message = `Valeu :) com certeza sua contribuição tornará nosso jogo melhor, suas recompensas foram enviadas para sua <a style="color:black" href="/backpack?suv=${suv}">mochila virtual</a>!`, timeout = 7500);
 								setTimeout(function(){
 									window.location.href = `/backpack?suv=${suv}`;
-								}, 5000);									
+								}, 8000);									
 							} else {
 								displayMessage(type = 'error', message = response.message);
 							}

@@ -132,7 +132,7 @@ setcookie('captchaResult', $totalCaptcha);
 								displayMessage(type = 'success', message = response.message);
 								setTimeout(function(){
 									window.location.reload();
-								}, 1000);
+								}, 3000);
 							} else {
 								displayMessage(type = 'error', message = response.message);
 							}

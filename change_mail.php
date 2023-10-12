@@ -82,9 +82,7 @@ $Dados = new Conectado();
 				var url = `${api_url}/account/email/change`;
 				var params = `token=${token}&new_email=${new_email}`;
 				var jwt_hash = getCookie('jwt_authentication_hash');
-				
-				var xhr = new XMLHttpRequest();
-				
+					
 				var xhr = new XMLHttpRequest();
 				
 				xhr.open('POST', url, true);
@@ -100,9 +98,9 @@ $Dados = new Conectado();
 								displayMessage(type = 'success', message = response.message);	
 								setTimeout(function(){
 									window.location.href = '/selectserver?logout=true';
-								}, 1000);	
+								}, 3000);	
 							} else {
-								displayMessage(type = 'error', message = response.message);
+								displayMessage(type = 'error', message = response.message, timeout = 3000);
 							}
 						} else if(xhr.status == 401) {
 							displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');

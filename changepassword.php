@@ -103,7 +103,7 @@ $Dados->Destroy();
 								displayMessage(type = 'success', message = response.message);
 								setTimeout(function(){
 									window.location.href = '/selectserver?logout=true';
-								}, 1000);								
+								}, 3000);								
 							} else {
 								displayMessage(type = 'error', message = response.message);
 							}

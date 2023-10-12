@@ -21,7 +21,7 @@
 			   <p class="font-weight-bold">3 - É proibido a venda de <b>itens, contas ou cupons</b> dentro do jogo por dinheiro real, caso descumpra essa regra reservamos o direito de desabilitar a conta imediatamente da plataforma.</p>
                </br>
                <div id="main_form">
-                  <a class="btn btn-block btn-primary" href="selectserver">Voltar</a>
+                  <a class="btn btn-block btn-primary" onclick="history.back()">Voltar</a>
                </div>
             </div>
          </div>

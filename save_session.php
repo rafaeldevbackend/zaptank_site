@@ -1,4 +1,4 @@
- <?php
+<?php
  
 if(isset($_COOKIE['csrf_token']) && $_POST['csrf_token'] == $_COOKIE['csrf_token']) {
 	
@@ -22,6 +22,7 @@ if(isset($_COOKIE['csrf_token']) && $_POST['csrf_token'] == $_COOKIE['csrf_token
 	$_SESSION['opinion'] = $_POST['opinion'];
 	$_SESSION['badMail'] = $_POST['badMail'];
 	$_SESSION['isFirstCharge'] = $_POST['isFirstCharge'];
+	setcookie('csrf_token', '');
 	 
 	echo json_encode(['success' => true]);	
 } else {

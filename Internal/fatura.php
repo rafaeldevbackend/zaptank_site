@@ -3,7 +3,6 @@ button:disabled {
     color: white;
 }
 </style>
-<div id="error"></div>
 <div class="card-body row">
    <span class="login100-form-title">Preço do Pacote: <b style="color:orange!important;"><span class="price"></span></b> BRL</span>
    <span class="login100-form-title p-b-30">Nome da conta que irá receber: <b style="color:orange!important;"><span id="character"></span></b></span>
@@ -57,6 +56,7 @@ button:disabled {
       </div>
    </div>
 </div>
+<div id="error"></div>
 <div id="data"></div>
 <script type="text/javascript">function copyarea(){var copyText=document.getElementById("aleatory"); copyText.select(); copyText.setSelectionRange(0, 99999); navigator.clipboard.writeText(copyText.value); alert("Chave aleatória copiada: " + copyText.value);}</script>
 <div class="container-login100-form-btn p-t-25"><a class="server-form-btn" style="color:white;" href="/viplist?page=vipitemlist&server=<?php echo $i ?>">Voltar</a></div>
