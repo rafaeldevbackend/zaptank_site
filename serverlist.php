@@ -189,19 +189,8 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
                         <div class="">
                            <div class="p_border" style="">
                               <div class="f_nick" style="">
-                              </div>
-                              <?php $string=$Ddtank->GetStyle($Connect, $BaseUser ); if ($string !=null){$arr=explode(',', $string); $head=explode('|', $arr[0]); $head1=$Ddtank->GetPicAndSex($Connect, $BaseUser , $head[0]); $head2=explode('|', $head1); $eff=explode('|', $arr[3]); $eff1=$Ddtank->GetPicAndSex($Connect, $BaseUser , $eff[0]); $eff2=explode('|', $eff1); $hair=explode('|', $arr[2]); $hair1=$Ddtank->GetPicAndSex($Connect, $BaseUser , $hair[0]); $hair2=explode('|', $hair1); $face=explode('|', $arr[5]); $face1=$Ddtank->GetPicAndSex($Connect, $BaseUser , $face[0]); $face2=explode('|', $face1); $cloth=explode('|', $arr[4]); $cloth1=$Ddtank->GetPicAndSex($Connect, $BaseUser , $cloth[0]); $cloth2=explode('|', $cloth1); $arm=explode('|', $arr[6]); $sex=($Ddtank->GetSex($Connect, $BaseUser)) ? 'm': 'f';}else{$sex='m';}?>
-                              <div class="p_picture" id="p_picture">
-                                 <div class="f_head"><img alt="" src="<?php echo $Resource ?>equip/<?php if(!empty($head2[1])){echo $head2[1] -1 ? 'f': 'm';}else{echo $Ddtank->GetSex($Connect, $BaseUser) ? 'm': 'f';}	?>/head/<?= (!empty($head[1])) ? ($head[1]): 'default' ?>/1/show.png"></div>
-                                 <div class="f_hair"><img alt="" src="<?php echo $Resource ?>equip/<?php if(!empty($hair2[1])){echo $hair2[1] -1 ? 'f': 'm';}else{echo $Ddtank->GetSex($Connect, $BaseUser) ? 'm': 'f';}	?>/hair/<?= (!empty($hair[1])) ? ($hair[1]): 'default' ?>/1/B/show.png"></div>
-                                 <div class="f_effect"><img alt="" src="<?php echo $Resource ?>equip/<?php if(!empty($eff2[1])){echo $eff2[1] -1 ? 'f': 'm';}else{echo $Ddtank->GetSex($Connect, $BaseUser) ? 'm': 'f';}	?>/eff/<?= (!empty($eff[1])) ? ($eff[1]): 'default' ?>/1/show.png"></div>
-								 <div class="f_face"><img alt="" data-current="0" src="<?php echo $Resource ?>equip/<?php if(!empty($face2[1])){echo $face2[1] -1 ? 'f': 'm';}else{echo $Ddtank->GetSex($Connect, $BaseUser) ? 'm': 'f';}	?>/face/<?= (!empty($face[1])) ? ($face[1]): 'default' ?>/1/show.png" style="transform: translateX(0px);"></div>
-								 <div class="f_effect"><img alt="" src="<?php echo $Resource ?>equip/<?php if(!empty($cloth2[1])){echo $cloth2[1] -1 ? 'f': 'm';}else{echo $Ddtank->GetSex($Connect, $BaseUser) ? 'm': 'f';}	?>/cloth/<?= (!empty($cloth[1])) ? ($cloth[1]): 'default' ?>/1/show.png"></div>
-                                 <div class="f_arm">
-                                    <img alt="" src="<?php echo $Resource ?>arm/<?= (!empty($arm[1]))? ($arm[1]): 'axe' ?>/1/0/show.png"> 
-                                 </div>
-                                 <div class="i_grade" style="background-image: url('../assets/images/grade/<?php echo $Ddtank->GetLevel($Connect, $BaseUser ) ?>.png');"></div>
-                              </div>
+                              </div>                              
+                              <div class="p_picture" id="p_picture"></div>
                            </div>
                         </div>
                      </div>
@@ -267,9 +256,53 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
       <script language="javascript"> function checkmail(){location.assign("/checkmail");}</script>
       <script language="javascript"> function rules(){location.assign("/rules");}</script>
 	  <!--<script language="javascript">var countDownDate=new Date("May 28, 2023 00:00:00").getTime();var x=setInterval(function(){var now=new Date().getTime(); var distance=countDownDate - now; var days=Math.floor(distance / (1000 * 60 * 60 * 24)); var hours=Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); var minutes=Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)); var seconds=Math.floor((distance % (1000 * 60)) / 1000); document.getElementById("timer").innerHTML=days + "d " + hours + "h " + minutes + "m " + seconds + "s "; if (distance < 0){clearInterval(x); document.getElementById("timer").innerHTML="Expirou";}}, 1000);</script>-->
+	  <script type="text/javascript" src="./js/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./js/config.js"></script>
 	  <script type="text/javascript" src="./js/utils/url.js"></script>
 	  <script type="text/javascript">
 		var usp = new URLSearchParamsPolyfill(window.location.search);
+		
+		var suv = usp.get('suv');
+			
+			var url = `${api_url}/character/style/${suv}`;
+			var jwt_hash = getCookie('jwt_authentication_hash');
+			
+			var xhr = new XMLHttpRequest();
+
+			xhr.open('GET', url, true);
+			xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+			xhr.setRequestHeader('Content-type', 'application/json');
+			xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+			
+			xhr.onreadystatechange = function() {
+				if(xhr.readyState == 4) {
+					if(xhr.status == 200) {
+						var response = JSON.parse(xhr.responseText);
+						var character = response.data.character;
+						
+						var picture = document.getElementById('p_picture');
+						
+						var hair = (character.style.hair[1] != '') ? character.style.hair[1] : 'default';
+						var effect = (character.style.effect[1] != null) ? character.style.effect[1] : 'default';
+						var face = (character.style.face[1] != '') ? character.style.face[1] : 'default';
+						var cloth = (character.style.cloth[1] != '') ? character.style.cloth[1] : 'default';
+						var arm = (character.style.arm[1] != '') ? character.style.arm[1] : 'default';
+
+						picture.innerHTML = `
+							<div class="f_hair"><img alt="DDTank" src="<?php echo $Resource ?>equip/${character.gender}/hair/${hair}/1/B/show.png"></div>
+							<div class="f_effect"><img alt="DDTank" src="<?php echo $Resource ?>equip/${character.gender}/eff/${effect}/1/show.png"></div>
+							<div class="f_face"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${character.gender}/face/${face}/1/show.png"></div>
+							<div class="f_cloth"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${character.gender}/cloth/${cloth}/1/show.png"></div>
+							<div class="f_arm">
+							  <img src="<?php echo $Resource ?>arm/${arm}/1/0/show.png"> 
+							</div>
+							<div class="i_grade" style="background-image: url('../assets/images/grade/${character.level}.png');"></div>
+						`;
+					}
+				}
+			};
+			
+			xhr.send();
 		
 		if(usp.get('error_code') != null) {
 			
