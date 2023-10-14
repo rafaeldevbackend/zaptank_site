@@ -65,46 +65,6 @@ if ($CountUser == 0)
     exit();
 }
 
-$query = $Connect->query("SELECT COUNT(*) AS IsChargeBack FROM Db_Center.dbo.Vip_Data where UserName = '$UserName' AND IsChargeBack = '1' AND Status = 'Aprovada'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $Count = $infoBase['IsChargeBack'];
-}
-
-if ($Count > 0)
-{
-    $_SESSION['important'] = '<div class="alert alert-warning">Você tem recargas referente à temporada ' . $Temporada - 1 . ' para coletar! <a class="change-form-btn" style="color:white;font-size:15px;" href="/chargeback?suv='.$i.'">coletar agora</a></div>';
-}
-
-$query = $Connect->query("SELECT COUNT(*) AS HaveItemBag FROM Db_Center.dbo.Bag_Goods WHERE UserName = '$UserName' AND Status$DecryptServer = '0'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $HaveItemBag = $infoBase['HaveItemBag'];
-}
-
-$query = $Connect->query("SELECT VerifiedEmail, Telefone, CreateDate, IsBanned, Opinion, BadMail, IsFirstCharge, PassWord FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$UserName'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $VerifiedEmail = $infoBase['VerifiedEmail'];
-    $Telefone = $infoBase['Telefone'];
-    $CreateDate = $infoBase['CreateDate'];
-    $IsBanned = $infoBase['IsBanned'];
-    $Opinion = $infoBase['Opinion'];
-    $BadMail = $infoBase['BadMail'];
-    $IsFirstCharge = $infoBase['IsFirstCharge'];
-    $passmd5 = strtoupper($infoBase['PassWord']);
-}
-
-if ($IsBanned)
-{
-    session_destroy();
-    header("Location: /");
-    exit();
-}
-
 if (!empty($_SESSION['UserId']))
 {
     $DataAtual = date('d/m/Y H:i:s');
@@ -126,13 +86,6 @@ if (!empty($_GET['page'])) switch ($_GET['page'])
 {
     case 'success' : $_SESSION['alert'] = "<div class='alert alert-success'>Sua recarga foi enviada para o seu correio!</div>";
 break;
-}
-
-if ($_SESSION['PassWord'] != $passmd5)
-{
-    session_destroy();
-    header("Location: /");
-    exit();
 }
 
 if (strstr($_SERVER['HTTP_USER_AGENT'], 'LoggerZapTank'))
@@ -162,27 +115,10 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
                <div class="p-t-20">
 			   <div id="main_form">
                   <h6 style="color:white;"><?php if(isset($UserName)){echo $UserName;} ?> </h6>
-                  <?php                     
-                     if ($VerifiedEmail == 0)
-                     {
-                        echo '<p>Sua conta não tem e-mail verificado.</p>';
-                     }
-                     else
-                     {
-                        echo '<p>Sua conta foi criada em ' . date('d/m/Y', strtotime($CreateDate)) . '</p>';
-                     }
-                     
-                     $query = $Connect->query("SELECT COUNT(*) AS Status FROM $BaseServer.dbo.Tickets where Status = '0'");
-                     $result = $query->fetchAll();
-                     foreach($result as $infoBase){
-                     $Status = $infoBase['Status'];
-                     }
-                     
-                     if ($Ddtank->AdminPermission($Connect))
-                     {
-                        echo '<a class="badge badge-pill badge-danger" href="/viewtickets?suv=' . $i . '"><span>' . $Status . ' Tickets não foram respondidos</span></a>';
-                     }
-                     ?>
+				  <p id="account_info"></p>
+				  <div id="ticket_info" style="display: none;">
+					<a class="badge badge-pill badge-danger" href="/viewtickets?suv=<?= $i; ?>"><span id="ticket_count">0</span>&nbsp;Tickets não foram respondidos</a>
+				  </div>                 
 				  <a class="badge badge-pill badge-info" href="/ticket?suv=<?php echo $i ?>"><span>Precisa de suporte? Clique aqui</span></a>
                   <div class="subpage-content" style="">
                      <div class="player_profile">
@@ -197,31 +133,14 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
                   </div>
                   <script>setTimeout(faceAnmite, 400); function faceAnmite (){var faceObj=$('#p_picture').find('.f_face').find('img'); var current=faceObj.data('current'); var faceTrans=[0, 397, 264.8, 397]; current++; if (current==4){current=0;}faceObj.data('current', current); faceObj.css('transform', 'translateX(-' + faceTrans[current] + 'px)'); if (current > 0){setTimeout(faceAnmite, 100);}else{setTimeout(faceAnmite, 2000);}}</script>
                   <div class="error">
-                     <?php
-					    if ($Opinion == 0)
-						{
-							echo "<div class='alert alert-dark'>Participe de uma pesquisa e ganhe um código de itens grátis!<a class='change-form-btn' style='color:white;font-size:15px;' href='/opinionreward?suv=$i'>Participar da pesquisa</a></div>";
-						}
-
-						if ($IsFirstCharge == 1 && $Release)
-						{
-							echo "<div class='alert alert-primary'>Você ganhou 15% de bônus na sua primeira recarga essa oferta é válida apenas hoje!<a class='change-form-btn' style='color:white;font-size:15px;' href='/viplist?page=vipitemlist&server=$i'>APROVEITAR PROMOÇÃO</a></div>";
-						}
-						
-                        if (isset($_SESSION['msg']))
-                        {
-                            echo $_SESSION['msg'];
-                            unset($_SESSION['msg']);
-                        }
+					 <div class='alert alert-dark' id="survey" style="display: none;">Participe de uma pesquisa e ganhe um código de itens grátis!<a class='change-form-btn' style='color:white;font-size:15px;' href='/opinionreward?suv=<?= $i; ?>'>Participar da pesquisa</a></div>
+                     <div class='alert alert-primary' id="promotion" style="display: none;">Você ganhou 15% de bônus na sua primeira recarga essa oferta é válida apenas hoje!<a class='change-form-btn' style='color:white;font-size:15px;' href='/viplist?page=vipitemlist&server=<?= $i; ?>'>APROVEITAR PROMOÇÃO</a></div>
+					 <div class="alert alert-warning" id="chargeback" style="display: none;">Você tem recargas referente à temporada <?= ($Temporada - 1) ?> para coletar! <a class="change-form-btn" style="color:white;font-size:15px;" href="/chargeback?suv=<?= $i; ?>">coletar agora</a></div>
+					<?php						
                         if (isset($_SESSION['alert']))
                         {
                             echo $_SESSION['alert'];
                             unset($_SESSION['alert']);
-                        }
-                        if (isset($_SESSION['important']))
-                        {
-                            echo $_SESSION['important'];
-                            unset($_SESSION['important']);
                         }
 						if (isset($_SESSION['charge']))
                         {
@@ -240,7 +159,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
                   <div class="container-login100-form-btn p-t-20" style="width:47%;float:left;margin-left:5px"><a class="change-form-btn" style="color:white;font-size:15px;" href="/account?suv=<?php echo $i ?>">Configurações</a></div>
                   <div class="container-login100-form-btn p-t-20" style="width:47%;float:left;margin-left:10px;"><a class="paymoney-form-btn" style="color:white;font-size:15px;" href="/viplist?page=vipitemlist&server=<?php echo $i ?>">Recarregar</a></div>
                   <div class="container-login100-form-btn p-t-20" style="width:47%;float:left;margin-left:5px"><a class="server-form-btn" style="color:white;font-size:13px;" href="/rank?suv=<?php echo $i ?>">TOP Rank</a></div>
-                  <div class="container-login100-form-btn p-t-20" style="width:47%;float:left;margin-left:10px;"><a class="change-form-btn" style="color:white;font-size:15px;" href="/backpack?suv=<?php echo $i ?>">Mochila&nbsp;<span class="badge badge-light"><?php if ($HaveItemBag > 0) echo $HaveItemBag ?></span></a></div>
+                  <div class="container-login100-form-btn p-t-20" style="width:47%;float:left;margin-left:10px;"><a class="change-form-btn" style="color:white;font-size:15px;" href="/backpack?suv=<?php echo $i ?>">Mochila&nbsp;<span class="badge badge-light" id="bagItemCount"></span></a></div>
                   <?php if (!strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){echo '<div class="container-login100-form-btn p-t-25" style="float:left;"><a class="change-form-btn" style="color:white;font-size:15px;" href="/download?suv='.$i.'">Baixar DDTank</a></div>';}?>
 				  <div class="container-login100-form-btn p-t-20"><a class="close-form-btn" style="color:white;" href="/selectserver">Selecionar Servidor</a></div>
                   <div class="p-t-40"></div>
@@ -263,8 +182,10 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
 		var usp = new URLSearchParamsPolyfill(window.location.search);
 		
 		var suv = usp.get('suv');
+		
+		function listInfo() {
 			
-			var url = `${api_url}/character/style/${suv}`;
+			var url = `${api_url}/serverlist/${suv}`;
 			var jwt_hash = getCookie('jwt_authentication_hash');
 			
 			var xhr = new XMLHttpRequest();
@@ -278,31 +199,88 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
 				if(xhr.readyState == 4) {
 					if(xhr.status == 200) {
 						var response = JSON.parse(xhr.responseText);
-						var character = response.data.character;
-						
-						var picture = document.getElementById('p_picture');
-						
-						var hair = (character.style.hair[1] != '') ? character.style.hair[1] : 'default';
-						var effect = (character.style.effect[1] != null) ? character.style.effect[1] : 'default';
-						var face = (character.style.face[1] != '') ? character.style.face[1] : 'default';
-						var cloth = (character.style.cloth[1] != '') ? character.style.cloth[1] : 'default';
-						var arm = (character.style.arm[1] != '') ? character.style.arm[1] : 'default';
-
-						picture.innerHTML = `
-							<div class="f_hair"><img alt="DDTank" src="<?php echo $Resource ?>equip/${character.gender}/hair/${hair}/1/B/show.png"></div>
-							<div class="f_effect"><img alt="DDTank" src="<?php echo $Resource ?>equip/${character.gender}/eff/${effect}/1/show.png"></div>
-							<div class="f_face"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${character.gender}/face/${face}/1/show.png"></div>
-							<div class="f_cloth"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${character.gender}/cloth/${cloth}/1/show.png"></div>
-							<div class="f_arm">
-							  <img src="<?php echo $Resource ?>arm/${arm}/1/0/show.png"> 
-							</div>
-							<div class="i_grade" style="background-image: url('../assets/images/grade/${character.level}.png');"></div>
-						`;
+						if(response.status_code == 'banned_user') {
+							window.location.href = '/selectserver?error_code=2'
+						} else if(response.status_code == 'list_info') {
+							var info = response.info;
+							var alerts = response.alerts;
+							
+							if(info.verified == false) {
+								document.getElementById('account_info').innerText = 'Sua conta não tem e-mail verificado.';
+							} else {
+								document.getElementById('account_info').innerText = `Sua conta foi criada em ${info.created_at}`;
+							}
+							
+							if(alerts.ticket.show == true) {
+								document.getElementById('ticket_info').style.display = 'block';
+								document.getElementById('ticket_count').innerText = alerts.ticket.data;
+							}
+							
+							if(alerts.survey.show == true) {
+								document.getElementById('survey').style.display = 'block';
+							}
+							
+							if(alerts.promotion.show == true) {
+								document.getElementById('promotion').style.display = 'block';
+							}
+							
+							if(alerts.chargeback.show == true) {
+								document.getElementById('chargeback').style.display = 'block';
+							}
+							
+							if(alerts.backpack.show == true) {
+								document.getElementById('bagItemCount').innerText = alerts.backpack.data;
+							}
+						}
 					}
 				}
 			};
-			
+        
 			xhr.send();
+            
+		}
+		
+		listInfo();
+			
+        var url = `${api_url}/character/style/${suv}`;
+        var jwt_hash = getCookie('jwt_authentication_hash');
+        
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('GET', url, true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('Content-type', 'application/json');
+        xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+        
+        xhr.onreadystatechange = function() {
+            if(xhr.readyState == 4) {
+                if(xhr.status == 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    var character = response.data.character;
+                    
+                    var picture = document.getElementById('p_picture');
+                    
+                    var hair = (character.style.hair[1] != '') ? character.style.hair[1] : 'default';
+                    var effect = (character.style.effect[1] != null) ? character.style.effect[1] : 'default';
+                    var face = (character.style.face[1] != '') ? character.style.face[1] : 'default';
+                    var cloth = (character.style.cloth[1] != '') ? character.style.cloth[1] : 'default';
+                    var arm = (character.style.arm[1] != '') ? character.style.arm[1] : 'default';
+
+                    picture.innerHTML = `
+                        <div class="f_hair"><img alt="DDTank" src="<?php echo $Resource ?>equip/${character.gender}/hair/${hair}/1/B/show.png"></div>
+                        <div class="f_effect"><img alt="DDTank" src="<?php echo $Resource ?>equip/${character.gender}/eff/${effect}/1/show.png"></div>
+                        <div class="f_face"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${character.gender}/face/${face}/1/show.png"></div>
+                        <div class="f_cloth"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${character.gender}/cloth/${cloth}/1/show.png"></div>
+                        <div class="f_arm">
+                            <img src="<?php echo $Resource ?>arm/${arm}/1/0/show.png"> 
+                        </div>
+                        <div class="i_grade" style="background-image: url('../assets/images/grade/${character.level}.png');"></div>
+                    `;
+                }
+            }
+        };
+        
+        xhr.send();
 		
 		if(usp.get('error_code') != null) {
 			
