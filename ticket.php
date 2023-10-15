@@ -182,22 +182,22 @@ setcookie('captchaResult', $totalCaptcha);
 					
 					var picture = document.getElementById('p_picture');
 					
-					var hair = (character.style.hair[1] != '') ? character.style.hair[1] : 'default';
-					var effect = (character.style.effect[1] != null) ? character.style.effect[1] : 'default';
-					var face = (character.style.face[1] != '') ? character.style.face[1] : 'default';
-					var cloth = (character.style.cloth[1] != '') ? character.style.cloth[1] : 'default';
-					var arm = (character.style.arm[1] != '') ? character.style.arm[1] : 'default';
+                    var hair = character.style.hair;
+                    var effect = character.style.effect;
+                    var face = character.style.face;
+                    var cloth = character.style.cloth;
+                    var arm = character.style.arm;
 
-					picture.innerHTML = `
-						<div class="f_hair"><img alt="DDTank" src="<?php echo $Resource ?>equip/${character.gender}/hair/${hair}/1/B/show.png"></div>
-						<div class="f_effect"><img alt="DDTank" src="<?php echo $Resource ?>equip/${character.gender}/eff/${effect}/1/show.png"></div>
-						<div class="f_face"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${character.gender}/face/${face}/1/show.png"></div>
-						<div class="f_cloth"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${character.gender}/cloth/${cloth}/1/show.png"></div>
-						<div class="f_arm">
-							<img src="<?php echo $Resource ?>arm/${arm}/1/0/show.png"> 
-						</div>
-						<div class="i_grade" style="background-image: url('../assets/images/grade/${character.level}.png');"></div>
-					`;
+                    picture.innerHTML = `
+                        <div class="f_hair"><img alt="DDTank" src="<?php echo $Resource ?>equip/${hair.sex}/hair/${hair.pic}/1/B/show.png"></div>
+                        <div class="f_effect"><img alt="DDTank" src="<?php echo $Resource ?>equip/${effect.sex}/eff/${effect.pic}/1/show.png"></div>
+                        <div class="f_face"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${face.sex}/face/${face.pic}/1/show.png"></div>
+                        <div class="f_cloth"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${cloth.sex}/cloth/${cloth.pic}/1/show.png"></div>
+                        <div class="f_arm">
+                            <img src="<?php echo $Resource ?>arm/${arm.pic}/1/0/show.png"> 
+                        </div>
+                        <div class="i_grade" style="background-image: url('../assets/images/grade/${character.level}.png');"></div>
+                    `;
 				}
 			}
 		};
