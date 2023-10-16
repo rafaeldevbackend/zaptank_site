@@ -122,8 +122,9 @@ if ($CountUser == 0)
 				  <div class="container-login100-form-btn p-t-10"><a class="paymoney-form-btn" style="color:white;" href="/onlinerankingtime?suv=<?php echo $i ?>">Ranking Tempo Online</a></div>
 				  <div class="container-login100-form-btn p-t-10"><a class="close-form-btn" style="color:white;" href="/powerrank?suv=<?php echo $i ?>">Ranking PODER</a></div>
 				  <div class="container-login100-form-btn p-t-10"><a class="server-form-btn" style="color:white;" href="/rankpvp?suv=<?php echo $i ?>">Ranking PVP</a></div>
-				  <div class="container-login100-form-btn p-t-10" style="float:left;"><a class="change-form-btn" style="color:white;font-size:15px;" href="/serverlist?suv=<?php echo $i ?>">Voltar</a></div>
                </div>
+			   <div class="container-login100-form-btn p-t-10"><a class="change-form-btn" style="color:white;font-size:15px;" href="/serverlist?suv=<?php echo $i ?>">Voltar</a></div>
+			   <div id="error" style="margin-top: 15px;"></div>
             </div>
          </div>
       </div>
@@ -170,6 +171,13 @@ if ($CountUser == 0)
 							</div>
 							<div class="i_grade" style="background-image: url('../assets/images/grade/${character.level}.png');"></div>
 						`;
+					} else if(xhr.status == 401) {
+						displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
+						setTimeout(function(){
+							window.location.href = '/selectserver?logout=true';
+						}, 3000);
+					} else {
+						console.log("Erro na solicitação. Código do status: " + xhr.status);
 					}
 				}
 			};

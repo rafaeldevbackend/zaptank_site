@@ -107,7 +107,7 @@ if (empty($UserName) || $UserName == 0)
 				   displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
 				   setTimeout(function(){
 					  window.location.href = '/selectserver?logout=true';
-				   }, 1000);
+				   }, 3000);
 				} else {
 				   console.log("Erro na solicitação. Código do status: " + xhr.status);
 				}						
@@ -181,6 +181,13 @@ if (empty($UserName) || $UserName == 0)
 						} else {
 							error_div.innerHTML = `<div class="alert alert-danger">Sua mochila está vazia!</div>`;
 						}					
+					} else if(xhr.status == 401) {
+						displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
+						setTimeout(function(){
+							window.location.href = '/selectserver?logout=true';
+						}, 3000);
+					} else {
+						console.log("Erro na solicitação. Código do status: " + xhr.status);
 					}
 				}
 			};
@@ -220,6 +227,13 @@ if (empty($UserName) || $UserName == 0)
 						} else {
 							displayMessage(type = "error", message = response.message);
 						}
+					} else if(xhr.status == 401) {
+						displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
+						setTimeout(function(){
+							window.location.href = '/selectserver?logout=true';
+						}, 3000);
+					} else {
+						console.log("Erro na solicitação. Código do status: " + xhr.status);
 					}
 				}
 			};

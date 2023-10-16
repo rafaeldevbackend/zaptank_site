@@ -132,7 +132,6 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
                      </div>
                   </div>
                   <script>setTimeout(faceAnmite, 400); function faceAnmite (){var faceObj=$('#p_picture').find('.f_face').find('img'); var current=faceObj.data('current'); var faceTrans=[0, 397, 264.8, 397]; current++; if (current==4){current=0;}faceObj.data('current', current); faceObj.css('transform', 'translateX(-' + faceTrans[current] + 'px)'); if (current > 0){setTimeout(faceAnmite, 100);}else{setTimeout(faceAnmite, 2000);}}</script>
-                  <div class="error">
 					 <div class='alert alert-dark' id="survey" style="display: none;">Participe de uma pesquisa e ganhe um código de itens grátis!<a class='change-form-btn' style='color:white;font-size:15px;' href='/opinionreward?suv=<?= $i; ?>'>Participar da pesquisa</a></div>
                      <div class='alert alert-primary' id="promotion" style="display: none;">Você ganhou 15% de bônus na sua primeira recarga essa oferta é válida apenas hoje!<a class='change-form-btn' style='color:white;font-size:15px;' href='/viplist?page=vipitemlist&server=<?= $i; ?>'>APROVEITAR PROMOÇÃO</a></div>
 					 <div class="alert alert-warning" id="chargeback" style="display: none;">Você tem recargas referente à temporada <?= ($Temporada - 1) ?> para coletar! <a class="change-form-btn" style="color:white;font-size:15px;" href="/chargeback?suv=<?= $i; ?>">coletar agora</a></div>
@@ -162,7 +161,8 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
                   <div class="container-login100-form-btn p-t-20" style="width:47%;float:left;margin-left:10px;"><a class="change-form-btn" style="color:white;font-size:15px;" href="/backpack?suv=<?php echo $i ?>">Mochila&nbsp;<span class="badge badge-light" id="bagItemCount"></span></a></div>
                   <?php if (!strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){echo '<div class="container-login100-form-btn p-t-25" style="float:left;"><a class="change-form-btn" style="color:white;font-size:15px;" href="/download?suv='.$i.'">Baixar DDTank</a></div>';}?>
 				  <div class="container-login100-form-btn p-t-20"><a class="close-form-btn" style="color:white;" href="/selectserver">Selecionar Servidor</a></div>
-                  <div class="p-t-40"></div>
+				  <div class="error" id="error">
+                  <div class="p-t-10"></div>
                </div>
 			   </div>
             </div>
@@ -232,6 +232,13 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
 								document.getElementById('bagItemCount').innerText = alerts.backpack.data;
 							}
 						}
+					} else if(xhr.status == 401) {
+						displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
+						setTimeout(function(){
+							window.location.href = '/selectserver?logout=true';
+						}, 3000);
+					} else {
+						console.log("Erro na solicitação. Código do status: " + xhr.status);
 					}
 				}
 			};
@@ -276,7 +283,14 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
                         </div>
                         <div class="i_grade" style="background-image: url('../assets/images/grade/${character.level}.png');"></div>
                     `;
-                }
+                } else if(xhr.status == 401) {
+					displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
+					setTimeout(function(){
+						window.location.href = '/selectserver?logout=true';
+					}, 3000);
+				} else {
+					console.log("Erro na solicitação. Código do status: " + xhr.status);
+				}
             }
         };
         

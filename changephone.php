@@ -97,7 +97,7 @@ if (empty($UserName) || $UserName == 0)
 							} else {
 								displayMessage(type = 'error', message = response.message);
 							}
-							console.log(response);
+
 						} else if(xhr.status == 401) {
 							displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
 							setTimeout(function(){

@@ -105,8 +105,13 @@ if (empty($UserName) || $UserName == 0)
 				  } else {
 					container_alert.innerHTML = `<div class="alert alert-danger">${response.content}</div>`; 
 				  }
+				} else if(xhr.status == 401) {
+					displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
+					setTimeout(function(){
+						window.location.href = '/selectserver?logout=true';
+					}, 3000);
 				} else {
-				  console.log("Erro na solicitação. Código do status: " + xhr.status);
+					console.log("Erro na solicitação. Código do status: " + xhr.status);
 				}						
 			  }
 			};

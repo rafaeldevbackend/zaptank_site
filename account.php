@@ -134,6 +134,7 @@ if ($CountUser == 0)
                      <span class="lnr lnr-gift"></span>
                      </span>
                   </div>
+				  <div id="error"></div>
                      <div class="text-center w-full">
                      <a class="input-label-secondary" href="serverlist?suv=<?php echo $i ?>">
                      Voltar
@@ -168,6 +169,7 @@ if ($CountUser == 0)
 				if(xhr.readyState == 4) {
 					if(xhr.status == 200) {
 						var response = JSON.parse(xhr.responseText);
+
 						var character = response.data.character;
 						
 						var picture = document.getElementById('p_picture');
@@ -188,6 +190,13 @@ if ($CountUser == 0)
 							</div>
 							<div class="i_grade" style="background-image: url('../assets/images/grade/${character.level}.png');"></div>
                     `;
+					} else if(xhr.status == 401) {
+						displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
+						setTimeout(function(){
+							window.location.href = '/selectserver?logout=true';
+						}, 3000);
+					} else {
+						console.log("Erro na solicitação. Código do status: " + xhr.status);
 					}
 				}
 			};

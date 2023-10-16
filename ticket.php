@@ -198,6 +198,13 @@ setcookie('captchaResult', $totalCaptcha);
                         </div>
                         <div class="i_grade" style="background-image: url('../assets/images/grade/${character.level}.png');"></div>
                     `;
+				} else if(xhr.status == 401) {
+					displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
+					setTimeout(function(){
+						window.location.href = '/selectserver?logout=true';
+					}, 3000);
+				} else {
+					console.log("Erro na solicitação. Código do status: " + xhr.status);
 				}
 			}
 		};

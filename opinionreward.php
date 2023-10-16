@@ -109,11 +109,11 @@ if ($_SESSION['opinion']) {
 							</label>
 						 </div>
 					  </div>
-					  <div class="error" id="error"></div>
 					  <a style="color:white" class="input-label-secondary">Cada recompensa só pode ser resgatada uma única vez para cada conta.</a>
 					  <br></br>
 					  <button class="login100-form-btn shinyfont" id="btnSendSurvey">RECEBER RECOMPENSAS</button>
                   </form>
+				  <div id="error" style="margin-top: 15px;"></div>
                   <div class="text-center w-full p-t-20">
                      <a class="input-label-secondary" href="serverlist?suv=<?php echo $i ?>">
                      Voltar
@@ -181,6 +181,13 @@ if ($_SESSION['opinion']) {
                         </div>
                         <div class="i_grade" style="background-image: url('../assets/images/grade/${character.level}.png');"></div>
                     `;
+				} else if(xhr.status == 401) {
+					displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
+					setTimeout(function(){
+						window.location.href = '/selectserver?logout=true';
+					}, 3000);
+				} else {
+					console.log("Erro na solicitação. Código do status: " + xhr.status);
 				}
 			}
 		};
