@@ -1,106 +1,17 @@
 <?php
 include 'globalconn.php';
-include 'getconnect.php';
-
-$Connect = Connect::getConnection();
 
 if (session_status() !== PHP_SESSION_ACTIVE)
 {
     session_start(['cookie_lifetime' => 2592000, 'cookie_secure' => true, 'cookie_httponly' => true]);
 }
 
-include 'loadautoloader.php';
-include 'Objects/gerenciamento.php';
-
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-
-require './supplier/phpmailer/phpmailer/src/PHPMailer.php';
-require './supplier/phpmailer/phpmailer/src/Exception.php';
-require './supplier/phpmailer/phpmailer/src/SMTP.php';
-
-if (isset($_POST['checkmail']))
-{
-    $email = addslashes($_POST["email"]);
-    if (!empty($email))
-    {
-       $EncMail = $Ddtank->EncryptText($KeyPublicCrypt, $KeyPrivateCrypt, $email);
-    }
-    $query = $Connect->query("SELECT UserId, VerifiedEmail FROM Db_Center.dbo.Mem_UserInfo WHERE Email = '$email'");
-    $result = $query->fetchAll();
-    foreach ($result as $infoBase)
-    {
-        $UserId = $infoBase['UserId'];
-        $VerifiedEmail = $infoBase['VerifiedEmail'];
-    }
-	if (!empty($UserId))
-    {
-        if (!$VerifiedEmail)
-        {
-            $Email = addslashes($_POST["captchaResult"]);
-            $captchaResult = addslashes($_POST["captchaResult"]);
-            $coderandom1 = addslashes($_POST["coderandom1"]);
-            $coderandom2 = addslashes($_POST["coderandom2"]);
-            $checkTotal = addslashes($coderandom1 + $coderandom2);
-            if ($captchaResult == $checkTotal)
-            {
-                $token = md5(time());
-				$data = date('d/m/Y H:i');
-                $stmt = $Connect->prepare('INSERT INTO Db_Center.dbo.activate_email(userID, token, Date) VALUES(:userID, :token, :Date)');
-                $stmt->bindParam(':userID', $UserId);
-                $stmt->bindParam(':token', $token);
-                $stmt->bindParam(':Date', $data);
-                $stmt->execute();
-                $mail = new PHPMailer;
-                $mail->CharSet = 'UTF-8';
-                $mail->isSMTP();
-                $mail->Host = $SMTP_HOST;
-                $mail->SMTPAuth = true;
-                $mail->SMTPSecure = 'tls';
-                $mail->Username = $SMTP_EMAIL; // E-mail SMTP
-                $mail->Password = $SMTP_PASSWORD;
-                $mail->Port = 587;
-
-                $mail->SMTPOptions = ['ssl' => ['verify_peer' => false, 'verify_peer_name' => false, 'allow_self_signed' => true, ]];
-
-                $mail->setFrom('noreply@redezaptank.com.br', 'DDTank'); // E-mail SMTP
-                $mail->addAddress('' . $email . '', 'DDTank'); // E-mail do usuário
-                $mail->isHTML(true);
-                $mail->Subject = 'Atendimento ZapTank - Ative sua conta';
-                $mail->Body = '<style>@import url(https://fonts.googleapis.com/css?family=Roboto);body{font-family: "Roboto", sans-serif; font-size: 48px;}</style><table cellpadding="0" cellspacing="0" border="0" style="padding:0;margin:0 auto;width:100%;max-width:620px"> <tbody> <tr> <td colspan="3" style="padding:0;margin:0;font-size:1px;height:1px" height="1">&nbsp;</td></tr><tr> <td style="padding:0;margin:0;font-size:1px">&nbsp;</td><td style="padding:0;margin:0" width="590"> <span class="im"> <table width="100%" cellspacing="0" cellpadding="0" border="0"> <tbody> <tr style="background-color:#fff"> <td style="padding:11px 23px 8px 15px;float:right;font-size:12px;font-weight:300;line-height:1;color:#666;font-family:"Proxima Nova",Helvetica,Arial,sans-serif"> <p style="float:right">' . $email . '</p></td></tr></tbody> </table> <table bgcolor="#d65900" width="100%" cellspacing="0" cellpadding="0" border="0"> <tbody> <tr> <td height="0"></td></tr><tr> <td align="center" style="display:none"><img alt="DDTank" width="90" style="width:90px;text-align:center"></td></tr><tr> <td height="0"></td></tr><tr> <td class="m_-5336645264442155576title m_-5336645264442155576bold" style="padding:63px 33px;text-align:center" align="center"> <span class="m_-5336645264442155576mail__title" style=""> <h1><font color="#ffffff">Esse e-mail é para que você tenha acesso total à sua conta ZapTank a ativação é bem rápida! Clique no botão para ativar sua conta.</font></h1> </span> </td></tr><tr> <td style="text-align:center;padding:0"> <div id="m_-5336645264442155576responsive-width" class="m_-5336645264442155576responsive-width" width="78.2% !important" style="width:77.8%!important;margin:0 auto;background-color:#fbee00;display:none"> <div style="height:50px;margin:0 auto">&nbsp;</div></div></td></tr></tbody> </table> </span> <div id="m_-5336645264442155576div-table-wrapper" class="m_-5336645264442155576div-table-wrapper" style="text-align:center;margin:0 auto"> <table class="m_-5336645264442155576main-card-shadow" bgcolor="#ffffff" align="center" border="0" cellpadding="0" cellspacing="0" style="border:none;padding:48px 33px 0;text-align:center"> <tbody> <tr> <td align="center"> <table class="m_-5336645264442155576mail__buttons-container" align="center" width="200" border="0" cellpadding="0" cellspacing="0" style="border-radius:4px;height:48px;width:240px;table-layout:fixed;margin:32px auto"> <tbody> <tr> <td style="border-radius:4px;height:30px;font-family:"Proxima nova",Helvetica,Arial,sans-serif" bgcolor="#d65900"><a href="https://redezaptank.com.br/active_account?token=' . $token . '" style="padding:10px 3px;display:block;font-family:Arial,Helvetica,sans-serif;font-size:16px;color:#fff;text-decoration:none;text-align:center" target="_blank" data-saferedirecturl="https://redezaptank.com.br/active_account?token=' . $token . '">Ativar conta</a></td></tr></tbody> </table> </td></tr><tr> <td align="center"><p class="m_-5336645264442155576mail__text-card m_-5336645264442155576bold" style="text-decoration:none;font-family:"Proxima Nova",Arial,Helvetica,sans-serif;text-align:center;line-height:16px;max-width:390px;width:100%;margin:0 auto 44px;font-size:14px;color:#999">O ZapTank enviou este e-mail pois você optou por recebê-lo ao cadastrar-se no site. Se você não deseja receber e-mails, <a href="https://redezaptank.com.br/unsubscribemaillist?mail=' . $EncMail . '" style="color:rgb(227, 72, 0);text-decoration:none" target="_blank" data-saferedirecturl="">cancele o recebimento</p></td></tr></tbody> </table> </div></td><td style="padding:0;margin:0;font-size:1px">&nbsp;</td></tr><tr> <td colspan="3" style="padding:0;margin:0;font-size:1px;height:1px" height="1">&nbsp;</td></tr></tbody></table><small class="text-muted"><?php setlocale(LC_TIME, "pt_BR", "pt_BR.utf-8", "pt_BR.utf-8", "portuguese"); date_default_timezone_set("America/Sao_Paulo"); echo strftime("%A, %d de %B de %Y", strtotime("today"));?></small> </p></div></div>';
-                $mail->AltBody = 'Atendimento ZapTank - Ative sua conta';
-                // $mail->SMTPDebug  = 4; // errors and messages
-                // var_dump($mail);
-                if ($mail->send())
-                {
-                    $_SESSION['alert_checkmail'] = "<div class='alert alert-success ocult-time'>Enviamos um e-mail para verificar sua conta, caso não encontre nenhum email verifique o SPAM.</div>";
-                }
-                else
-                {
-                    $_SESSION['alert_checkmail'] = "<div class='alert alert-danger ocult-time'>Seu e-mail não foi enviado, estamos com uma demanda de e-mails acima do normal. Nossos engenheiros foram notificados e estão resolvendo o mais rápido possível.</div>";
-                }
-            }
-            else
-            {
-                $_SESSION['alert_checkmail'] = "<div class='alert alert-danger ocult-time'>A resposta do código está errada tente novamente.</div>";
-            }
-        }
-        else
-        {
-            $_SESSION['alert_checkmail'] = "<div class='alert alert-danger ocult-time'>Esta conta já foi ativada!</div>";
-        }
-    }
-    else
-    {
-        $_SESSION['alert_checkmail'] = "<div class='alert alert-danger ocult-time'>Este e-mail não existe.</div>";
-    }
-
-}
 $min_number = 1;
 $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
 $random_number2 = mt_rand($min_number, $max_number);
+$totalCaptcha = $random_number1 + $random_number2;
+setcookie('captchaResult', $totalCaptcha);
 ?>
 
 <!DOCTYPE html>
@@ -120,31 +31,21 @@ $random_number2 = mt_rand($min_number, $max_number);
                   VERIFICAR E-MAIL
                   </span>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do e-mail é obrigatório">
-                     <input class="input100" type="email" name="email" value="<?php if (!empty($_SESSION['UserName'])){echo ($_SESSION['UserName']);} ?>" id="resetPasswordSrEmail" placeholder="Qual seu e-mail?">
+                     <input class="input100" type="email" name="email" id="email" value="<?php if (!empty($_SESSION['UserName'])){echo ($_SESSION['UserName']);} ?>" id="resetPasswordSrEmail" placeholder="Qual seu e-mail?">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-envelope"></span>
                      </span>
                   </div>
 				  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do código é obrigatório">
-                     <input class="input100" type="text" name="captchaResult" size="2" id="register_password" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
-					 <input name="coderandom1" type="hidden" value="<?php echo $random_number1; ?>" />
-                     <input name="coderandom2" type="hidden" value="<?php echo $random_number2; ?>" />
+                     <input class="input100" type="text" name="captchaResult" id="captchaResult" size="2" id="register_password" placeholder="Quanto é <?php echo $random_number1 . ' + ' . $random_number2; ?> ?">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-sync"></span>
                      </span>
                   </div>
-                  <div class="error">
-                     <?php
-if (isset($_SESSION['alert_checkmail']))
-{
-    echo $_SESSION['alert_checkmail'];
-    unset($_SESSION['alert_checkmail']);
-}
-?>
-                  </div>
-                  <button name="checkmail" type="submit" class="login100-form-btn shinyfont">Enviar código</button>
+                  <div class="error" id="error"></div>
+                  <button name="checkmail" id="checkmail" type="submit" class="login100-form-btn shinyfont">Enviar código</button>
                   <div class="text-center w-full p-t-20">
                      <a class="input-label-secondary" href="cadastro">
                      Não quero verificar o e-mail agora!						
@@ -158,5 +59,50 @@ if (isset($_SESSION['alert_checkmail']))
       </div>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
+	  <script type="text/javascript" src="./js/utils/cookie.js"></script>
+	  <script type="text/javascript" src="./js/config.js"></script>	
+	  <script type="text/javascript">
+		
+		document.getElementById('checkmail').addEventListener('click', function(event){
+			event.preventDefault();
+			
+			var email = document.getElementById('email').value.trim();
+			var captchaChallenge = document.getElementById('captchaResult').value.trim();
+			
+			if(email == '' || captchaChallenge == '') {
+				displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
+			} else if(captchaChallenge !== getCookie('captchaResult')) {
+				displayMessage(type = 'error', message = 'A resposta do código está errada tente novamente.');
+			} else {
+				var url = `${api_url}/account/email/activation/request`;
+				var params = `email=${email}`;
+				
+				var xhr = new XMLHttpRequest();
+				
+				xhr.open('POST', url, true);
+				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+				xhr.setRequestHeader('Content-type', 'application/json');
+				
+				xhr.onreadystatechange = function() {
+					if(xhr.readyState == 4) {
+						if(xhr.status == 200) {
+							var response = JSON.parse(xhr.responseText);
+							if(response.success == true) {
+								displayMessage(type = 'success', message = response.message, timeout = 5000);								
+							} else if(response.status_code == 'verification_email_not_sent') {
+								displayMessage(type = 'error', message = response.message, timeout = 8000);
+							} else {
+								displayMessage(type = 'error', message = response.message);
+							}
+						} else {
+							console.log("Erro na solicitação. Código do status: " + xhr.status);
+						}						
+					}
+				};
+				
+				xhr.send(params);
+			}
+		});
+	  </script>
    </body>
 </html>
