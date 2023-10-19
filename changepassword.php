@@ -113,7 +113,7 @@ $Dados->Destroy();
 								window.location.href = '/selectserver?logout=true';
 							}, 1000);
 						} else {
-							console.log("Erro na solicitação. Código do status: " + xhr.status);
+							displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
 						}
 					}
 				};

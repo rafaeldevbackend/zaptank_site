@@ -80,7 +80,7 @@ include 'globalconn.php';
 						}, 1500);
 					}
 				} else {
-					console.log("Erro na solicitação. Código do status: " + xhr.status);
+					displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
 				}						
 			}
 		};
@@ -117,7 +117,7 @@ include 'globalconn.php';
 								displayMessage(type = 'error', message = response.message);
 							}
 						} else {
-							console.log("Erro na solicitação. Código do status: " + xhr.status);
+							displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
 						}						
 					}
 				};
