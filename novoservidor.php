@@ -11,7 +11,6 @@ $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
 $random_number2 = mt_rand($min_number, $max_number);
 $totalCaptcha = $random_number1 + $random_number2;
-setcookie('captchaResult', $totalCaptcha);
 
 if (strstr($_SERVER['HTTP_USER_AGENT'], 'LoggerZapTank')){header("Location: /discontinued");}
 if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_USER_AGENT'] != 'Mozilla/5.0 (Windows NT 6.1; Win86; x86; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chromium/106.0.0.0 Safari/537.36 LauncherZapTank/108'){header("Location: /discontinued");}}
@@ -108,7 +107,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
 				displayMessage(type = 'error', message = 'o email de confirmação é diferente.');
 			} else if(phone.length < 19) {
 				displayMessage(type = 'error', message = 'O telefone deve ter no mínimo 19 digitos.');
-			} else if(captcha != getCookie('captchaResult')) {
+			} else if(captcha != <?php echo $totalCaptcha; ?>) {
 				displayMessage(type = 'error', message = 'resposta captcha incorreta.');
 			} else {
 				var url = `${api_url}/account/new`;

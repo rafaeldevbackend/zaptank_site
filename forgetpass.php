@@ -13,7 +13,6 @@ $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
 $random_number2 = mt_rand($min_number, $max_number);
 $totalCaptcha = $random_number1 + $random_number2;
-setcookie('captchaResult', $totalCaptcha);
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -70,7 +69,7 @@ setcookie('captchaResult', $totalCaptcha);
 
 			if(email == '' || captcha == '') {
 				displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
-			} else if(captcha != getCookie('captchaResult')) {
+			} else if(captcha != <?php echo $totalCaptcha; ?>) {
 				displayMessage(type = 'error', message = 'resposta captcha incorreta.');
 			} else {
 				var url = `${api_url}/account/password/recover/request`;

@@ -29,9 +29,7 @@ $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
 $random_number2 = mt_rand($min_number, $max_number);
 $totalCaptcha = $random_number1 + $random_number2;
-setcookie('captchaResult', $totalCaptcha);
 ?>
-
 <!DOCTYPE html>
 <html lang="pt-br">
    <title><?php echo $Title; ?> Suporte</title>
@@ -223,7 +221,7 @@ setcookie('captchaResult', $totalCaptcha);
 				
 				if(subject == '' || description == '' || phone == '' || captchaChallenge == '') {
 					displayMessage(type = 'error', message = 'Você não preencheu todos os campos solicitados.');
-				} else if(captchaChallenge !== getCookie('captchaResult')) {
+				} else if(captchaChallenge != <?php echo $totalCaptcha; ?>) {
 					displayMessage(type = 'error', message = 'A resposta do código está errada tente novamente.');
 				} else {
 					var url = `${api_url}/ticket/new/${suv}`;
