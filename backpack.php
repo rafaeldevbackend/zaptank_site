@@ -179,7 +179,11 @@ if (empty($UserName) || $UserName == 0)
 								}				
 							}, 2000);							
 						} else {
-							error_div.innerHTML = `<div class="alert alert-danger">Sua mochila está vazia!</div>`;
+							setTimeout(function(){
+								var loader = document.getElementById('loader');
+								loader.innerHTML = '';
+								error_div.innerHTML = `<div class="alert alert-danger">Sua mochila está vazia!</div>`;								
+							}, 1500);
 						}					
 					} else if(xhr.status == 401) {
 						displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
