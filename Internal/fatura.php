@@ -1,5 +1,31 @@
 <style>
+#openpix, #picpay {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+#qrcode_image_openpix, #qrcode_image_picpay {
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
+
+.loader {
+	width: 40px; /* Largura da imagem do loader */
+	height: 40px; /* Altura da imagem do loader */
+	border: 8px solid #3498db; /* Cor da borda do loader */
+	border-top: 8px solid #f3f3f3; /* Cor da parte superior da borda do loader */
+	border-radius: 50%; /* Tornando a borda circular para criar um círculo */
+	animation: spin 2s linear infinite; /* Animação de rotação */
+}
+
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
 button:disabled {
+	cursor: not-allowed;
     color: white;
 }
 </style>
@@ -10,8 +36,8 @@ button:disabled {
       <div class="card custom-checkbox-card-lg checked">
          <div class="card-header d-block text-center">
             <small class="card-subtitle">Pagamento via PIX Escaneie o código QR abaixo</small>
-            <div class="mb-3">
-				<img alt="Pagamento por Pix DDTank" width="220" height="202" id="qrcode_image_openpix" src="assets/img/login/pix.webp" />    
+            <div class="mb-3" id="openpix">
+				<div id="qrcode_image_openpix"></div>    
 				<div id="key_openpix"></div>
             </div>
             <span>Você deve pagar</span>
@@ -35,8 +61,8 @@ button:disabled {
       <div class="card custom-checkbox-card-lg checked">
          <div class="card-header d-block text-center">
             <small class="card-subtitle">Abra o PicPay em seu telefone e escaneie o código abaixo:</small>
-            <div class="mb-3">
-               <img alt="Pagamento por PicPay DDTank" width="202" id="qrcode_image_picpay" src="" />
+            <div class="mb-3" id="picpay">
+				<div id="qrcode_image_picpay"></div>
             </div>
             <span>Você deve pagar</span>
             <p class="card-text font-weight-bold text-primary"><span class="price"></span> BRL</p>
@@ -109,48 +135,74 @@ button:disabled {
 		var invoice = data.invoice;
 		var character = data.character;
 		
-		if(invoice.status == 'Aprovada') {
-			displayMessage(type = 'error', message = 'A fatura acessada já foi paga!');
-			setTimeout(function(){
-				window.location.href = `/serverlist?suv=${suv}`;
-			}, 2500);
-		}
-		
 		var priceElements = document.getElementsByClassName("price");
 		for (var i = 0; i < priceElements.length; i++) {
 			var el = priceElements[i];
 			el.innerText = invoice.price;
 		}
-		document.getElementById('character').innerText = character.nickname;
+		document.getElementById('character').innerText = character.nickname;		
 		
-		if(invoice.qrcode_openpix != '') {
-			document.getElementById('qrcode_image_openpix').src = invoice.qrcode_openpix;
-			document.getElementById('pay_openpix').disabled = true;
-		} else {
-			document.getElementById('qrcode_image_openpix').src = 'assets/img/login/pix.webp';			
+		if(invoice.status == 'Aprovada') {
+			displayMessage(type = 'error', message = 'A fatura acessada já foi paga!');
+			setTimeout(function(){
+				window.location.href = `/serverlist?suv=${suv}`;
+			}, 2500);
+			return;
 		}
 		
-		if(invoice.key_openpix != '') {
-			document.getElementById('key_openpix').innerHTML = `
-				<div class="alert alert-info">
-					<p style="color:#202020!important">
-						PIX - Aponte a câmera para o QRCode ou use a chave aleatória logo abaixo:
-					</p>
-				</div>
-				<textarea disabled id="aleatory" class="form-control" rows="3">
-					${invoice.key_openpix}
-				</textarea><br>
-				<button class="btn btn-block btn-primary custom-checkbox-card-btn" onclick="copyarea()">
-					Copiar Chave Aleatória
-				</button>
-			`;
+		if(invoice.qrcode_openpix != '' || invoice.key_openpix != '') {
+			
+			document.getElementById('qrcode_image_openpix').innerHTML = '<div class="loader"></div>';
+			
+			if(invoice.qrcode_openpix != '') {
+				document.getElementById('pay_openpix').disabled = true;
+				setTimeout(function(){
+					document.getElementById('qrcode_image_openpix').innerHTML = `
+						<img alt="Pagamento por Pix DDTank" width="220" height="202" src="${invoice.qrcode_openpix}"/>
+					`;
+				}, 2000);
+			} else {
+				document.getElementById('qrcode_image_openpix').innerHTML = `
+					<img alt="Pagamento por Pix DDTank" width="220" height="202" src="assets/img/login/pix.webp"/>
+				`;			
+			}
+			
+			if(invoice.key_openpix != '') {
+				setTimeout(function(){
+					document.getElementById('key_openpix').innerHTML = `
+						<div class="alert alert-info">
+							<p style="color:#202020!important">
+								PIX - Aponte a câmera para o QRCode ou use a chave aleatória logo abaixo:
+							</p>
+						</div>
+						<textarea disabled id="aleatory" class="form-control" rows="3">
+							${invoice.key_openpix}
+						</textarea><br>
+						<button class="btn btn-block btn-primary custom-checkbox-card-btn" onclick="copyarea()">
+							Copiar Chave Aleatória
+						</button>
+					`;				
+				}, 2000);
+			}			
+		} else if(invoice.qrcode_openpix == '' && invoice.key_openpix == ''){
+			document.getElementById('qrcode_image_openpix').innerHTML = `
+				<img alt="Pagamento por Pix DDTank" width="220" height="202" src="assets/img/login/pix.webp"/>
+			`;	
 		}
-		
+				
 		if(invoice.qrcode_picpay != '') {
-			document.getElementById('qrcode_image_picpay').src = invoice.qrcode_picpay;
+			document.getElementById('qrcode_image_picpay').innerHTML = '<div class="loader"></div>';
+			
 			document.getElementById('pay_picpay').disabled = true;
+			setTimeout(function(){
+				document.getElementById('qrcode_image_picpay').innerHTML = `
+					<img alt="Pagamento por PicPay DDTank" width="202" id="qrcode_image_picpay" src="${invoice.qrcode_picpay}" />
+				`;
+			}, 2000);
 		} else {
-			document.getElementById('qrcode_image_picpay').src = 'assets/img/login/picpay.webp';			
+			document.getElementById('qrcode_image_picpay').innerHTML = `
+				<img alt="Pagamento por PicPay DDTank" width="202" id="qrcode_image_picpay" src="assets/img/login/picpay.webp" />
+			`;			
 		}
 	};
 	
