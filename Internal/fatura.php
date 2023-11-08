@@ -5,9 +5,13 @@
 	align-items: center;
 }
 
-#qrcode_image_openpix, #qrcode_image_picpay {
-	margin-top: 15px;
-	margin-bottom: 15px;
+#error {
+	margin-top: 10px;
+}
+
+.qr-img {
+    width: 200px;
+    border: groove rgba(231,242,251,.45);	
 }
 
 .loader {
@@ -37,8 +41,7 @@ button:disabled {
          <div class="card-header d-block text-center">
             <small class="card-subtitle">Pagamento via PIX Escaneie o código QR abaixo</small>
             <div class="mb-3" id="openpix">
-				<div id="qrcode_image_openpix"></div>    
-				<div id="key_openpix"></div>
+				<div id="qrcode_image_openpix"></div>    				
             </div>
             <span>Você deve pagar</span>
             <p class="card-text font-weight-bold text-primary"><span class="price"></span> BRL</p>
@@ -83,6 +86,7 @@ button:disabled {
    </div>
 </div>
 <div id="error"></div>
+<div id="key_openpix"></div>
 <div id="data"></div>
 <script type="text/javascript">function copyarea(){var copyText=document.getElementById("aleatory"); copyText.select(); copyText.setSelectionRange(0, 99999); navigator.clipboard.writeText(copyText.value); alert("Chave aleatória copiada: " + copyText.value);}</script>
 <div class="container-login100-form-btn p-t-25"><a class="server-form-btn" style="color:white;" href="/viplist?page=vipitemlist&server=<?php echo $i ?>">Voltar</a></div>
@@ -133,7 +137,7 @@ button:disabled {
    
     xhr.send();
 	
-	var render = function(data) {
+	var render = function(data) { 
 		
 		var invoice = data.invoice;
 		var character = data.character;
@@ -161,7 +165,7 @@ button:disabled {
 				document.getElementById('pay_openpix').disabled = true;
 				setTimeout(function(){
 					document.getElementById('qrcode_image_openpix').innerHTML = `
-						<img alt="Pagamento por Pix DDTank" width="220" height="202" src="${invoice.qrcode_openpix}"/>
+						<img class="qr-img" alt="Pagamento por Pix DDTank" width="220" height="202" src="${invoice.qrcode_openpix}"/>
 					`;
 				}, 2000);
 			} else {
@@ -174,9 +178,10 @@ button:disabled {
 				setTimeout(function(){
 					document.getElementById('key_openpix').innerHTML = `
 						<div class="alert alert-info">
-							<p style="color:#202020!important">
+							<b style="color:#202020!important">
 								PIX - Aponte a câmera para o QRCode ou use a chave aleatória logo abaixo:
-							</p>
+								<p></p>
+							</b>
 						</div>
 						<textarea disabled id="aleatory" class="form-control" rows="3">
 							${invoice.key_openpix}
@@ -199,7 +204,7 @@ button:disabled {
 			document.getElementById('pay_picpay').disabled = true;
 			setTimeout(function(){
 				document.getElementById('qrcode_image_picpay').innerHTML = `
-					<img alt="Pagamento por PicPay DDTank" width="202" id="qrcode_image_picpay" src="${invoice.qrcode_picpay}" />
+					<img class="qr-img" alt="Pagamento por PicPay DDTank" width="202" id="qrcode_image_picpay" src="${invoice.qrcode_picpay}" />
 				`;
 			}, 2000);
 		} else {
