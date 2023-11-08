@@ -188,6 +188,9 @@ if ($_SESSION['opinion']) {
 					}, 3000);
 				} else {
 					displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
+					setTimeout(function(){
+						window.location.href = '/';							
+					}, 2000);
 				}
 			}
 		};
@@ -232,6 +235,9 @@ if ($_SESSION['opinion']) {
 							}, 1000);
 						} else {
 							displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
+							setTimeout(function(){
+								window.location.href = '/';							
+							}, 2000);
 						}						
 					}
 				};

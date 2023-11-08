@@ -94,6 +94,9 @@ $totalCaptcha = $random_number1 + $random_number2;
 							}
 						} else {
 							displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
+							setTimeout(function(){
+								window.location.href = '/';							
+							}, 2000);
 						}						
 					}
 				};

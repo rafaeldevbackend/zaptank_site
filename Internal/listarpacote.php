@@ -161,6 +161,9 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
 					}, 1000);
 				} else {
 					displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
+					setTimeout(function(){
+						window.location.href = '/';							
+					}, 2000);
 				}						
 			}
 		};
@@ -211,6 +214,9 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
 						}, 1000);
 					} else {
 						displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
+						setTimeout(function(){
+							window.location.href = '/';							
+						}, 2000);
 					}						
 				}
 			};

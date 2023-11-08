@@ -109,7 +109,10 @@ if (empty($UserName) || $UserName == 0)
 					  window.location.href = '/selectserver?logout=true';
 				   }, 3000);
 				} else {
-				   displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
+					displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
+					setTimeout(function(){
+						window.location.href = '/';							
+					}, 2000);
 				}						
 			}
 		};
@@ -192,6 +195,9 @@ if (empty($UserName) || $UserName == 0)
 						}, 3000);
 					} else {
 						displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
+						setTimeout(function(){
+							window.location.href = '/';							
+						}, 2000);
 					}
 				}
 			};
@@ -238,6 +244,9 @@ if (empty($UserName) || $UserName == 0)
 						}, 3000);
 					} else {
 						displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
+						setTimeout(function(){
+							window.location.href = '/';							
+						}, 2000);
 					}
 				}
 			};
