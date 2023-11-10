@@ -153,7 +153,7 @@ button:disabled {
 			displayMessage(type = 'error', message = 'A fatura acessada já foi paga!');
 			setTimeout(function(){
 				window.location.href = `/serverlist?suv=${suv}`;
-			}, 2500);
+			}, 800);
 			return;
 		}
 		
