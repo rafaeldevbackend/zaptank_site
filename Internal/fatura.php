@@ -108,6 +108,11 @@ button:disabled {
     xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     xhr.setRequestHeader('Content-type', 'application/json');
     xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+	
+	xhr.onloadstart = function(){
+		document.getElementById('qrcode_image_openpix').innerHTML = '<div class="loader"></div>';
+		document.getElementById('qrcode_image_picpay').innerHTML = '<div class="loader"></div>';
+	};
    
     xhr.onreadystatechange = function() {
        if(xhr.readyState == 4) {
@@ -119,7 +124,9 @@ button:disabled {
 					window.location.href = 'selectserver';
 				}, 2000);
 			 } else {
-				render(response.data);
+				setTimeout(function(){
+					render(response.data);					
+				}, 1000);
 			 }
           } else if(xhr.status == 401) {
              displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
@@ -158,16 +165,12 @@ button:disabled {
 		}
 		
 		if(invoice.qrcode_openpix != '' || invoice.key_openpix != '') {
-			
-			document.getElementById('qrcode_image_openpix').innerHTML = '<div class="loader"></div>';
-			
+				
 			if(invoice.qrcode_openpix != '') {
 				document.getElementById('pay_openpix').disabled = true;
-				setTimeout(function(){
-					document.getElementById('qrcode_image_openpix').innerHTML = `
-						<img class="qr-img" alt="Pagamento por Pix DDTank" width="220" height="202" src="${invoice.qrcode_openpix}"/>
-					`;
-				}, 2000);
+				document.getElementById('qrcode_image_openpix').innerHTML = `
+					<img class="qr-img" alt="Pagamento por Pix DDTank" width="220" height="202" src="${invoice.qrcode_openpix}"/>
+				`;
 			} else {
 				document.getElementById('qrcode_image_openpix').innerHTML = `
 					<img alt="Pagamento por Pix DDTank" width="220" height="202" src="assets/img/login/pix.webp"/>
@@ -175,22 +178,20 @@ button:disabled {
 			}
 			
 			if(invoice.key_openpix != '') {
-				setTimeout(function(){
-					document.getElementById('key_openpix').innerHTML = `
-						<div class="alert alert-info">
-							<b style="color:#202020!important">
-								PIX - Aponte a câmera para o QRCode ou use a chave aleatória logo abaixo:
-								<p></p>
-							</b>
-						</div>
-						<textarea disabled id="aleatory" class="form-control" rows="3">
-							${invoice.key_openpix}
-						</textarea><br>
-						<button class="btn btn-block btn-primary custom-checkbox-card-btn" onclick="copyarea()">
-							Copiar Chave Aleatória
-						</button>
-					`;				
-				}, 2000);
+				document.getElementById('key_openpix').innerHTML = `
+					<div class="alert alert-info">
+						<b style="color:#202020!important">
+							PIX - Aponte a câmera para o QRCode ou use a chave aleatória logo abaixo:
+							<p></p>
+						</b>
+					</div>
+					<textarea disabled id="aleatory" class="form-control" rows="3">
+						${invoice.key_openpix}
+					</textarea><br>
+					<button class="btn btn-block btn-primary custom-checkbox-card-btn" onclick="copyarea()">
+						Copiar Chave Aleatória
+					</button>
+				`;				
 			}			
 		} else if(invoice.qrcode_openpix == '' && invoice.key_openpix == ''){
 			document.getElementById('qrcode_image_openpix').innerHTML = `
@@ -198,15 +199,11 @@ button:disabled {
 			`;	
 		}
 				
-		if(invoice.qrcode_picpay != '') {
-			document.getElementById('qrcode_image_picpay').innerHTML = '<div class="loader"></div>';
-			
+		if(invoice.qrcode_picpay != '') {			
 			document.getElementById('pay_picpay').disabled = true;
-			setTimeout(function(){
-				document.getElementById('qrcode_image_picpay').innerHTML = `
-					<img class="qr-img" alt="Pagamento por PicPay DDTank" width="202" id="qrcode_image_picpay" src="${invoice.qrcode_picpay}" />
-				`;
-			}, 2000);
+			document.getElementById('qrcode_image_picpay').innerHTML = `
+				<img class="qr-img" alt="Pagamento por PicPay DDTank" width="202" id="qrcode_image_picpay" src="${invoice.qrcode_picpay}" />
+			`;
 		} else {
 			document.getElementById('qrcode_image_picpay').innerHTML = `
 				<img alt="Pagamento por PicPay DDTank" width="202" id="qrcode_image_picpay" src="assets/img/login/picpay.webp" />
