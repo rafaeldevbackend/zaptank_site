@@ -124,9 +124,7 @@ button:disabled {
 					window.location.href = 'selectserver';
 				}, 2000);
 			 } else {
-				setTimeout(function(){
-					render(response.data);					
-				}, 1000);
+				render(response.data);					
 			 }
           } else if(xhr.status == 401) {
              displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
@@ -164,51 +162,53 @@ button:disabled {
 			return;
 		}
 		
-		if(invoice.qrcode_openpix != '' || invoice.key_openpix != '') {
+		setTimeout(function(){			
+			if(invoice.qrcode_openpix != '' || invoice.key_openpix != '') {
+					
+				if(invoice.qrcode_openpix != '') {
+					document.getElementById('pay_openpix').disabled = true;
+					document.getElementById('qrcode_image_openpix').innerHTML = `
+						<img class="qr-img" alt="Pagamento por Pix DDTank" width="220" height="202" src="${invoice.qrcode_openpix}"/>
+					`;
+				} else {
+					document.getElementById('qrcode_image_openpix').innerHTML = `
+						<img alt="Pagamento por Pix DDTank" width="220" height="202" src="assets/img/login/pix.webp"/>
+					`;			
+				}
 				
-			if(invoice.qrcode_openpix != '') {
-				document.getElementById('pay_openpix').disabled = true;
-				document.getElementById('qrcode_image_openpix').innerHTML = `
-					<img class="qr-img" alt="Pagamento por Pix DDTank" width="220" height="202" src="${invoice.qrcode_openpix}"/>
-				`;
-			} else {
+				if(invoice.key_openpix != '') {
+					document.getElementById('key_openpix').innerHTML = `
+						<div class="alert alert-info">
+							<b style="color:#202020!important">
+								PIX - Aponte a câmera para o QRCode ou use a chave aleatória logo abaixo:
+								<p></p>
+							</b>
+						</div>
+						<textarea disabled id="aleatory" class="form-control" rows="3">
+							${invoice.key_openpix}
+						</textarea><br>
+						<button class="btn btn-block btn-primary custom-checkbox-card-btn" onclick="copyarea()">
+							Copiar Chave Aleatória
+						</button>
+					`;				
+				}			
+			} else if(invoice.qrcode_openpix == '' && invoice.key_openpix == ''){
 				document.getElementById('qrcode_image_openpix').innerHTML = `
 					<img alt="Pagamento por Pix DDTank" width="220" height="202" src="assets/img/login/pix.webp"/>
+				`;	
+			}
+					
+			if(invoice.qrcode_picpay != '') {			
+				document.getElementById('pay_picpay').disabled = true;
+				document.getElementById('qrcode_image_picpay').innerHTML = `
+					<img class="qr-img" alt="Pagamento por PicPay DDTank" width="202" id="qrcode_image_picpay" src="${invoice.qrcode_picpay}" />
+				`;
+			} else {
+				document.getElementById('qrcode_image_picpay').innerHTML = `
+					<img alt="Pagamento por PicPay DDTank" width="202" id="qrcode_image_picpay" src="assets/img/login/picpay.webp" />
 				`;			
 			}
-			
-			if(invoice.key_openpix != '') {
-				document.getElementById('key_openpix').innerHTML = `
-					<div class="alert alert-info">
-						<b style="color:#202020!important">
-							PIX - Aponte a câmera para o QRCode ou use a chave aleatória logo abaixo:
-							<p></p>
-						</b>
-					</div>
-					<textarea disabled id="aleatory" class="form-control" rows="3">
-						${invoice.key_openpix}
-					</textarea><br>
-					<button class="btn btn-block btn-primary custom-checkbox-card-btn" onclick="copyarea()">
-						Copiar Chave Aleatória
-					</button>
-				`;				
-			}			
-		} else if(invoice.qrcode_openpix == '' && invoice.key_openpix == ''){
-			document.getElementById('qrcode_image_openpix').innerHTML = `
-				<img alt="Pagamento por Pix DDTank" width="220" height="202" src="assets/img/login/pix.webp"/>
-			`;	
-		}
-				
-		if(invoice.qrcode_picpay != '') {			
-			document.getElementById('pay_picpay').disabled = true;
-			document.getElementById('qrcode_image_picpay').innerHTML = `
-				<img class="qr-img" alt="Pagamento por PicPay DDTank" width="202" id="qrcode_image_picpay" src="${invoice.qrcode_picpay}" />
-			`;
-		} else {
-			document.getElementById('qrcode_image_picpay').innerHTML = `
-				<img alt="Pagamento por PicPay DDTank" width="202" id="qrcode_image_picpay" src="assets/img/login/picpay.webp" />
-			`;			
-		}
+		}, 1000);
 	};
 	
 	var generateQrcodeOpenpix = function(event) {
