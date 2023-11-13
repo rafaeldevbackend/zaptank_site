@@ -15,17 +15,7 @@
 }
 
 .loader {
-	width: 40px; /* Largura da imagem do loader */
-	height: 40px; /* Altura da imagem do loader */
-	border: 8px solid #3498db; /* Cor da borda do loader */
-	border-top: 8px solid #f3f3f3; /* Cor da parte superior da borda do loader */
-	border-radius: 50%; /* Tornando a borda circular para criar um círculo */
-	animation: spin 2s linear infinite; /* Animação de rotação */
-}
-
-@keyframes spin {
-	0% { transform: rotate(0deg); }
-	100% { transform: rotate(360deg); }
+	position: static;
 }
 
 button:disabled {

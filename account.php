@@ -154,7 +154,7 @@ if ($CountUser == 0)
 		
 			var usp = new URLSearchParamsPolyfill(window.location.search);
 			var suv = usp.get('suv');
-			
+				
 			var url = `${api_url}/character/style/${suv}`;
 			var jwt_hash = getCookie('jwt_authentication_hash');
 			
@@ -165,31 +165,36 @@ if ($CountUser == 0)
 			xhr.setRequestHeader('Content-type', 'application/json');
 			xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
 			
+			xhr.onloadstart = function(){
+				document.getElementById('p_picture').innerHTML = '<div class="loader"></div>';	
+			};
+			
 			xhr.onreadystatechange = function() {
 				if(xhr.readyState == 4) {
 					if(xhr.status == 200) {
 						var response = JSON.parse(xhr.responseText);
-
 						var character = response.data.character;
 						
-						var picture = document.getElementById('p_picture');
-						
-						var hair = character.style.hair;
-						var effect = character.style.effect;
-						var face = character.style.face;
-						var cloth = character.style.cloth;
-						var arm = character.style.arm;
+						setInterval(function(){
+							var picture = document.getElementById('p_picture');
+							
+							var hair = character.style.hair;
+							var effect = character.style.effect;
+							var face = character.style.face;
+							var cloth = character.style.cloth;
+							var arm = character.style.arm;
 
-						picture.innerHTML = `
-							<div class="f_hair"><img alt="DDTank" src="<?php echo $Resource ?>equip/${hair.sex}/hair/${hair.pic}/1/B/show.png"></div>
-							<div class="f_effect"><img alt="DDTank" src="<?php echo $Resource ?>equip/${effect.sex}/eff/${effect.pic}/1/show.png"></div>
-							<div class="f_face"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${face.sex}/face/${face.pic}/1/show.png"></div>
-							<div class="f_cloth"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${cloth.sex}/cloth/${cloth.pic}/1/show.png"></div>
-							<div class="f_arm">
-								<img src="<?php echo $Resource ?>arm/${arm.pic}/1/0/show.png"> 
-							</div>
-							<div class="i_grade" style="background-image: url('../assets/images/grade/${character.level}.png');"></div>
-                    `;
+							picture.innerHTML = `
+								<div class="f_hair"><img alt="DDTank" src="<?php echo $Resource ?>equip/${hair.sex}/hair/${hair.pic}/1/B/show.png"></div>
+								<div class="f_effect"><img alt="DDTank" src="<?php echo $Resource ?>equip/${effect.sex}/eff/${effect.pic}/1/show.png"></div>
+								<div class="f_face"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${face.sex}/face/${face.pic}/1/show.png"></div>
+								<div class="f_cloth"><img alt="DDTank" data-current="0" src="<?php echo $Resource ?>equip/${cloth.sex}/cloth/${cloth.pic}/1/show.png"></div>
+								<div class="f_arm">
+									<img src="<?php echo $Resource ?>arm/${arm.pic}/1/0/show.png"> 
+								</div>
+								<div class="i_grade" style="background-image: url('../assets/images/grade/${character.level}.png');"></div>
+							`;
+						}, 1000);
 					} else if(xhr.status == 401) {
 						displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
 						setTimeout(function(){
