@@ -167,7 +167,7 @@ if ($_SESSION['opinion']) {
                     var response = JSON.parse(xhr.responseText);
                     var character = response.data.character;
                     
-					setInterval(function(){
+					setTimeout(function(){
 						var picture = document.getElementById('p_picture');
 						
 						var hair = character.style.hair;
