@@ -6,18 +6,6 @@
     <?php include 'Controllers/header.php'; ?>
 </head>
 <body>
-    <div class="limiter">
-        <div class="container-login100">
-            <div class="wrap-login100 p-l-50 p-r-50 p-t-30 p-b-30">                
-                <div id="error"></div>
-                <div class="d-grid gap-2">
-                    <a href="/selectserver">
-                        <button class="btn btn-light">Página inicial</button>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
     <script type="text/javascript" src="./js/config.js"></script>
     <script type="text/javascript" src="./js/utils/url.js"></script>
     <script type="text/javascript" src="./js/utils/alert.js"></script>
@@ -47,15 +35,9 @@
                 if(xhr.status == 200) {
                     var response = JSON.parse(xhr.responseText);
                     if(response.success == true) {
-                        error_div.innerHTML = `<div class="alert alert-success">${response.message}</div>`;
-                        setTimeout(function(){
-                            window.location.href = '/selectserver';				
-                        }, 3000);
+                        window.location.href = '/selectserver?alert_code=1';
                     } else {
-                        error_div.innerHTML = `<div class="alert alert-danger">${response.message}</div>`;
-                        setTimeout(function(){
-                            window.location.href = '/selectserver';				
-                        }, 6000);
+                        window.location.href = '/selectserver';
                     }
                 } else {
 					displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');

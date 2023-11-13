@@ -295,7 +295,18 @@ $totalCaptcha = $random_number1 + $random_number2;
 					document.getElementById('alert_message').innerHTML = `<div class='alert alert-danger ocult-time'>Sua conta foi suspensa, entre em contato com o suporte para obter mais informações.</div>`;
 					break;
 			}
-		}			
+		}	
+
+		if(usp.get('alert_code') != null) {
+			
+			var alert_code = usp.get('alert_code');
+			
+			switch(alert_code) {
+				case '1':
+					document.getElementById('alert_message').innerHTML = `<div class='alert alert-success ocult-time'>Sua conta foi ativada com sucesso!</div>`;
+					break;
+			}
+		}
 	  </script>
    </body>
 </html>
