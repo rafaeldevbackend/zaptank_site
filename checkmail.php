@@ -74,12 +74,14 @@ $totalCaptcha = $random_number1 + $random_number2;
 			} else {
 				var url = `${api_url}/account/email/activation/request`;
 				var params = `email=${email}`;
+				var jwt_hash = getCookie('jwt_authentication_hash');
 				
 				var xhr = new XMLHttpRequest();
 				
 				xhr.open('POST', url, true);
 				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 				xhr.setRequestHeader('Content-type', 'application/json');
+				xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
 				
 				xhr.onreadystatechange = function() {
 					if(xhr.readyState == 4) {
