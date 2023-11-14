@@ -14,10 +14,6 @@
     border: groove rgba(231,242,251,.45);	
 }
 
-.loader {
-	position: static;
-}
-
 button:disabled {
 	cursor: not-allowed;
     color: white;
