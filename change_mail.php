@@ -39,7 +39,7 @@ $Dados = new Conectado();
                      <span class="lnr lnr-envelope"></span>
                      </span>
                   </div>
-				  <a class="input-label-secondary"><p style="color:white">Esse link expira após o uso ou em <?php echo 31 - $since_start->i;?> minutos.</p></a>
+				  <a class="input-label-secondary"><p style="color:white">Esse link expira após o uso ou em <span id="expirationTimeText"></span> Horas.</p></a>
                   <div class="error" id="error"></div>
 				  <button name="confirm_email" type="submit" class="login100-form-btn shinyfont" id="confirm_email">Mudar e-mail</button>
                   <div class="text-center w-full p-t-20">
@@ -59,6 +59,8 @@ $Dados = new Conectado();
 	  <script type="text/javascript" src="./js/config.js"></script>
 	  <script type="text/javascript">
 		
+		var error_div = document.getElementById('error');
+		
 		var usp = new URLSearchParams(window.location.search);
 		var token = usp.get('token') ?? null;
 		
@@ -66,7 +68,37 @@ $Dados = new Conectado();
 			window.location.href = '/selectserver';
 		}
 		
-		var error_div = document.getElementById('error');
+	  	var url = `${api_url}/account/email/change/token/check/${token}`;
+		
+		var xhr = new XMLHttpRequest();
+		
+		xhr.open('GET', url, true);
+		xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+		xhr.setRequestHeader('Content-type', 'application/json');
+		
+		xhr.onreadystatechange = function() {
+			if(xhr.readyState == 4) {
+				if(xhr.status == 200) {
+					var response = JSON.parse(xhr.responseText);
+					if(response.email_change_token_is_valid == true) {
+						var span = document.getElementById('expirationTimeText');
+						span.innerText = response.data.expirationTime;
+					} else {
+						displayMessage(type = 'error', message = response.message);
+						setTimeout(function(){
+							window.location.href = '/';				
+						}, 4000);
+					}
+				} else {
+					displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
+					setTimeout(function(){
+						window.location.href = '/';							
+					}, 2000);
+				}						
+			}
+		};
+		
+		xhr.send();
 	  
 		document.getElementById('confirm_email').addEventListener('click', function(event){
 			event.preventDefault();

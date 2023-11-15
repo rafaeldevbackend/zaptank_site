@@ -77,7 +77,7 @@ include 'globalconn.php';
 						displayMessage(type = 'error', message = response.message);
 						setTimeout(function(){
 							window.location.href = '/';				
-						}, 1500);
+						}, 4000);
 					}
 				} else {
 					displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
