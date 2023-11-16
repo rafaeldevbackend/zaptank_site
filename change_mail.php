@@ -113,14 +113,12 @@ $Dados = new Conectado();
 			} else {
 				var url = `${api_url}/account/email/change`;
 				var params = `token=${token}&new_email=${new_email}`;
-				var jwt_hash = getCookie('jwt_authentication_hash');
 					
 				var xhr = new XMLHttpRequest();
 				
 				xhr.open('POST', url, true);
 				xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 				xhr.setRequestHeader('Content-type', 'application/json');
-				xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
 				
 				xhr.onreadystatechange = function(){
 					if(xhr.readyState == 4) {
