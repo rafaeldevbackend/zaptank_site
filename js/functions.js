@@ -57,3 +57,30 @@ function checkCharacter(suv) {
 
 	xhr.send();	
 }
+
+function updateSession(session, value, csrf_token) {
+
+	var url = './update_session.php';
+	var params = `session=${session}&value=${value}&csrf_token=${csrf_token}`;
+
+	var xhr = new XMLHttpRequest();
+
+	xhr.open('POST', url, true);
+	xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+	xhr.setRequestHeader("Content-type", "application/json");
+
+	xhr.onreadystatechange = function() {
+		if(xhr.readyState === 4) {
+			if(xhr.status === 200) {
+				var response = JSON.parse(xhr.responseText);
+				if(response.success == false) {
+					displayMessage(type = 'error', message = 'Houve um erro interno');
+				}                     
+			} else {
+				displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
+			}
+		}
+	};
+
+	xhr.send(params);	
+}	

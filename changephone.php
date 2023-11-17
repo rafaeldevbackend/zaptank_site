@@ -62,6 +62,8 @@ if (empty($UserName) || $UserName == 0)
       <script async src="./assets/jquery.mask.min.js"></script>
 	  <script type="text/javascript" src="./js/utils/cookie.js"></script>
 	  <script type="text/javascript" src="./js/config.js"></script>
+	  <script type="text/javascript" src="./js/utils/hash.js"></script>
+	  <script type="text/javascript" src="./js/functions.js"></script>
 	  <script type="text/javascript">
 		var error_div = document.getElementById('error');
 	  
@@ -90,6 +92,11 @@ if (empty($UserName) || $UserName == 0)
 						if(xhr.status == 200) {
 							var response = JSON.parse(xhr.responseText);
 							if(response.success == true) {
+								var csrf = generateToken();							
+								document.cookie = 'csrf_token=' + csrf;
+								
+								updateSession(session = 'Telefone', value = phone, csrf);
+								
 								displayMessage(type = 'success', message = response.message);
 								setTimeout(function(){
 									window.location.href = '/selectserver';
