@@ -21,6 +21,9 @@ if (empty($UserName) || $UserName == 0)
     header("Location: /");
     exit();
 }
+
+$i = $_GET['suv'];
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
