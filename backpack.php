@@ -205,7 +205,7 @@ if (empty($UserName) || $UserName == 0)
 			
 			xhr.onprogress = function() {
 				var loader = document.getElementById('loader');
-				loader.innerHTML = ('Carregando...');
+				loader.innerHTML = '<div class="loader"></div>';
 			};
 
 			xhr.send();
