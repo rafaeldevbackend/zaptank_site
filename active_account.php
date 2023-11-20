@@ -9,9 +9,11 @@
     <script type="text/javascript" src="./js/config.js"></script>
     <script type="text/javascript" src="./js/utils/url.js"></script>
     <script type="text/javascript" src="./js/utils/alert.js"></script>
+	<script type="text/javascript" src="./js/utils/hash.js"></script>
+	<script type="text/javascript" src="./js/functions.js"></script>
     <script type="text/javascript">
         var error_div = document.getElementById('error');
-
+		
         var usp = new URLSearchParamsPolyfill(window.location.search);
 		var token = usp.get('token');
 
@@ -34,8 +36,20 @@
             if(xhr.readyState == 4) {
                 if(xhr.status == 200) {
                     var response = JSON.parse(xhr.responseText);
-                    if(response.success == true) {
-                        window.location.href = '/selectserver?alert_code=1';
+                    if(response.success == true) {						
+						checkSession().then(function(authenticated) {
+							if(authenticated) {
+								var csrf = generateToken();
+								document.cookie = 'csrf_token=' + csrf;
+											
+								updateSession(session = 'verifiedEmail', value = 1, csrf);
+								window.location.href = '/selectserver?alert_code=1';	
+							} else {
+								window.location.href = '/?alert_code=1';
+							}
+						}).catch(function(error) {
+							console.error(error);
+						});	
                     } else {
                         window.location.href = '/selectserver';
                     }

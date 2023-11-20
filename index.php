@@ -41,6 +41,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                   </div>
 				  <a class="input-label-secondary" href="forgetpass">Esqueceu seus dados de acesso?</a>
 				  <div class="error" id="error"></div>
+				  <div id="alert_message"></div>
 				  <button name="立即登入" class="login100-form-btn shiny" id="login-button">CONECTE-SE</button>
                   <div class="text-center w-full p-t-20">
                      <a class="input-label-secondary" href="cadastro">Crie sua conta no DDTank</a>
@@ -55,9 +56,12 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
 	  <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
 	  <script type="text/javascript" src="./js/config.js"></script>
+	  <script type="text/javascript" src="./js/utils/url.js"></script>
 	  <script type="text/javascript" src="./js/utils/hash.js"></script>
 	  <script type="text/javascript" src="./js/utils/alert.js"></script>
       <script type="text/javascript">
+	  
+		 var usp = new URLSearchParamsPolyfill(window.location.search);
 		
          document.getElementById('login-button').addEventListener('click', function(event) {
            
@@ -132,6 +136,17 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
 
             xhr.send(params);	
         }	
+		
+		if(usp.get('alert_code') != null) {
+			
+			var alert_code = usp.get('alert_code');
+			
+			switch(alert_code) {
+				case '1':
+					document.getElementById('alert_message').innerHTML = `<div class='alert alert-success ocult-time'>Sua conta foi ativada com sucesso!</div>`;
+					break;
+			}
+		}
       </script>
    </body>
 </html>
