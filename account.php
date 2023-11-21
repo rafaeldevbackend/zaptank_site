@@ -114,21 +114,21 @@ if ($CountUser == 0)
                            }
                   </script>
                   <div class="wrap-input100 validate-input m-b-16">
-                     <a href="changename?suv=<?php echo $i ?>"><input class="input100" disabled placeholder="Alterar nome"></a>
+                     <a href="changename?suv=<?php echo $i ?>"><input class="input100 pointer" readonly="readonly" placeholder="Alterar nome"></a>
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-pencil"></span>
                      </span>
                   </div>
                      <div class="wrap-input100 validate-input m-b-16">
-                     <a href="clearbag?suv=<?php echo $i ?>"><input class="input100" disabled placeholder="Limpar Mochila"></a>
+                     <a href="clearbag?suv=<?php echo $i ?>"><input class="input100 pointer" readonly="readonly" placeholder="Limpar Mochila"></a>
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-trash"></span>
                      </span>
                      </div>
 					 <div class="wrap-input100 validate-input m-b-16">
-                     <a href="giftcode?suv=<?php echo $i ?>"><input class="input100" type="password" disabled placeholder="Resgatar código de presente"></a>
+                     <a href="giftcode?suv=<?php echo $i ?>"><input class="input100 pointer" type="password" readonly="readonly" placeholder="Resgatar código de presente"></a>
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-gift"></span>
