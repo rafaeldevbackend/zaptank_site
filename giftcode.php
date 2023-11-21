@@ -22,6 +22,8 @@ if (empty($UserName) || $UserName == 0)
     exit();
 }
 
+$i = $_GET['suv'];
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">

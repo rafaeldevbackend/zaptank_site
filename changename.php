@@ -24,6 +24,8 @@ if (empty($UserName) || $UserName == 0)
     exit();
 }
 
+$i = $_GET['suv'];
+
 $query = $Connect->query("SELECT * FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
 $result = $query->fetchAll();
 foreach ($result as $infoBase) {
