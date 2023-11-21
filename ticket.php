@@ -17,6 +17,8 @@ $Dados->Destroy();
 
 $UserName = $_SESSION['UserName'] ?? 0;
 
+$i = $_GET['suv'];
+
 $query = $Connect->query("SELECT COUNT(*) AS UserName FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
 $result = $query->fetchAll();
 foreach ($result as $infoBase)

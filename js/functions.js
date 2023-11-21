@@ -58,6 +58,39 @@ function checkCharacter(suv) {
 	xhr.send();	
 }
 
+function checkPermission() {
+    return new Promise(function(resolve, reject) {
+        var url = `${api_url}/admin/check_permission`;
+        var jwt_hash = getCookie('jwt_authentication_hash');
+
+        var xhr = new XMLHttpRequest();
+
+        xhr.open('GET', url, true);
+        xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhr.setRequestHeader('Content-type', 'application/json');
+        xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState == 4) {
+                if (xhr.status == 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.administrator_has_permission == false) {
+                        window.location.href = '/serverlist';
+                    } else {
+                        resolve(response);
+                    }
+                } else if (xhr.status == 401) {
+                    reject('A sessão expirou, faça o login novamente.');
+                } else {
+                    reject('Houve um erro interno, se o problema persistir contate o administrador.');
+                }
+            }
+        };
+
+        xhr.send();
+    });
+}
+
 function checkSession() {
     return new Promise(function(resolve, reject) {
         var url = './check_session.php';

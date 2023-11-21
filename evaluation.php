@@ -24,32 +24,32 @@ if (session_status() !== PHP_SESSION_ACTIVE)
                   <form class="validate-form" method="post" id="frmregistercenter">
                   <div class="form-group p-t-20">
                      <div class="form-check">
-                        <input class="form-check-input col-md-1" type="radio" name="rating" value="1" checked>
-                        <label class="form-check-label text-white">
+                        <input class="form-check-input col-md-1" type="radio" name="rating" value="1" id="rating1" checked>
+                        <label class="form-check-label text-white" for="rating1">
                         ★ Ruim, demita o estagiário.
                         </label>
                      </div>
                      <div class="form-check">
-                        <input class="form-check-input col-md-1" type="radio" name="rating" value="2">
-                        <label class="form-check-label text-white">
+                        <input class="form-check-input col-md-1" type="radio" name="rating" value="2" id="rating2">
+                        <label class="form-check-label text-white" for="rating2">
                         ★★ Péssimo, mas pode melhorar.
                         </label>
                      </div>
                      <div class="form-check">
-                        <input class="form-check-input col-md-1" type="radio" name="rating" value="3">
-                        <label class="form-check-label text-white">
+                        <input class="form-check-input col-md-1" type="radio" name="rating" value="3" id="rating3">
+                        <label class="form-check-label text-white" for="rating3">
                         ★★★ Bom, mas deixou a desejar.
                         </label>
                      </div>
 					 <div class="form-check">
-                        <input class="form-check-input col-md-1" type="radio" name="rating" value="4">
-                        <label class="form-check-label text-white">
+                        <input class="form-check-input col-md-1" type="radio" name="rating" value="4" id="rating4">
+                        <label class="form-check-label text-white" for="rating4">
                         ★★★★ Muito bom :)
                         </label>
                      </div>
                      <div class="form-check">
-                        <input class="form-check-input col-md-1" type="radio" name="rating" value="5">
-                        <label class="form-check-label text-white">
+                        <input class="form-check-input col-md-1" type="radio" name="rating" value="5" id="rating5">
+                        <label class="form-check-label text-white" for="rating5">
                         ★★★★★ Atendimento Excelente.
                         </label>
                      </div>

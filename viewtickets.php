@@ -13,6 +13,7 @@ include 'Objects/gerenciamento.php';
 
 $Dados->Destroy();
 
+$i = $_GET['suv'];
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -49,47 +50,9 @@ $Dados->Destroy();
 		}
 		
 		checkServerSuv(suv);
-		
-		function checkPermission() {
 			
-			/*- verifica permissão de usuário -*/
-			var url = `${api_url}/admin/check_permission`;
-			var jwt_hash = getCookie('jwt_authentication_hash');
-			
-			var xhr = new XMLHttpRequest();
-			
-			xhr.open('GET', url, true);
-			xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-			xhr.setRequestHeader('Content-type', 'application/json');
-			xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
-			
-			xhr.onreadystatechange = function() {
-				if(xhr.readyState == 4) {
-					if(xhr.status == 200) {
-						var response = JSON.parse(xhr.responseText);
-						if(response.administrator_has_permission == false) {
-							location.href = '/serverlist';
-						}
-					} else if(xhr.status == 401) {
-						displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
-						setTimeout(function(){
-							window.location.href = '/selectserver?logout=true';
-						}, 1000);
-					} else {
-						displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
-						setTimeout(function(){
-							window.location.href = '/';							
-						}, 2000);
-					}						
-				}
-			};
-			
-			xhr.send();
-		}
-		
 		function renderTickets() {
 			
-			/*- renderiza dados de tickets -*/
 			var url = `${api_url}/ticket/list/${suv}`;
 			var jwt_hash = getCookie('jwt_authentication_hash');
 			
@@ -99,6 +62,10 @@ $Dados->Destroy();
 			xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 			xhr.setRequestHeader('Content-type', 'application/json');
 			xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+			
+			xhr.onloadstart = function() {
+				document.getElementById('tickets').innerHTML = '<div class="loader"></div>';
+			};
 			
 			xhr.onreadystatechange = function() {
 				if(xhr.readyState == 4) {
@@ -113,38 +80,41 @@ $Dados->Destroy();
 							return;
 						}
 						
-						tickets.forEach(function(ticket){
-							var ticket_container = document.createElement('div');
-							ticket_container.innerHTML = `
-								<div class='card' style='max-width: 200rem;'> 
-									<div class='card-body'> 
-										<h4 class='card-subtitle'>Motivo do Ticket: ${ticket.subject}</h4> 
-										<p>Nick do jogador: ${ticket.nick_name}</p>
-										<p>Login do jogador: ${ticket.user_name}</p>
-										<p>Servidor do jogador: ${ticket.server_id}</p>
-										<p>ID do jogador: ${ticket.user_id}</p>
-										<p>Data do Ticket: ${ticket.ticket_created}</p>
-										<p>Número para contato: ${ticket.phone}</p><br>
-										<textarea class='form-control' disabled id='aleatory' rows='5'>${ticket.ticket_description}</textarea><br>
-										<button class='btn btn-block btn-primary custom-checkbox-card-btn' onclick='copyarea()'>Copiar mensagem do Ticket</button><br>
-										<form> 
-											<select class='input100' size='1' style='border:0;' id="select_reason_${ticket.ticket_id}"> 
-												<option value='0' selected>Por favor, selecione um motivo para fechar o ticket.</option> 
-												<option value='1'>O jogador já foi contactado e o problema foi solucionado.</option> 
-												<option value='2'>Não foi possível entrar em contato com o jogador.</option> 
-												<option value='3'>O texto do ticket não é legível ou está mal formatado.</option> 
-												<option value='4'>Encerrar sem nenhum aviso (use para tickets duplicados)</option> 
-											</select></br> 
-											<div class='pull-right' align='right'>
-												<button type="button" value='${ticket.ticket_id}' onclick=closeTicket(event) class='btn btn-outline-primary close_ticket'>Encerrar Ticket</button>
-											</div>
-											<div id="closing_alert_${ticket.ticket_id}" style="margin-top: 15px"></div>
-										</form> 
-									</div>
-								</div></br>
-							`;
-							tickets_container.appendChild(ticket_container);
-						});
+						setTimeout(function(){							
+							document.getElementById('tickets').innerHTML = '';
+							tickets.forEach(function(ticket){
+								var ticket_container = document.createElement('div');
+								ticket_container.innerHTML = `
+									<div class='card' style='max-width: 200rem;'> 
+										<div class='card-body'> 
+											<h4 class='card-subtitle'>Motivo do Ticket: ${ticket.subject}</h4> 
+											<p>Nick do jogador: ${ticket.nick_name}</p>
+											<p>Login do jogador: ${ticket.user_name}</p>
+											<p>Servidor do jogador: ${ticket.server_id}</p>
+											<p>ID do jogador: ${ticket.user_id}</p>
+											<p>Data do Ticket: ${ticket.ticket_created}</p>
+											<p>Número para contato: ${ticket.phone}</p><br>
+											<textarea class='form-control' disabled id='aleatory' rows='5'>${ticket.ticket_description}</textarea><br>
+											<button class='btn btn-block btn-primary custom-checkbox-card-btn' onclick='copyarea()'>Copiar mensagem do Ticket</button><br>
+											<form> 
+												<select class='input100' size='1' style='border:0;' id="select_reason_${ticket.ticket_id}"> 
+													<option value='0' selected>Por favor, selecione um motivo para fechar o ticket.</option> 
+													<option value='1'>O jogador já foi contactado e o problema foi solucionado.</option> 
+													<option value='2'>Não foi possível entrar em contato com o jogador.</option> 
+													<option value='3'>O texto do ticket não é legível ou está mal formatado.</option> 
+													<option value='4'>Encerrar sem nenhum aviso (use para tickets duplicados)</option> 
+												</select></br> 
+												<div class='pull-right' align='right'>
+													<button type="button" value='${ticket.ticket_id}' onclick=closeTicket(event) class='btn btn-outline-primary close_ticket'>Encerrar Ticket</button>
+												</div>
+												<div id="closing_alert_${ticket.ticket_id}" style="margin-top: 15px"></div>
+											</form> 
+										</div>
+									</div></br>
+								`;
+								tickets_container.appendChild(ticket_container);
+							});
+						}, 1500);
 					} else if(xhr.status == 401) {
 						displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
 						setTimeout(function(){
@@ -162,11 +132,9 @@ $Dados->Destroy();
 			xhr.send();
 		}
 		
-		checkPermission();
-		
-		setTimeout(function(){
-			renderTickets();			
-		}, 1000);
+		checkPermission().then(function(response) {
+			renderTickets();
+		});
 		
 		function closeTicket(event) {
 			event.preventDefault();
