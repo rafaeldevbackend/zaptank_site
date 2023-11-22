@@ -21,6 +21,8 @@ if (empty($UserName) || $UserName == 0)
     header("Location: /");
     exit();
 }
+
+$i = $_GET['suv'];
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -72,6 +74,10 @@ if (empty($UserName) || $UserName == 0)
 			xhr.open('GET', url, true);
 			xhr.setRequestHeader('Content-type', 'application/json');	
 			xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+			
+			xhr.onloadstart = function(){
+				document.getElementById('data').innerHTML = '<div class="loader" style="margin-bottom: 15px"></div>';
+			};
 
 			xhr.onreadystatechange = function() {
 			  if(xhr.readyState == 4) {
@@ -83,25 +89,28 @@ if (empty($UserName) || $UserName == 0)
 					container_alert.innerHTML = `<div class="alert alert-danger">${response.content}</div>`;  
 				  } else if(response.collect_chargeback == true) {
 					var data = response.data;
-					 
-					data.forEach(function(invoice){
-						var container_invoice = document.createElement('div');
-						
-						container_invoice.innerHTML = `
-							<div class='card' style='max-width: 200rem;'> 
-								<div class='card-body'> 
-									<h4 class='card-subtitle'>Pacote de cupons à coletar</h4> 
-									<p>Transação concluída na data de ${invoice.recharge_date}</p>
-									<h6>Preço <span class='semi-bold'>${invoice.price} BRL</span> </h6> 
-									<div class='pull-right' align='right'> 
-										<button value="${invoice.id}" type='button' onclick="collect(event)" class='btn btn-outline-primary'>Receber Agora!</button> 
+					
+					setTimeout(function(){
+						document.getElementById('data').innerHTML = '';
+						data.forEach(function(invoice){
+							var container_invoice = document.createElement('div');
+							
+							container_invoice.innerHTML = `
+								<div class='card' style='max-width: 200rem;'> 
+									<div class='card-body'> 
+										<h4 class='card-subtitle'>Pacote de cupons à coletar</h4> 
+										<p>Transação concluída na data de ${invoice.recharge_date}</p>
+										<h6>Preço <span class='semi-bold'>${invoice.price} BRL</span> </h6> 
+										<div class='pull-right' align='right'> 
+											<button value="${invoice.id}" type='button' onclick="collect(event)" class='btn btn-outline-primary'>Receber Agora!</button> 
+										</div>
 									</div>
 								</div>
-							</div>
-							</br>
-						`;
-						document.getElementById('data').appendChild(container_invoice);
-					});
+								</br>
+							`;
+							document.getElementById('data').appendChild(container_invoice);
+						});
+					}, 1500);
 				  } else {
 					container_alert.innerHTML = `<div class="alert alert-danger">${response.content}</div>`; 
 				  }
