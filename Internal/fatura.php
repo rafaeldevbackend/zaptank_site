@@ -20,17 +20,17 @@ button:disabled {
 }
 </style>
 <div class="card-body row">
-   <span class="login100-form-title">Preço do Pacote: <b style="color:orange!important;"><span class="price"></span></b> BRL</span>
-   <span class="login100-form-title p-b-30">Nome da conta que irá receber: <b style="color:orange!important;"><span id="character"></span></b></span>
+   <span class="login100-form-title">Preço do Pacote: <b style="color:orange!important;"><span class="price">0.00</span></b> BRL</span>
+   <span class="login100-form-title p-b-30">Nome da conta que irá receber: <b style="color:orange!important;"><span id="character">...</span></b></span>
    <div class="col-sm-6 col-lg-4 mb-3 mb-sm-5">
       <div class="card custom-checkbox-card-lg checked">
          <div class="card-header d-block text-center">
             <small class="card-subtitle">Pagamento via PIX Escaneie o código QR abaixo</small>
             <div class="mb-3" id="openpix">
-				<div id="qrcode_image_openpix"></div>    				
+				<div width="220" height="202" id="qrcode_image_openpix"></div>    				
             </div>
             <span>Você deve pagar</span>
-            <p class="card-text font-weight-bold text-primary"><span class="price"></span> BRL</p>
+            <p class="card-text font-weight-bold text-primary"><span class="price">0.00</span> BRL</p>
          </div>
          <div class="card-body">
             <ul class="list-checked list-checked-primary list-unstyled-py-2">
@@ -54,7 +54,7 @@ button:disabled {
 				<div id="qrcode_image_picpay"></div>
             </div>
             <span>Você deve pagar</span>
-            <p class="card-text font-weight-bold text-primary"><span class="price"></span> BRL</p>
+            <p class="card-text font-weight-bold text-primary"><span class="price">0.00</span> BRL</p>
          </div>
          <div class="card-body">
             <ul class="list-checked list-checked-primary list-unstyled-py-2">

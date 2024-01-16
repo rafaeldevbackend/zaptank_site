@@ -27,6 +27,27 @@ if (empty($UserName) || $UserName == 0)
     header("Location: /");
     exit();
 }
+
+if (!empty($_GET['server']))
+{
+    $i = $_GET['server'];
+    $DecryptServer = $Ddtank->DecryptText($KeyPublicCrypt, $KeyPrivateCrypt, $i);
+    $query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List WHERE ID = '$DecryptServer'");
+    $result = $query->fetchAll();
+    foreach ($result as $infoBase)
+    {
+        $ID = $infoBase['ID'];
+        $BaseUser = $infoBase['BaseUser'];
+		$BaseTank = $infoBase['BaseTank'];
+    }
+}
+
+if (empty($ID) || empty($BaseUser))
+{
+    header("Location: selectserver");
+    exit();
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">

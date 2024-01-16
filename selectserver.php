@@ -114,7 +114,6 @@ $totalCaptcha = $random_number1 + $random_number2;
                     <div class="error" id="error"></div>
                     <div class="container-login100-form-btn p-t-5"><a class="close-form-btn" style="color:white;" href="/selectserver">Voltar</a></div>
                 </form>
-                <div class="p-t-30"></div>          
 
                 <?php if(!isset($_GET['nvic'])) : ?>	
 
@@ -166,7 +165,7 @@ $totalCaptcha = $random_number1 + $random_number2;
       </div>
       </div>
       <footer class="fixed-bottom">
-         <div class="p-0 text-center text-white footer">ZapTank Games Technology Co. Ltd - © 2019 - <?php echo date('Y') ?> Todos os direitos reservados.</div>
+         <div class="p-0 text-center text-white footer">O ZapTank é um jogo da Lizard Games do Brasil LTDA - © 2019 - <?php echo date('Y') ?> Todos os direitos reservados.</div>
       </footer>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script>setTimeout(faceAnmite, 1000); function faceAnmite (){var faceObj=$('#p_picture4').find('.f_face').find('img'); var current=faceObj.data('current'); var faceTrans=[0, 397, 264.8, 397]; current++; if (current==4){current=0;}faceObj.data('current', current); faceObj.css('transform', 'translateX(-' + faceTrans[current] + 'px)'); if (current > 0){setTimeout(faceAnmite, 100);}else{setTimeout(faceAnmite, 2000);}}</script>

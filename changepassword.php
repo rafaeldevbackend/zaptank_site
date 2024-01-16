@@ -60,7 +60,7 @@ $Dados->Destroy();
             </div>
          </div>
       </div>
-      <footer class="fixed-bottom"><div class="p-0 text-center text-white footer">ZapTank Games Technology Co. Ltd - © 2019 - <?php echo date('Y') ?> Todos os direitos reservados.</div></footer>
+      <footer class="fixed-bottom"><div class="p-0 text-center text-white footer">O ZapTank é um jogo da Lizard Games do Brasil LTDA - © 2019 - <?php echo date('Y') ?> Todos os direitos reservados.</div></footer>
       <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
 	  <script type="text/javascript" src="./js/utils/cookie.js"></script>

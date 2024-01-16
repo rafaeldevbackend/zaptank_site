@@ -77,28 +77,9 @@ else
     exit();
 }
 
-if (!empty($_GET['page']) && !empty($_GET['ref']))
+if (!empty($_GET['page']))
 {
     $_SESSION['charge'] = "<div class='alert alert-success'>Sua recarga foi processada com sucesso, verifique seu correio dentro do jogo!</div>";
-}
-
-if (!empty($_GET['page'])) switch ($_GET['page'])
-{
-    case 'success' : $_SESSION['alert'] = "<div class='alert alert-success'>Sua recarga foi enviada para o seu correio!</div>";
-break;
-}
-
-if (strstr($_SERVER['HTTP_USER_AGENT'], 'LoggerZapTank'))
-{
-    header("Location: /discontinued");
-}
-
-if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
-{
-    if ($_SERVER['HTTP_USER_AGENT'] != 'Mozilla/5.0 (Windows NT 6.1; Win86; x86; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chromium/106.0.0.0 Safari/537.36 LauncherZapTank/108')
-    {
-        header("Location: /discontinued");
-    }
 }
 
 ?>
@@ -115,7 +96,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
                <div class="p-t-20">
 			   <div id="main_form">
                   <h6 style="color:white;"><?php if(isset($UserName)){echo $UserName;} ?> </h6>
-				  <p id="account_info"></p>
+				  <p id="account_info">Carregando...</p>
 				  <div id="ticket_info" style="display: none;">
 					<a class="badge badge-pill badge-danger" href="/viewtickets?suv=<?= $i; ?>"><span id="ticket_count">0</span>&nbsp;Tickets não foram respondidos</a>
 				  </div>                 
@@ -158,11 +139,11 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank'))
                   <div class="container-login100-form-btn p-t-20" style="width:47%;float:left;margin-left:5px"><a class="change-form-btn" style="color:white;font-size:15px;" href="/account?suv=<?php echo $i ?>">Configurações</a></div>
                   <div class="container-login100-form-btn p-t-20" style="width:47%;float:left;margin-left:10px;"><a class="paymoney-form-btn" style="color:white;font-size:15px;" href="/viplist?page=vipitemlist&server=<?php echo $i ?>">Recarregar</a></div>
                   <div class="container-login100-form-btn p-t-20" style="width:47%;float:left;margin-left:5px"><a class="server-form-btn" style="color:white;font-size:13px;" href="/rank?suv=<?php echo $i ?>">TOP Rank</a></div>
-                  <div class="container-login100-form-btn p-t-20" style="width:47%;float:left;margin-left:10px;"><a class="change-form-btn" style="color:white;font-size:15px;" href="/backpack?suv=<?php echo $i ?>">Mochila&nbsp;<span class="badge badge-light" id="bagItemCount"></span></a></div>
+                  <div class="container-login100-form-btn p-t-20" style="width:47%;float:left;margin-left:10px;"><a class="change-form-btn" style="color:white;font-size:15px;" href="/backpack?suv=<?php echo $i ?>">Mochila&nbsp;<span class="badge badge-light" id="bagItemCount">0</span></a></div>
                   <?php if (!strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){echo '<div class="container-login100-form-btn p-t-25" style="float:left;"><a class="change-form-btn" style="color:white;font-size:15px;" href="/download?suv='.$i.'">Baixar DDTank</a></div>';}?>
 				  <div class="container-login100-form-btn p-t-20"><a class="close-form-btn" style="color:white;" href="/selectserver">Selecionar Servidor</a></div>
 				  <div class="error" id="error">
-                  <div class="p-t-10"></div>
+                  <div class="p-t-40"></div>
                </div>
 			   </div>
             </div>

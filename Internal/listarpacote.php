@@ -14,26 +14,6 @@ if (empty($UserName) || $UserName == 0)
     exit();
 }
 
-if (!empty($_GET['server']))
-{
-    $i = $_GET['server'];
-    $DecryptServer = $Ddtank->DecryptText($KeyPublicCrypt, $KeyPrivateCrypt, $i);
-    $query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List WHERE ID = '$DecryptServer'");
-    $result = $query->fetchAll();
-    foreach ($result as $infoBase)
-    {
-        $ID = $infoBase['ID'];
-        $BaseUser = $infoBase['BaseUser'];
-		$BaseTank = $infoBase['BaseTank'];
-    }
-}
-
-if (empty($ID) || empty($BaseUser))
-{
-    header("Location: selectserver");
-    exit();
-}
-
 $IsFirstCharge = $_SESSION['isFirstCharge'];
 
 $query = $Connect->query("SELECT NickName FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
@@ -55,7 +35,11 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
          <span onClick="checkrules()" class="badge badge-pill badge-danger">Regras da Plataforma</span>
          <br>
          </br>
-		 <div id="items"></div>
+		 <div id="items">
+        
+		 <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 10); ?>
+		 
+		 </div>
       </div>
       <div class="card-body-stretched"><a class="btn btn-block btn-primary" href="/serverlist?suv=<?php echo $i ?>">Voltar</a></div>
    </div>
@@ -147,7 +131,7 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
 								<img alt='DDTank' height='78' src="${item.image}"><br>
 								<center>Quantidade<br>
 									<strong>
-										<a>(x ${item.count})</a>
+										<a>(x${item.count})</a>
 									</strong>
 								</center>
 							`;

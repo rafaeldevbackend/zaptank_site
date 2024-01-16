@@ -24,6 +24,7 @@
                   <br>
                   <div class="container-login100-form-btn p-t-10"><a class="play-form-btn shiny" style="color:white;" href="https://bit.ly/grupozaptank">Grupo WhatsApp Nº1</a></div>
                   <div class="container-login100-form-btn p-t-10"><a class="play-form-btn shiny" style="color:white;" href="https://bit.ly/grupozaptankdois">Grupo WhatsApp Nº2</a></div>
+				  <div class="container-login100-form-btn p-t-10"><a class="play-form-btn shiny" style="color:white;" href="https://bit.ly/grupozaptankthree">Grupo WhatsApp Nº3</a></div>
                   <div class="p-b-30"></div>
                   <div class="container-login100-form-btn p-t-10"><a class="close-form-btn" style="color:white;" href="/">Voltar</a></div>
                </div>

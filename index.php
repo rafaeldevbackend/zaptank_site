@@ -5,10 +5,7 @@ include 'loadautoloader.php';
 
 $Dados = new Conectado();
 $Dados->StartSession();
-$Dados->CheckConnect($Connect);
-
-if (strstr($_SERVER['HTTP_USER_AGENT'], 'LoggerZapTank')){header("Location: /discontinued");}
-if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_USER_AGENT'] != 'Mozilla/5.0 (Windows NT 6.1; Win86; x86; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chromium/106.0.0.0 Safari/537.36 LauncherZapTank/108'){header("Location: /discontinued");}}
+$Dados->CheckConnect();
 
 ?>
 <!DOCTYPE html>
@@ -26,14 +23,14 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
                 <form class="login100-form validate-form p-t-20" method="POST" id="frmLogin" autocomplete="off">
                   <span class="login100-form-title p-b-25">CONECTE-SE</span>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="Digite um e-mail válido">
-                     <input class="input100" type="email" name="email" id="login_email" placeholder="E-mail" value="rafaelrat2019@gmail.com" autocapitalize="none" autofocus>
+                     <input class="input100" type="email" name="email" id="login_email" placeholder="E-mail" value="pedroformaginivr13@gmail.com" autocapitalize="none" autofocus>
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-envelope"></span>
                      </span>
                   </div>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo da senha é obrigatório">
-                     <input class="input100" name="password" type="password" id="login_password" placeholder="Senha" value="123456">
+                     <input class="input100" name="password" type="password" id="login_password" placeholder="Senha" value="Main12668@#">
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-lock"></span>
@@ -52,7 +49,7 @@ if (strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank')){if ($_SERVER['HTTP_U
             </div>
          </div>
       </div>
-	  <footer class="fixed-bottom"><div class="p-0 text-center text-white footer">ZapTank Games Technology Co. Ltd - © 2019 - <?php echo date('Y') ?> Todos os direitos reservados.</div></footer>
+	  <footer class="fixed-bottom"><div class="p-0 text-center text-white footer">O ZapTank é um jogo da Lizard Games do Brasil LTDA - © 2019 - <?php echo date('Y') ?> Todos os direitos reservados.</div></footer>
 	  <script type="text/javascript">$("body").on("submit","form",function(){return $(this).submit(function(){return!1}),!0})</script>
       <script async src="./assets/main.js"></script>
 	  <script type="text/javascript" src="./js/config.js"></script>

@@ -26,12 +26,6 @@ if (empty($UserName) || $UserName == 0)
 
 $i = $_GET['suv'];
 
-$query = $Connect->query("SELECT * FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase) {
-    $NickName = $infoBase['NickName'];
-}
-
 $min_number = 1;
 $max_number = 9;
 $random_number1 = mt_rand($min_number, $max_number);
@@ -54,7 +48,7 @@ $totalCaptcha = $random_number1 + $random_number2;
                   ALTERAR-NOME
                   </span>
                   <div class="wrap-input100 validate-input m-b-16" data-validate="O campo do nome é obrigatório">
-                     <input class="input100" type="text" name="newname" id="newname" placeholder="Nick Atual - <?php echo $NickName ?>" autofocus>
+				  	 <input class="input100" type="text" name="newname" id="newname" autofocus>
                      <span class="focus-input100"></span>
                      <span class="symbol-input100">
                      <span class="lnr lnr-user"></span>
@@ -103,6 +97,38 @@ $totalCaptcha = $random_number1 + $random_number2;
 		checkServerSuv(suv);
 		checkCharacter(suv);
 		
+		var url = `${api_url}/character/details/${suv}`;
+		var jwt_hash = getCookie('jwt_authentication_hash');
+		
+		var xhr = new XMLHttpRequest();
+		
+		xhr.open('GET', url, true);
+		xhr.setRequestHeader('Content-type', 'application/json');
+		xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
+		
+		xhr.onreadystatechange = function() {
+			if(xhr.readyState == 4) {
+				if(xhr.status == 200) {
+					var response = JSON.parse(xhr.responseText);
+					var character = response.character;
+					
+					document.getElementById('newname').placeholder = `Nick Atual - ${character.nickname}`;
+				}
+				else if(xhr.status == 401) {
+					displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
+					setTimeout(function(){
+						window.location.href = '/selectserver?logout=true';
+					}, 1000);
+				} else {
+					displayMessage(type = 'error', message = 'Houve um erro interno, se o problema persistir contate o administrador.');
+					setTimeout(function(){
+						window.location.href = '/';							
+					}, 2000);
+				}
+			}
+		};
+		
+		xhr.send();		
 		document.getElementById('btnChangeNick').addEventListener('click', function(event){
 			event.preventDefault();
 			
