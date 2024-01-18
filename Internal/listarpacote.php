@@ -37,7 +37,7 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
          </br>
 		 <div id="items">
         
-		 <?php $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 10); ?>
+		 <?php // $Pacotes->vipInfo($Connect, $BaseServer, $VipRequest = "601", $Resource, $BaseTank, $Ddtank, $KeyPublicCrypt, $KeyPrivateCrypt, 10); ?>
 		 
 		 </div>
       </div>
@@ -109,6 +109,10 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
 		xhr.setRequestHeader('Content-type', 'application/json');
 		xhr.setRequestHeader('Authorization', `Bearer ${jwt_hash}`);
 		
+		xhr.onloadstart = function() {
+			document.getElementById('items').innerHTML = '<div class="loader"></div>';	
+		};
+		
 		xhr.onreadystatechange = function() {
 			if(xhr.readyState == 4) {
 				if(xhr.status == 200) {
@@ -116,27 +120,28 @@ Você está comprando para a conta: <b style="color:orange!important;"><?php ech
 					var items = response.data.items;
 					
 					if(items.length > 0) {
-						
-						var items_container = document.getElementById('items');
-						items_container.innerHTML = '';
-						
-						items.forEach(function(item) {
+						setTimeout(function() {
+							var items_container = document.getElementById('items');
+							items_container.innerHTML = '';
 							
-							var item_container = document.createElement('div');
-							item_container.classList.add('item-shop', 'right');
-							item_container.setAttribute('valign', 'middle');
-							
-							item_container.innerHTML =  `
-								<a>
-								<img alt='DDTank' height='78' src="${item.image}"><br>
-								<center>Quantidade<br>
-									<strong>
-										<a>(x${item.count})</a>
-									</strong>
-								</center>
-							`;
-							items_container.appendChild(item_container);
-						});
+							items.forEach(function(item) {
+								
+								var item_container = document.createElement('div');
+								item_container.classList.add('item-shop', 'right');
+								item_container.setAttribute('valign', 'middle');
+								
+								item_container.innerHTML =  `
+									<a>
+									<img alt='DDTank' height='78' src="${item.image}"><br>
+									<center>Quantidade<br>
+										<strong>
+											<a>(x${item.count})</a>
+										</strong>
+									</center>
+								`;
+								items_container.appendChild(item_container);
+							});							
+						}, 1000);
 					}
 				} else if(xhr.status == 401) {
 					displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');
