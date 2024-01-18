@@ -1,8 +1,6 @@
 <?php
 include 'globalconn.php';
-include 'getconnect.php';
 
-$Connect = Connect::getConnection();
 $_SESSION['Status'] = "Conectado";
 
 if (session_status() !== PHP_SESSION_ACTIVE)
