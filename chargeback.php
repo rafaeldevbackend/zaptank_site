@@ -22,7 +22,10 @@ if (empty($UserName) || $UserName == 0)
     exit();
 }
 
-$i = $_GET['suv'];
+if(isset($_GET['suv']) && !empty($_GET['suv'])) {
+	$i = $_GET['suv'];
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -112,7 +115,10 @@ $i = $_GET['suv'];
 						});
 					}, 1500);
 				  } else {
-					container_alert.innerHTML = `<div class="alert alert-danger">${response.content}</div>`; 
+					setTimeout(function() {
+						document.getElementById('data').innerHTML = '';
+						container_alert.innerHTML = `<div class="alert alert-danger">${response.content}</div>`; 						
+					}, 1000);
 				  }
 				} else if(xhr.status == 401) {
 					displayMessage(type = 'error', message = 'A sessão expirou, faça o login novamente.');

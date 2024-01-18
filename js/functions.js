@@ -58,7 +58,7 @@ function checkCharacter(suv) {
 	xhr.send();	
 }
 
-function checkPermission() {
+function checkPermission(suv) {
     return new Promise(function(resolve, reject) {
         var url = `${api_url}/admin/check_permission`;
         var jwt_hash = getCookie('jwt_authentication_hash');
@@ -75,7 +75,7 @@ function checkPermission() {
                 if (xhr.status == 200) {
                     var response = JSON.parse(xhr.responseText);
                     if (response.administrator_has_permission == false) {
-                        window.location.href = '/serverlist';
+                        window.location.href = `/serverlist?suv=${suv}`;
                     } else {
                         resolve(response);
                     }

@@ -24,17 +24,8 @@ if (empty($UserName) || $UserName == 0)
     exit();
 }
 
-if (!empty($_GET['suv']))
-{
-    $i = $_GET['suv'];
-    $DecryptServer = $Ddtank->DecryptText($KeyPublicCrypt, $KeyPrivateCrypt, $i);
-    $query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List WHERE ID = '$DecryptServer'");
-    $result = $query->fetchAll();
-    foreach ($result as $infoBase)
-    {
-        $ID = $infoBase['ID'];
-        $BaseUser = $infoBase['BaseUser'];
-    }
+if(isset($_GET['suv']) && !empty($_GET['suv'])) {
+	$i = $_GET['suv'];
 }
 
 if ($_SESSION['opinion']) {

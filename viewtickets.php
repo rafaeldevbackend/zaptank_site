@@ -13,7 +13,9 @@ include 'Objects/gerenciamento.php';
 
 $Dados->Destroy();
 
-$i = $_GET['suv'];
+if(isset($_GET['suv']) && !empty($_GET['suv'])) {
+	$i = $_GET['suv'];
+}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -132,7 +134,7 @@ $i = $_GET['suv'];
 			xhr.send();
 		}
 		
-		checkPermission().then(function(response) {
+		checkPermission(suv).then(function(response) {
 			renderTickets();
 		});
 		

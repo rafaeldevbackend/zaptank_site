@@ -17,7 +17,20 @@ $Dados->Destroy();
 
 $UserName = $_SESSION['UserName'] ?? 0;
 
-$i = $_GET['suv'];
+if (!empty($_GET['suv']))
+{
+    $i = $_GET['suv'];
+    $DecryptServer = $Ddtank->DecryptText($KeyPublicCrypt, $KeyPrivateCrypt, $i);
+    $query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List WHERE ID = '$DecryptServer'");
+    $result = $query->fetchAll();
+    foreach ($result as $infoBase) {
+        $BaseUser = $infoBase['BaseUser'];
+    }
+} else {
+    header("Location: selectserver");
+    $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Não foi possível encontrar o servidor.</div>";
+    exit();
+}
 
 $query = $Connect->query("SELECT COUNT(*) AS UserName FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
 $result = $query->fetchAll();
@@ -92,17 +105,15 @@ $totalCaptcha = $random_number1 + $random_number2;
 								Outros
 							</label>
 						 </div>
-						 <?php
-							if ($CountUser == 0)
-							{
-								echo '<textarea class="form-control" placeholder="Para abrir um ticket primeiro você deve criar um personagem..." rows="5" id="description" disabled></textarea>';
+						 
+						<?php
+							if ($CountUser == 0) {
+								echo '<textarea class="form-control" disabled placeholder="Para abrir um ticket primeiro você deve criar um personagem..." rows="5"></textarea>';
+							}else {
+								echo '<textarea class="form-control" name="textarea" placeholder="Descreva aqui seu problema detalhadamente..." rows="5"></textarea>';
 							}
-							else
-							{
-								echo '<textarea class="form-control" id="description" placeholder="Descreva aqui seu problema detalhadamente..." rows="5"></textarea>';
-							}
-							
-							?>			
+						
+                        ?>						 
 					  </div>
 					  <div class="wrap-input100 validate-input m-b-16" data-validate="O campo de Telefone é obrigatório">
 						 <input class="input100" type="text" data-mask="(+55) 00 90000-0000" name="phone" id="phone" value="<?php if (!empty($_SESSION['Telefone'])){echo preg_replace('/[^0-9]/', '', $_SESSION['Telefone']);} ?>" placeholder="Telefone para contato">
@@ -120,19 +131,19 @@ $totalCaptcha = $random_number1 + $random_number2;
 					  </div>
 					  <div class="error" id="error"></div>
 					  <div id="container-button">
-						 <?php					
-							if ($CountUser == 0) {
+						<?php
+							if($CountUser == 0) {
 								echo '<button class="login100-form-btn" disabled>ENVIAR TICKET</button>';
 							}
-							else {
-								echo '<button class="login100-form-btn shinyfont" name="ticket" id="btnSendTicket">ENVIAR TICKET</button>';
-							}
-							
-						 ?>
+							else
+							{
+								echo '<button class="login100-form-btn shinyfont" name="ticket" onclick="Register()">ENVIAR TICKET</button>';
+							}						
+						?>
 					  </div>
                   </form>
                   <div class="text-center w-full p-t-10">
-                     <a class="input-label-secondary" href="/serverlist?suv=<?php echo $i ?>">
+                     <a class="input-label-secondary" href="/serverlist?suv=<?php echo @$i ?>">
                      Voltar
                      </a>
                   </div>
@@ -162,7 +173,7 @@ $totalCaptcha = $random_number1 + $random_number2;
 		}
 		
 		checkServerSuv(suv);
-		checkCharacter(suv);
+		// checkCharacter(suv);
 
 		var url = `${api_url}/character/style/${suv}`;
         var jwt_hash = getCookie('jwt_authentication_hash');

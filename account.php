@@ -1,8 +1,6 @@
 <?php
 include 'globalconn.php';
-include 'getconnect.php';
 
-$Connect = Connect::getConnection();
 $_SESSION['Status'] = "Conectado";
 
 if (session_status() !== PHP_SESSION_ACTIVE)
@@ -24,43 +22,10 @@ if (empty($UserName) || $UserName == 0)
     exit();
 }
 
-if (!empty($_GET['suv']))
-{
-    $i = $_GET['suv'];
-    $DecryptServer = $Ddtank->DecryptText($KeyPublicCrypt, $KeyPrivateCrypt, $i);
-    $query = $Connect->query("SELECT * FROM Db_Center.dbo.Server_List WHERE ID = '$DecryptServer'");
-    $result = $query->fetchAll();
-    foreach ($result as $infoBase)
-    {
-        $ID = $infoBase['ID'];
-        $BaseUser = $infoBase['BaseUser'];
-    }
-}
-else
-{
-    header("Location: selectserver");
-    $_SESSION['alert_newaccount'] = "<div class='alert alert-danger ocult-time'>Não foi possível encontrar o servidor.</div>";
-    exit();
+if(isset($_GET['suv']) && !empty($_GET['suv'])) {
+	$i = $_GET['suv'];
 }
 
-if (empty($ID) || empty($BaseUser))
-{
-    header("Location: selectserver");
-    exit();
-}
-
-$query = $Connect->query("SELECT COUNT(*) AS UserName FROM $BaseUser.dbo.Sys_Users_Detail where UserName = '$UserName'");
-$result = $query->fetchAll();
-foreach ($result as $infoBase)
-{
-    $CountUser = $infoBase['UserName'];
-}
-
-if ($CountUser == 0)
-{
-    header("Location: /selectserver?nvic=new&sid=$i");
-    exit();
-}
 ?>
 <!DOCTYPE html>
 <html lang="pt-br">
@@ -149,11 +114,20 @@ if ($CountUser == 0)
 	   <script language="javascript"> function checkmail(){location.assign("/checkmail");}</script>
 	   <script type="text/javascript" src="./js/utils/cookie.js"></script>
 	   <script type="text/javascript" src="./js/config.js"></script>
+	   <script type="text/javascript" src="./js/functions.js"></script>
 	   <script type="text/javascript" src="./js/utils/url.js"></script>
 	   <script type="text/javascript">
 		
 			var usp = new URLSearchParamsPolyfill(window.location.search);
+			
 			var suv = usp.get('suv');
+			
+			if(suv == null || suv == '') {
+				window.location.href = 'selectserver';
+			}
+			
+			checkServerSuv(suv);
+			checkCharacter(suv);	
 				
 			var url = `${api_url}/character/style/${suv}`;
 			var jwt_hash = getCookie('jwt_authentication_hash');

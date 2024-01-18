@@ -22,7 +22,9 @@ if (empty($UserName) || $UserName == 0)
     exit();
 }
 
-$i = $_GET['suv'];
+if(isset($_GET['suv']) && !empty($_GET['suv'])) {
+	$i = $_GET['suv'];
+}
 
 ?>
 <!DOCTYPE html>
