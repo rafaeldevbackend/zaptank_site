@@ -216,7 +216,10 @@ button:disabled {
 				if(xhr.status == 200) {
 					var response = JSON.parse(xhr.responseText);
 					if(response.success == true) {		
-						window.location.reload();
+						displayMessage(type = 'success', message = response.message);
+						setTimeout(function() {
+							window.location.reload();							
+						}, 2000);
 					} else {
 						displayMessage(type = 'error', message = response.message);
 					}	
@@ -256,8 +259,10 @@ button:disabled {
 				if(xhr.status == 200) {
 					var response = JSON.parse(xhr.responseText);
 					if(response.success == true) {
-						displayMessage(type = 'success', message = response.message);		
-						window.location.reload();									
+						displayMessage(type = 'success', message = response.message);
+						setTimeout(function() {
+							window.location.reload();							
+						}, 2000);									
 					} else {
 						displayMessage(type = 'error', message = response.message);
 					}	
