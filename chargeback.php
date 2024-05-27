@@ -62,9 +62,6 @@ if(isset($_GET['suv']) && !empty($_GET['suv'])) {
 			window.location.href = 'selectserver';
 		}
 		
-		checkServerSuv(suv);
-		checkCharacter(suv);
-		
 		function checkChargeBack() {
 			
 			var container_alert = document.getElementById('alert');

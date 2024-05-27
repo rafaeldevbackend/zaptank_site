@@ -96,9 +96,6 @@ $totalCaptcha = $random_number1 + $random_number2;
 			window.location.href = 'selectserver';
 		}
 		
-		checkServerSuv(suv);
-		checkCharacter(suv);
-		
 		var url = `${api_url}/character/details/${suv}`;
 		var jwt_hash = getCookie('jwt_authentication_hash');
 		

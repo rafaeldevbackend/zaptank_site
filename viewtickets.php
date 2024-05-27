@@ -50,8 +50,6 @@ if(isset($_GET['suv']) && !empty($_GET['suv'])) {
 		if(suv == null || suv == '') {
 			window.location.href = 'selectserver';
 		}
-		
-		checkServerSuv(suv);
 			
 		function renderTickets() {
 			

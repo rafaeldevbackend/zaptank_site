@@ -125,9 +125,6 @@ if(isset($_GET['suv']) && !empty($_GET['suv'])) {
 			if(suv == null || suv == '') {
 				window.location.href = 'selectserver';
 			}
-			
-			checkServerSuv(suv);
-			checkCharacter(suv);	
 				
 			var url = `${api_url}/character/style/${suv}`;
 			var jwt_hash = getCookie('jwt_authentication_hash');

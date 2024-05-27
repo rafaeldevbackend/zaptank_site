@@ -70,8 +70,6 @@ if (empty($ID) || empty($BaseUser))
 			window.location.href = 'selectserver';
 		}
 		
-		checkServerSuv(suv);
-		checkCharacter(suv);
 	  </script>
       <div class="limiter">
          <div class="container-login100">

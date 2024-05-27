@@ -79,9 +79,6 @@ if(isset($_GET['suv']) && !empty($_GET['suv'])) {
 			window.location.href = 'selectserver';
 		}
 		
-		checkServerSuv(suv);
-		checkCharacter(suv);
-		
 		document.getElementById('btnClearBag').addEventListener('click', function(event){
 			event.preventDefault();
 			

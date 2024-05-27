@@ -117,9 +117,6 @@ if(!empty($_GET['page'])) {
 			window.location.href = 'selectserver';
 		}
 		
-		checkServerSuv(suv);
-		checkCharacter(suv);
-		
 		function listInfo() {
 			
 			var url = `${api_url}/serverlist/${suv}`;

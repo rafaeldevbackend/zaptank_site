@@ -89,9 +89,6 @@ if (!strstr($_SERVER['HTTP_USER_AGENT'], 'LauncherZapTank') && !strstr($_SERVER[
 			window.location.href = 'serverlist';
 		}
 		
-		checkServerSuv(suv);
-		checkCharacter(suv);
-		
 		var url = `${api_url}/play/${suv}`;
         var jwt_hash = getCookie('jwt_authentication_hash');
         

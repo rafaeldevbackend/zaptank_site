@@ -171,9 +171,6 @@ $totalCaptcha = $random_number1 + $random_number2;
 		if(suv == null || suv == '') {
 			window.location.href = 'selectserver';
 		}
-		
-		checkServerSuv(suv);
-		// checkCharacter(suv);
 
 		var url = `${api_url}/character/style/${suv}`;
         var jwt_hash = getCookie('jwt_authentication_hash');

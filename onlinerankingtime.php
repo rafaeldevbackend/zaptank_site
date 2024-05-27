@@ -79,9 +79,6 @@ if(isset($_GET['suv']) && !empty($_GET['suv'])) {
             window.location.href = 'selectserver';
          }
 
-         checkServerSuv(suv);
-         checkCharacter(suv);		
-
          var url = `${api_url}/rank/online/list/${suv}`;
          var jwt_hash = getCookie('jwt_authentication_hash');
 
